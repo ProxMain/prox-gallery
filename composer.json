@@ -1,0 +1,41 @@
+{
+    "name": "prox/prox-gallery",
+    "description": "An open source gallery",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": "^8.1",
+        "automattic/jetpack-autoloader": "^5.0",
+        "composer/installers": "^2.3",
+        "webmozart/assert": "^1.11",
+        "psr/container": "^2.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^10.5",
+        "friendsofphp/php-cs-fixer": "^3.94"
+    },
+    "license": "GPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Prox\\ProxGallery\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Marcel Santing",
+            "email": "marcel@prox-web.nl"
+        }
+    ],
+    "minimum-stability": "stable",
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.1"
+        },
+        "allow-plugins": {
+            "automattic/jetpack-autoloader": true,
+            "composer/installers": true
+        }
+    }
+}

@@ -6,6 +6,5 @@
   },
   "config": {
     "WP_DEBUG": true
-  },
-  "plugins": ["prox-gallery"]
+  }
 }
