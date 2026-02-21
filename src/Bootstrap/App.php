@@ -8,6 +8,7 @@ use Prox\ProxGallery\Contracts\ManagerInterface;
 use Prox\ProxGallery\Managers\CliManager;
 use Prox\ProxGallery\Managers\ControllerManager;
 use Prox\ProxGallery\Managers\ModuleManager;
+use Prox\ProxGallery\Modules\CoreModule;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -69,19 +70,22 @@ final class App
         $this->container->set(ModuleManager::class, static fn (): ModuleManager => new ModuleManager());
         $this->container->set(ControllerManager::class, static fn (): ControllerManager => new ControllerManager());
         $this->container->set(CliManager::class, static fn (): CliManager => new CliManager());
+        $this->container->set(CoreModule::class, static fn () => new CoreModule());
     }
 
-    /**
-     * Registers all manager instances.
-     *
-     * Managers act as orchestration layers for modules, controllers and CLI.
-     */
-    private function registerManagers(): void
-    {
-        $this->addManager($this->container->get(ControllerManager::class));
-        $this->addManager($this->container->get(ModuleManager::class));
-        $this->addManager($this->container->get(CliManager::class));
-    }
+	/**
+	 * Registers all manager instances.
+	 *
+	 * Managers act as orchestration layers for modules, controllers and CLI.
+	 */
+	private function registerManagers(): void
+	{
+		$moduleManager = $this->container->get(ModuleManager::class);
+		$moduleManager->add($this->container->get(CoreModule::class));
+		$this->addManager($moduleManager);
+		$this->addManager($this->container->get(ControllerManager::class));
+		$this->addManager($this->container->get(CliManager::class));
+	}
 
     /**
      * Boots all registered managers.

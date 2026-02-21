@@ -1,7 +1,15 @@
 {
     "name": "prox/prox-gallery",
+    "version": "0.1.0",
     "description": "An open source gallery",
     "type": "wordpress-plugin",
+    "scripts": {
+        "test": "./vendor/bin/phpunit -c phpunit.xml.dist",
+        "test:list": "./vendor/bin/phpunit -c phpunit.xml.dist --list-tests",
+        "test:dox": "./vendor/bin/phpunit -c phpunit.xml.dist --testdox",
+        "analyse": "./vendor/bin/phpstan analyse",
+        "fix": "./vendor/bin/php-cs-fixer fix"
+    },
     "require": {
         "php": "^8.1",
         "automattic/jetpack-autoloader": "^5.0",
@@ -10,9 +18,10 @@
         "psr/container": "^2.0"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.94",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^10.5",
-        "friendsofphp/php-cs-fixer": "^3.94"
+        "phpunit/phpunit": "^9.6",
+        "yoast/phpunit-polyfills": "^2.0"
     },
     "license": "GPL-3.0-or-later",
     "autoload": {
