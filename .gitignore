@@ -1,0 +1,86 @@
+#
+# OS / Editor
+#
+.DS_Store
+Thumbs.db
+
+#
+# JetBrains
+#
+.idea/
+*.iml
+
+#
+# Composer
+#
+/vendor/
+composer.lock
+
+# (uncomment als dit een library wordt i.p.v. een app/plugin)
+# !composer.lock
+
+#
+# Node / npm
+#
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+#
+# Build output (voor als je straks assets gaat builden)
+#
+/build/
+/dist/
+/releases/
+
+#
+# wp-env
+#
+.wp-env/
+.env
+
+#
+# Docker (losse overrides indien je die ooit gebruikt)
+#
+docker-compose.override.yml
+
+#
+# Logs
+#
+*.log
+
+#
+# PHPUnit
+#
+/phpunit.xml
+/phpunit.xml.dist
+/.phpunit.result.cache
+/coverage/
+
+#
+# PHPStan
+#
+/phpstan-baseline.neon
+
+#
+# IDE helper / tooling cache
+#
+/.php-cs-fixer.cache
+
+#
+# WordPress (voor als je ooit per ongeluk een volledige install in je repo krijgt)
+#
+/wp/
+/wordpress/
+
+#
+# Uploads / runtime
+#
+/uploads/
+
+#
+# Misc
+#
+*.zip

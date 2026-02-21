@@ -1,0 +1,11 @@
+{
+  "phpVersion": "8.1",
+  "core": "WordPress/WordPress#6.9.1",
+  "mappings": {
+    "wp-content/plugins/prox-gallery": "."
+  },
+  "config": {
+    "WP_DEBUG": true
+  },
+  "plugins": ["prox-gallery"]
+}
