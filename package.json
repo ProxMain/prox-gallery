@@ -1,0 +1,28 @@
+{
+  "name": "prox-gallery-admin-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.admin.config.js",
+    "build": "vite build --config vite.admin.config.js",
+    "preview": "vite preview --config vite.admin.config.js",
+    "shadcn:add": "npx shadcn@latest add button card badge tabs table"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "latest",
+    "@radix-ui/react-tabs": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "tailwind-merge": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "tailwindcss": "latest",
+    "vite": "latest"
+  }
+}

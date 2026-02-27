@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+.prox-gallery-admin-wrap {
+  margin-top: 16px;
+}
+
+#prox-gallery-admin-root {
+  min-height: calc(100vh - 160px);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08), transparent 30%),
+    radial-gradient(circle at 85% 25%, rgba(250, 204, 21, 0.08), transparent 25%),
+    var(--background);
+  padding: 0 20px 24px;
+}
+
+.prox-gallery-admin {
+  color: var(--foreground);
+}

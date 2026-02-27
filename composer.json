@@ -5,6 +5,8 @@
     "type": "wordpress-plugin",
     "scripts": {
         "test": "./vendor/bin/phpunit -c phpunit.xml.dist",
+        "test:isolated:init": "WP_PHPUNIT__TESTS_CONFIG=./tests/wp-tests-config.php ./vendor/bin/phpunit -c phpunit.xml.dist",
+        "test:isolated": "WP_PHPUNIT__TESTS_CONFIG=./tests/wp-tests-config.php WP_TESTS_SKIP_INSTALL=1 ./vendor/bin/phpunit -c phpunit.xml.dist",
         "test:list": "./vendor/bin/phpunit -c phpunit.xml.dist --list-tests",
         "test:dox": "./vendor/bin/phpunit -c phpunit.xml.dist --testdox",
         "analyse": "./vendor/bin/phpstan analyse",

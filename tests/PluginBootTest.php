@@ -6,6 +6,7 @@ use Prox\ProxGallery\Bootstrap\App;
 use Prox\ProxGallery\Bootstrap\Plugin;
 use Prox\ProxGallery\Managers\CliManager;
 use Prox\ProxGallery\Managers\ControllerManager;
+use Prox\ProxGallery\Managers\FlowManager;
 use Prox\ProxGallery\Managers\ModuleManager;
 
 final class PluginBootTest extends WP_UnitTestCase
@@ -29,6 +30,7 @@ final class PluginBootTest extends WP_UnitTestCase
 
         $this->assertInstanceOf(App::class, $bootedApp);
         self::assertTrue($bootedApp->container()->has(ModuleManager::class));
+        self::assertTrue($bootedApp->container()->has(FlowManager::class));
         self::assertTrue($bootedApp->container()->has(ControllerManager::class));
         self::assertTrue($bootedApp->container()->has(CliManager::class));
     }
