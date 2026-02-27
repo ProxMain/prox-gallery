@@ -18,6 +18,7 @@ final class FrontendGalleryState implements StateInterface
 
     public function boot(): void
     {
+        /** @param self $state */
         \do_action('prox_gallery/state/frontend_gallery/booted', $this);
     }
 

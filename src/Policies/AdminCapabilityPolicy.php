@@ -18,6 +18,11 @@ final class AdminCapabilityPolicy implements PolicyInterface
 
     public function boot(): void
     {
+        /**
+         * Filters whether the current user can manage plugin settings.
+         *
+         * @param bool $allowed Current permission decision.
+         */
         \add_filter('prox_gallery/admin/can_manage', [$this, 'canManage']);
     }
 

@@ -65,20 +65,77 @@ final class App
      */
     private function registerBindings(): void
     {
+        $this->registerManagerBindings();
+        $this->registerModuleBindings();
+        $this->registerControllerBindings();
+        $this->registerStateBindings();
+        $this->registerPolicyBindings();
+        $this->registerModelBindings();
+        $this->registerServiceBindings();
+        $this->registerFlowBindings();
+    }
+
+    /**
+     * Registers manager bindings.
+     */
+    private function registerManagerBindings(): void
+    {
         $this->container->set(ModuleManager::class, static fn (): ModuleManager => new ModuleManager());
         $this->container->set(FlowManager::class, static fn (): FlowManager => new FlowManager());
         $this->container->set(ControllerManager::class, static fn (): ControllerManager => new ControllerManager());
         $this->container->set(CliManager::class, static fn (): CliManager => new CliManager());
+    }
+
+    /**
+     * Registers module bindings.
+     */
+    private function registerModuleBindings(): void
+    {
         $this->container->set(CoreModule::class, static fn () => new CoreModule());
         $this->container->set(AdminModule::class, static fn () => new AdminModule());
         $this->container->set(FrontendModule::class, static fn () => new FrontendModule());
+    }
+
+    /**
+     * Registers controller bindings.
+     */
+    private function registerControllerBindings(): void
+    {
         $this->container->set(AdminGalleryController::class, static fn () => new AdminGalleryController());
         $this->container->set(FrontendGalleryController::class, static fn () => new FrontendGalleryController());
+    }
+
+    /**
+     * Registers state bindings.
+     */
+    private function registerStateBindings(): void
+    {
         $this->container->set(AdminConfigurationState::class, static fn () => new AdminConfigurationState());
         $this->container->set(FrontendGalleryState::class, static fn () => new FrontendGalleryState());
+    }
+
+    /**
+     * Registers policy bindings.
+     */
+    private function registerPolicyBindings(): void
+    {
         $this->container->set(AdminCapabilityPolicy::class, static fn () => new AdminCapabilityPolicy());
         $this->container->set(FrontendVisibilityPolicy::class, static fn () => new FrontendVisibilityPolicy());
+    }
+
+    /**
+     * Registers model bindings.
+     */
+    private function registerModelBindings(): void
+    {
         $this->container->set(GalleryModel::class, static fn () => new GalleryModel());
+    }
+
+    /**
+     * Registers service bindings.
+     */
+    private function registerServiceBindings(): void
+    {
         $this->container->set(
             AdminConfigurationService::class,
             static fn (Container $container) => new AdminConfigurationService(
@@ -94,6 +151,13 @@ final class App
                 $container->get(GalleryModel::class)
             )
         );
+    }
+
+    /**
+     * Registers flow bindings.
+     */
+    private function registerFlowBindings(): void
+    {
         $this->container->set(
             AdminFlow::class,
             static fn (Container $container) => new AdminFlow(
@@ -117,23 +181,44 @@ final class App
      */
     private function registerManagers(): void
     {
-        $moduleManager = $this->container->get(ModuleManager::class);
-        $moduleManager->add($this->container->get(CoreModule::class));
-        $moduleManager->add($this->container->get(AdminModule::class));
-        $moduleManager->add($this->container->get(FrontendModule::class));
-        $this->addManager($moduleManager);
-
-        $flowManager = $this->container->get(FlowManager::class);
-        $flowManager->add($this->container->get(AdminFlow::class));
-        $flowManager->add($this->container->get(FrontendFlow::class));
-        $this->addManager($flowManager);
-
-        $controllerManager = $this->container->get(ControllerManager::class);
-        $controllerManager->add($this->container->get(AdminGalleryController::class));
-        $controllerManager->add($this->container->get(FrontendGalleryController::class));
-        $this->addManager($controllerManager);
-
+        $this->registerModuleManager();
+        $this->registerFlowManager();
+        $this->registerControllerManager();
         $this->addManager($this->container->get(CliManager::class));
+    }
+
+    /**
+     * Registers the module manager.
+     */
+    private function registerModuleManager(): void
+    {
+        $manager = $this->container->get(ModuleManager::class);
+        $manager->add($this->container->get(CoreModule::class));
+        $manager->add($this->container->get(AdminModule::class));
+        $manager->add($this->container->get(FrontendModule::class));
+        $this->addManager($manager);
+    }
+
+    /**
+     * Registers the flow manager.
+     */
+    private function registerFlowManager(): void
+    {
+        $manager = $this->container->get(FlowManager::class);
+        $manager->add($this->container->get(AdminFlow::class));
+        $manager->add($this->container->get(FrontendFlow::class));
+        $this->addManager($manager);
+    }
+
+    /**
+     * Registers the controller manager.
+     */
+    private function registerControllerManager(): void
+    {
+        $manager = $this->container->get(ControllerManager::class);
+        $manager->add($this->container->get(AdminGalleryController::class));
+        $manager->add($this->container->get(FrontendGalleryController::class));
+        $this->addManager($manager);
     }
 
     /**

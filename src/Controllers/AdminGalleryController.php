@@ -27,6 +27,9 @@ final class AdminGalleryController implements ControllerInterface
 
     public function registerMenu(): void
     {
+        /**
+         * Fires when the plugin admin menu should be registered.
+         */
         \do_action('prox_gallery/admin/menu/register');
     }
 

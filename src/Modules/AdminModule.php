@@ -18,6 +18,9 @@ final class AdminModule implements ModuleInterface
 
     public function boot(): void
     {
+        /**
+         * Fires after the admin module boots.
+         */
         \do_action('prox_gallery/module/admin/booted');
     }
 }

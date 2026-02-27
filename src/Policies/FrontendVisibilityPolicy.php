@@ -18,6 +18,11 @@ final class FrontendVisibilityPolicy implements PolicyInterface
 
     public function boot(): void
     {
+        /**
+         * Filters whether frontend output is allowed to render.
+         *
+         * @param bool $allowed Current render decision.
+         */
         \add_filter('prox_gallery/frontend/can_render', [$this, 'canRender']);
     }
 

@@ -18,6 +18,7 @@ final class AdminConfigurationState implements StateInterface
 
     public function boot(): void
     {
+        /** @param self $state */
         \do_action('prox_gallery/state/admin_configuration/booted', $this);
     }
 

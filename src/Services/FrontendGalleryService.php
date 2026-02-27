@@ -28,6 +28,13 @@ final class FrontendGalleryService implements ServiceInterface
 
     public function boot(): void
     {
+        /**
+         * Fires after the frontend gallery service boots.
+         *
+         * @param FrontendGalleryState     $state  Frontend state instance.
+         * @param FrontendVisibilityPolicy $policy Visibility policy instance.
+         * @param GalleryModel             $model  Gallery model instance.
+         */
         \do_action(
             'prox_gallery/service/frontend_gallery/booted',
             $this->state,

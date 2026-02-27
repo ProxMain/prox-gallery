@@ -26,6 +26,12 @@ final class AdminConfigurationService implements ServiceInterface
 
     public function boot(): void
     {
+        /**
+         * Fires after the admin configuration service boots.
+         *
+         * @param AdminConfigurationState $state  Admin state instance.
+         * @param AdminCapabilityPolicy   $policy Capability policy instance.
+         */
         \do_action('prox_gallery/service/admin_configuration/booted', $this->state, $this->policy);
     }
 }

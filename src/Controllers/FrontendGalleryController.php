@@ -30,6 +30,13 @@ final class FrontendGalleryController implements ControllerInterface
      */
     public function renderShortcode(array $attributes = [], string $content = '', string $tag = ''): string
     {
+        /**
+         * Fires after the frontend shortcode handler runs.
+         *
+         * @param array<string, mixed> $attributes Shortcode attributes.
+         * @param string               $content    Enclosed content.
+         * @param string               $tag        Triggering shortcode tag.
+         */
         \do_action('prox_gallery/frontend/shortcode/rendered', $attributes, $content, $tag);
 
         return '';

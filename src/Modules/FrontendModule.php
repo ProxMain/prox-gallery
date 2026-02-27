@@ -18,6 +18,9 @@ final class FrontendModule implements ModuleInterface
 
     public function boot(): void
     {
+        /**
+         * Fires after the frontend module boots.
+         */
         \do_action('prox_gallery/module/frontend/booted');
     }
 }

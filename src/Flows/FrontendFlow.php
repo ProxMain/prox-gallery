@@ -36,6 +36,7 @@ final class FrontendFlow implements FlowInterface
         $this->state->boot();
         $this->service->boot();
 
+        /** @param self $flow */
         \do_action('prox_gallery/flow/frontend/booted', $this);
     }
 
