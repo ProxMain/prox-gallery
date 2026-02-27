@@ -4,86 +4,91 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Bootstrap;
 
+use Prox\ProxGallery\Contracts\ManagerInterface;
+use Prox\ProxGallery\Managers\CliManager;
+use Prox\ProxGallery\Managers\ControllerManager;
+use Prox\ProxGallery\Managers\ModuleManager;
+use Prox\ProxGallery\Modules\CoreModule;
 use Psr\Container\ContainerInterface;
-use RuntimeException;
 
 /**
  * Application composition root.
- *
- * Responsible for:
- * - creating and owning the dependency injection container
- * - binding all services and managers
- * - bootstrapping the application modules
- *
- * This class contains no WordPress integration logic.
  */
 final class App
 {
-    private ContainerInterface $container;
+    private Container $container;
 
-    private function __construct(ContainerInterface $container)
+    /**
+     * @var array<string, ManagerInterface>
+     */
+    private array $managers = [];
+
+    private function __construct(Container $container)
     {
         $this->container = $container;
     }
 
     /**
-     * Creates the application instance.
-     *
-     * This is the only place where the container is instantiated.
+     * Creates a new application instance.
      */
     public static function make(): self
     {
-        $container = new class implements ContainerInterface {
-            public function get(string $id): mixed
-            {
-                throw new RuntimeException('Container not configured: ' . $id);
-            }
-
-            public function has(string $id): bool
-            {
-                return false;
-            }
-        };
-
-        return new self($container);
+        return new self(new Container());
     }
 
     /**
      * Boots the application.
-     *
-     * The boot process is intentionally split into clear phases
-     * to keep responsibilities explicit and traceable.
      */
     public function boot(): void
     {
         $this->registerBindings();
         $this->registerManagers();
-        $this->bootModules();
+        $this->bootManagers();
     }
 
     /**
-     * Registers all container bindings.
+     * Registers container bindings.
      */
     private function registerBindings(): void
     {
+        $this->container->set(ModuleManager::class, static fn (): ModuleManager => new ModuleManager());
+        $this->container->set(ControllerManager::class, static fn (): ControllerManager => new ControllerManager());
+        $this->container->set(CliManager::class, static fn (): CliManager => new CliManager());
+        $this->container->set(CoreModule::class, static fn () => new CoreModule());
     }
 
     /**
-     * Registers manager classes responsible for coordinating subsystems.
+     * Registers manager instances.
      */
     private function registerManagers(): void
     {
+        $moduleManager = $this->container->get(ModuleManager::class);
+        $moduleManager->add($this->container->get(CoreModule::class));
+        $this->addManager($moduleManager);
+        $this->addManager($this->container->get(ControllerManager::class));
+        $this->addManager($this->container->get(CliManager::class));
     }
 
     /**
-     * Boots all application modules.
+     * Boots all registered managers.
      */
-    private function bootModules(): void
+    private function bootManagers(): void
     {
+        foreach ($this->managers as $manager) {
+            $manager->boot();
+        }
     }
 
     /**
-     * Provides access to the container.
+     * Adds a manager to the lifecycle.
+     */
+    private function addManager(ManagerInterface $manager): void
+    {
+        $this->managers[$manager->id()] = $manager;
+    }
+
+    /**
+     * Returns the container.
      */
     public function container(): ContainerInterface
     {

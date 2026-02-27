@@ -6,20 +6,13 @@ namespace Prox\ProxGallery\Bootstrap;
 
 /**
  * WordPress plugin bootstrapper.
- *
- * Responsible for:
- * - guarding against multiple boots
- * - aligning the application lifecycle with WordPress hooks
- * - triggering the application boot process
- *
- * This class is the only WordPress-facing entry point of the plugin.
  */
 final class Plugin
 {
     private static bool $booted = false;
 
     /**
-     * Registers the plugin with the WordPress lifecycle.
+     * Registers WordPress hooks.
      */
     public static function boot(): void
     {
@@ -33,12 +26,7 @@ final class Plugin
     }
 
     /**
-     * Boots the application once all plugins are loaded.
-     *
-     * At this point:
-     * - all dependencies are available
-     * - translations can be loaded
-     * - services can be wired safely
+     * Boots the application after all plugins are loaded.
      */
     public static function onPluginsLoaded(): void
     {
@@ -46,7 +34,7 @@ final class Plugin
         $app->boot();
 
         /**
-         * Fires after the Prox Gallery application has booted.
+         * Fires after the application has booted.
          *
          * @param App $app Application instance.
          */
