@@ -24,10 +24,6 @@ const PROX_GALLERY_DIR  = __DIR__;
 
 $autoloader = PROX_GALLERY_DIR . '/vendor/autoload_packages.php';
 
-if (! is_readable($autoloader)) {
-    return;
-}
-
 require_once $autoloader;
 
 Prox\ProxGallery\Bootstrap\Plugin::boot();
