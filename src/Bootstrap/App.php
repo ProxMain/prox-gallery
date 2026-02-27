@@ -17,6 +17,11 @@ use Prox\ProxGallery\Models\GalleryModel;
 use Prox\ProxGallery\Modules\AdminModule;
 use Prox\ProxGallery\Modules\CoreModule;
 use Prox\ProxGallery\Modules\FrontendModule;
+use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaLibraryCliController;
+use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaUploadController;
+use Prox\ProxGallery\Modules\MediaLibrary\MediaLibraryModule;
+use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Services\AdminConfigurationService;
@@ -73,6 +78,7 @@ final class App
         $this->registerModelBindings();
         $this->registerServiceBindings();
         $this->registerFlowBindings();
+        $this->registerCliBindings();
     }
 
     /**
@@ -94,6 +100,12 @@ final class App
         $this->container->set(CoreModule::class, static fn () => new CoreModule());
         $this->container->set(AdminModule::class, static fn () => new AdminModule());
         $this->container->set(FrontendModule::class, static fn () => new FrontendModule());
+        $this->container->set(
+            MediaLibraryModule::class,
+            static fn (Container $container) => new MediaLibraryModule(
+                $container->get(TrackUploadedImageService::class)
+            )
+        );
     }
 
     /**
@@ -103,6 +115,12 @@ final class App
     {
         $this->container->set(AdminGalleryController::class, static fn () => new AdminGalleryController());
         $this->container->set(FrontendGalleryController::class, static fn () => new FrontendGalleryController());
+        $this->container->set(
+            MediaUploadController::class,
+            static fn (Container $container) => new MediaUploadController(
+                $container->get(TrackUploadedImageService::class)
+            )
+        );
     }
 
     /**
@@ -129,6 +147,7 @@ final class App
     private function registerModelBindings(): void
     {
         $this->container->set(GalleryModel::class, static fn () => new GalleryModel());
+        $this->container->set(UploadedImageQueueModel::class, static fn () => new UploadedImageQueueModel());
     }
 
     /**
@@ -149,6 +168,12 @@ final class App
                 $container->get(FrontendGalleryState::class),
                 $container->get(FrontendVisibilityPolicy::class),
                 $container->get(GalleryModel::class)
+            )
+        );
+        $this->container->set(
+            TrackUploadedImageService::class,
+            static fn (Container $container) => new TrackUploadedImageService(
+                $container->get(UploadedImageQueueModel::class)
             )
         );
     }
@@ -177,6 +202,20 @@ final class App
     }
 
     /**
+     * Registers CLI bindings.
+     */
+    private function registerCliBindings(): void
+    {
+        $this->container->set(
+            MediaLibraryCliController::class,
+            static fn (Container $container) => new MediaLibraryCliController(
+                $container->get(UploadedImageQueueModel::class),
+                $container->get(TrackUploadedImageService::class)
+            )
+        );
+    }
+
+    /**
      * Registers manager instances.
      */
     private function registerManagers(): void
@@ -184,7 +223,7 @@ final class App
         $this->registerModuleManager();
         $this->registerFlowManager();
         $this->registerControllerManager();
-        $this->addManager($this->container->get(CliManager::class));
+        $this->registerCliManager();
     }
 
     /**
@@ -196,6 +235,7 @@ final class App
         $manager->add($this->container->get(CoreModule::class));
         $manager->add($this->container->get(AdminModule::class));
         $manager->add($this->container->get(FrontendModule::class));
+        $manager->add($this->container->get(MediaLibraryModule::class));
         $this->addManager($manager);
     }
 
@@ -218,6 +258,17 @@ final class App
         $manager = $this->container->get(ControllerManager::class);
         $manager->add($this->container->get(AdminGalleryController::class));
         $manager->add($this->container->get(FrontendGalleryController::class));
+        $manager->add($this->container->get(MediaUploadController::class));
+        $this->addManager($manager);
+    }
+
+    /**
+     * Registers the CLI manager.
+     */
+    private function registerCliManager(): void
+    {
+        $manager = $this->container->get(CliManager::class);
+        $manager->add($this->container->get(MediaLibraryCliController::class));
         $this->addManager($manager);
     }
 
