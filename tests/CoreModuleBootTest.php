@@ -8,17 +8,10 @@ final class CoreModuleBootTest extends WP_UnitTestCase
 {
 	public function test_it_boots_the_core_module_via_the_application_lifecycle(): void
 	{
-		$booted = false;
-
-		add_action(
-			'prox_gallery/module/core/booted',
-			static function () use (&$booted): void {
-				$booted = true;
-			}
-		);
+		$before = \did_action('prox_gallery/module/core/booted');
 
 		App::make()->boot();
 
-		self::assertTrue($booted);
+		self::assertSame($before + 1, \did_action('prox_gallery/module/core/booted'));
 	}
 }

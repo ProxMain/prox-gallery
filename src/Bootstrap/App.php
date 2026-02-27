@@ -13,15 +13,6 @@ use Psr\Container\ContainerInterface;
 
 /**
  * Application composition root.
- *
- * Orchestrates the full application lifecycle by:
- * - creating and owning the dependency injection container
- * - registering all service bindings
- * - registering all managers
- * - booting the manager layer
- *
- * This class contains no WordPress integration logic and can be executed
- * in any runtime context (web, CLI, tests).
  */
 final class App
 {
@@ -38,9 +29,7 @@ final class App
     }
 
     /**
-     * Creates the application instance.
-     *
-     * This is the single entry point where the container is instantiated.
+     * Creates a new application instance.
      */
     public static function make(): self
     {
@@ -49,9 +38,6 @@ final class App
 
     /**
      * Boots the application.
-     *
-     * The boot process is intentionally divided into explicit phases
-     * to make the lifecycle predictable and traceable.
      */
     public function boot(): void
     {
@@ -61,9 +47,7 @@ final class App
     }
 
     /**
-     * Registers all container bindings.
-     *
-     * This is where interfaces are mapped to concrete implementations.
+     * Registers container bindings.
      */
     private function registerBindings(): void
     {
@@ -73,24 +57,20 @@ final class App
         $this->container->set(CoreModule::class, static fn () => new CoreModule());
     }
 
-	/**
-	 * Registers all manager instances.
-	 *
-	 * Managers act as orchestration layers for modules, controllers and CLI.
-	 */
-	private function registerManagers(): void
-	{
-		$moduleManager = $this->container->get(ModuleManager::class);
-		$moduleManager->add($this->container->get(CoreModule::class));
-		$this->addManager($moduleManager);
-		$this->addManager($this->container->get(ControllerManager::class));
-		$this->addManager($this->container->get(CliManager::class));
-	}
+    /**
+     * Registers manager instances.
+     */
+    private function registerManagers(): void
+    {
+        $moduleManager = $this->container->get(ModuleManager::class);
+        $moduleManager->add($this->container->get(CoreModule::class));
+        $this->addManager($moduleManager);
+        $this->addManager($this->container->get(ControllerManager::class));
+        $this->addManager($this->container->get(CliManager::class));
+    }
 
     /**
      * Boots all registered managers.
-     *
-     * The manager layer controls the boot order of the application.
      */
     private function bootManagers(): void
     {
@@ -100,7 +80,7 @@ final class App
     }
 
     /**
-     * Adds a manager to the application lifecycle.
+     * Adds a manager to the lifecycle.
      */
     private function addManager(ManagerInterface $manager): void
     {
@@ -108,7 +88,7 @@ final class App
     }
 
     /**
-     * Provides access to the container.
+     * Returns the container.
      */
     public function container(): ContainerInterface
     {

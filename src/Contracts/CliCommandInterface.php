@@ -6,8 +6,6 @@ namespace Prox\ProxGallery\Contracts;
 
 /**
  * Represents a WP-CLI command registration.
- *
- * Commands should remain thin and delegate to application services.
  */
 interface CliCommandInterface
 {

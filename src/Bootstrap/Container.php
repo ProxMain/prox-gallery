@@ -8,14 +8,7 @@ use Psr\Container\ContainerInterface;
 use RuntimeException;
 
 /**
- * Minimal PSR-11 container.
- *
- * Supports:
- * - registering factories
- * - lazy instantiation
- * - singleton-style caching per id
- *
- * The container is intentionally small to keep the foundation lightweight.
+ * Minimal PSR-11 container with lazy singleton resolution.
  */
 final class Container implements ContainerInterface
 {
