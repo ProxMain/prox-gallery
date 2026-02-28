@@ -7,6 +7,7 @@ namespace Prox\ProxGallery\Bootstrap;
 use Prox\ProxGallery\Contracts\ManagerInterface;
 use Prox\ProxGallery\Controllers\AdminGalleryController;
 use Prox\ProxGallery\Controllers\FrontendGalleryController;
+use Prox\ProxGallery\Controllers\TemplateSettingsActionController;
 use Prox\ProxGallery\Flows\AdminFlow;
 use Prox\ProxGallery\Flows\FrontendFlow;
 use Prox\ProxGallery\Managers\CliManager;
@@ -16,7 +17,14 @@ use Prox\ProxGallery\Managers\ModuleManager;
 use Prox\ProxGallery\Models\GalleryModel;
 use Prox\ProxGallery\Modules\AdminModule;
 use Prox\ProxGallery\Modules\CoreModule;
+use Prox\ProxGallery\Modules\DevelopmentSeed\Controllers\DevelopmentSeedCliController;
+use Prox\ProxGallery\Modules\DevelopmentSeed\DevelopmentSeedModule;
+use Prox\ProxGallery\Modules\DevelopmentSeed\Services\DevelopmentSeedService;
 use Prox\ProxGallery\Modules\FrontendModule;
+use Prox\ProxGallery\Modules\Gallery\Controllers\GalleryActionController;
+use Prox\ProxGallery\Modules\Gallery\GalleryModule;
+use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
+use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaLibraryCliController;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaCategoryActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
@@ -29,6 +37,7 @@ use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Services\AdminConfigurationService;
 use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Services\TemplateCustomizationService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 use Prox\ProxGallery\States\FrontendGalleryState;
 use Psr\Container\ContainerInterface;
@@ -104,12 +113,27 @@ final class App
         $this->container->set(AdminModule::class, static fn () => new AdminModule());
         $this->container->set(FrontendModule::class, static fn () => new FrontendModule());
         $this->container->set(
+            GalleryModule::class,
+            static fn (Container $container) => new GalleryModule(
+                $container->get(GalleryService::class)
+            )
+        );
+        $this->container->set(
             MediaLibraryModule::class,
             static fn (Container $container) => new MediaLibraryModule(
                 $container->get(TrackUploadedImageService::class),
                 $container->get(MediaCategoryService::class)
             )
         );
+
+        if ($this->developmentSeedEnabled()) {
+            $this->container->set(
+                DevelopmentSeedModule::class,
+                static fn (Container $container) => new DevelopmentSeedModule(
+                    $container->get(DevelopmentSeedService::class)
+                )
+            );
+        }
     }
 
     /**
@@ -118,7 +142,12 @@ final class App
     private function registerControllerBindings(): void
     {
         $this->container->set(AdminGalleryController::class, static fn () => new AdminGalleryController());
-        $this->container->set(FrontendGalleryController::class, static fn () => new FrontendGalleryController());
+        $this->container->set(
+            FrontendGalleryController::class,
+            static fn (Container $container) => new FrontendGalleryController(
+                $container->get(FrontendGalleryService::class)
+            )
+        );
         $this->container->set(
             MediaUploadController::class,
             static fn (Container $container) => new MediaUploadController(
@@ -133,10 +162,23 @@ final class App
             )
         );
         $this->container->set(
+            GalleryActionController::class,
+            static fn (Container $container) => new GalleryActionController(
+                $container->get(GalleryService::class),
+                $container->get(FrontendGalleryService::class)
+            )
+        );
+        $this->container->set(
             MediaCategoryActionController::class,
             static fn (Container $container) => new MediaCategoryActionController(
                 $container->get(MediaCategoryService::class),
                 $container->get(UploadedImageQueueModel::class)
+            )
+        );
+        $this->container->set(
+            TemplateSettingsActionController::class,
+            static fn (Container $container) => new TemplateSettingsActionController(
+                $container->get(TemplateCustomizationService::class)
             )
         );
     }
@@ -165,6 +207,7 @@ final class App
     private function registerModelBindings(): void
     {
         $this->container->set(GalleryModel::class, static fn () => new GalleryModel());
+        $this->container->set(GalleryCollectionModel::class, static fn () => new GalleryCollectionModel());
         $this->container->set(UploadedImageQueueModel::class, static fn () => new UploadedImageQueueModel());
     }
 
@@ -185,7 +228,8 @@ final class App
             static fn (Container $container) => new FrontendGalleryService(
                 $container->get(FrontendGalleryState::class),
                 $container->get(FrontendVisibilityPolicy::class),
-                $container->get(GalleryModel::class)
+                $container->get(GalleryModel::class),
+                $container->get(TemplateCustomizationService::class)
             )
         );
         $this->container->set(
@@ -195,9 +239,34 @@ final class App
             )
         );
         $this->container->set(
+            GalleryService::class,
+            static fn (Container $container) => new GalleryService(
+                $container->get(GalleryCollectionModel::class)
+            )
+        );
+        $this->container->set(
             MediaCategoryService::class,
             static fn () => new MediaCategoryService()
         );
+        $this->container->set(
+            TemplateCustomizationService::class,
+            static fn (Container $container) => new TemplateCustomizationService(
+                $container->get(AdminConfigurationState::class)
+            )
+        );
+
+        if ($this->developmentSeedEnabled()) {
+            $this->container->set(
+                DevelopmentSeedService::class,
+                static fn (Container $container) => new DevelopmentSeedService(
+                    $container->get(GalleryService::class),
+                    $container->get(FrontendGalleryService::class),
+                    $container->get(MediaCategoryService::class),
+                    $container->get(TrackUploadedImageService::class),
+                    $container->get(UploadedImageQueueModel::class)
+                )
+            );
+        }
     }
 
     /**
@@ -235,6 +304,15 @@ final class App
                 $container->get(TrackUploadedImageService::class)
             )
         );
+
+        if ($this->developmentSeedEnabled()) {
+            $this->container->set(
+                DevelopmentSeedCliController::class,
+                static fn (Container $container) => new DevelopmentSeedCliController(
+                    $container->get(DevelopmentSeedService::class)
+                )
+            );
+        }
     }
 
     /**
@@ -257,7 +335,13 @@ final class App
         $manager->add($this->container->get(CoreModule::class));
         $manager->add($this->container->get(AdminModule::class));
         $manager->add($this->container->get(FrontendModule::class));
+        $manager->add($this->container->get(GalleryModule::class));
         $manager->add($this->container->get(MediaLibraryModule::class));
+
+        if ($this->developmentSeedEnabled()) {
+            $manager->add($this->container->get(DevelopmentSeedModule::class));
+        }
+
         $this->addManager($manager);
     }
 
@@ -281,8 +365,10 @@ final class App
         $manager->add($this->container->get(AdminGalleryController::class));
         $manager->add($this->container->get(FrontendGalleryController::class));
         $manager->add($this->container->get(MediaUploadController::class));
+        $manager->add($this->container->get(GalleryActionController::class));
         $manager->add($this->container->get(MediaManagerActionController::class));
         $manager->add($this->container->get(MediaCategoryActionController::class));
+        $manager->add($this->container->get(TemplateSettingsActionController::class));
         $this->addManager($manager);
     }
 
@@ -293,7 +379,17 @@ final class App
     {
         $manager = $this->container->get(CliManager::class);
         $manager->add($this->container->get(MediaLibraryCliController::class));
+
+        if ($this->developmentSeedEnabled()) {
+            $manager->add($this->container->get(DevelopmentSeedCliController::class));
+        }
+
         $this->addManager($manager);
+    }
+
+    private function developmentSeedEnabled(): bool
+    {
+        return \defined('PROX_GALLERY_ENABLE_DEV_SEED_MODULE') && (bool) \PROX_GALLERY_ENABLE_DEV_SEED_MODULE;
     }
 
     /**

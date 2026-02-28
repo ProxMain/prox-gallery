@@ -1,6 +1,7 @@
-import { FolderOpen, Images, ShieldCheck, Upload } from "lucide-react";
+import { FolderOpen, Images, LayoutDashboard, ShieldCheck, Upload } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionHeader } from "@/core/section-header";
 import { DASHBOARD_STATS } from "@/lib/admin-logic";
 
 const STAT_ICONS = {
@@ -13,6 +14,12 @@ const STAT_ICONS = {
 export function DashboardSection() {
   return (
     <>
+      <SectionHeader
+        variant="page"
+        icon={LayoutDashboard}
+        title="Prox Gallery - Dashboard"
+        description="Overview and health indicators for your gallery workspace."
+      />
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {DASHBOARD_STATS.map((item) => {
           const Icon = STAT_ICONS[item.icon];
@@ -31,9 +38,13 @@ export function DashboardSection() {
         })}
       </section>
       <Card>
-        <CardHeader>
-          <CardTitle>Dashboard Placeholder</CardTitle>
-          <CardDescription>This area is reserved for future dashboard widgets and summaries.</CardDescription>
+        <CardHeader className="p-0">
+          <SectionHeader
+            framed={false}
+            icon={LayoutDashboard}
+            title="Dashboard Placeholder"
+            description="This area is reserved for future dashboard widgets and summaries."
+          />
         </CardHeader>
         <CardContent>
           <p className="text-sm text-slate-600">Add your dashboard content here later.</p>

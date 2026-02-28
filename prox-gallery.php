@@ -22,6 +22,13 @@ defined('ABSPATH') || exit;
 const PROX_GALLERY_FILE = __FILE__;
 const PROX_GALLERY_DIR  = __DIR__;
 
+if (! defined('PROX_GALLERY_ENABLE_DEV_SEED_MODULE')) {
+    define(
+        'PROX_GALLERY_ENABLE_DEV_SEED_MODULE',
+        defined('WP_CLI') && \WP_CLI
+    );
+}
+
 $autoloader = PROX_GALLERY_DIR . '/vendor/autoload_packages.php';
 
 require_once $autoloader;

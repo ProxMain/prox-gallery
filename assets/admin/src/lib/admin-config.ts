@@ -1,5 +1,12 @@
 import type { AjaxActionDefinition } from "@/lib/abstract-action-controller";
 
+export type GalleryTemplateDefinition = {
+  slug: string;
+  label: string;
+  is_pro: boolean;
+  available: boolean;
+};
+
 export type ProxGalleryAdminConfig = {
   screen: string;
   rest_nonce: string;
@@ -15,6 +22,22 @@ export type ProxGalleryAdminConfig = {
       list?: AjaxActionDefinition;
       assign?: AjaxActionDefinition;
       taxonomy?: string;
+    };
+    galleries?: {
+      list?: AjaxActionDefinition;
+      create?: AjaxActionDefinition;
+      rename?: AjaxActionDefinition;
+      delete?: AjaxActionDefinition;
+      list_image_galleries?: AjaxActionDefinition;
+      set_image_galleries?: AjaxActionDefinition;
+      add_images?: AjaxActionDefinition;
+      set_images?: AjaxActionDefinition;
+      create_page?: AjaxActionDefinition;
+      templates?: GalleryTemplateDefinition[];
+    };
+    template_settings?: {
+      get?: AjaxActionDefinition;
+      update?: AjaxActionDefinition;
     };
   };
 };
