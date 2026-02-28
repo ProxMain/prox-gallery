@@ -51,6 +51,21 @@ final class UploadedImageQueueModel implements ModelInterface
     }
 
     /**
+     * @param list<TrackedImageDto> $items
+     */
+    public function replaceAll(array $items): void
+    {
+        \update_option(
+            $this->optionKey(),
+            array_map(
+                static fn (TrackedImageDto $item): array => $item->toArray(),
+                array_values($items)
+            ),
+            false
+        );
+    }
+
+    /**
      * @return list<TrackedImageDto>
      */
     public function all(): array

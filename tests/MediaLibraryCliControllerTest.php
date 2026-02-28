@@ -69,6 +69,30 @@ final class MediaLibraryCliControllerTest extends WP_UnitTestCase
         self::assertSame([], $controller->rows());
     }
 
+    public function test_it_validates_and_removes_stale_tracked_rows(): void
+    {
+        $validImageId = $this->createAttachment('image/jpeg', 'Still exists');
+        $staleImageId = $this->createAttachment('image/jpeg', 'Will be deleted');
+
+        $queue = new UploadedImageQueueModel();
+        $validDto = TrackedImageDto::fromAttachmentId($validImageId);
+        $staleDto = TrackedImageDto::fromAttachmentId($staleImageId);
+
+        self::assertInstanceOf(TrackedImageDto::class, $validDto);
+        self::assertInstanceOf(TrackedImageDto::class, $staleDto);
+
+        $queue->replaceAll([$validDto, $staleDto]);
+        \wp_delete_attachment($staleImageId, true);
+
+        $controller = new MediaLibraryCliController($queue, new TrackUploadedImageService($queue));
+        $result = $controller->validateTrackedImages();
+
+        self::assertSame(1, $result['removed']);
+        self::assertSame(1, $result['remaining']);
+        self::assertCount(1, $controller->rows());
+        self::assertSame($validImageId, $controller->rows()[0]['id']);
+    }
+
     private function createAttachment(string $mimeType, string $title): int
     {
         $attachmentId = \wp_insert_attachment(

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\MediaLibrary;
 
 use Prox\ProxGallery\Contracts\ModuleInterface;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 
 /**
@@ -12,7 +13,10 @@ use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
  */
 final class MediaLibraryModule implements ModuleInterface
 {
-    public function __construct(private TrackUploadedImageService $service)
+    public function __construct(
+        private TrackUploadedImageService $service,
+        private MediaCategoryService $categoryService
+    )
     {
     }
 
@@ -24,6 +28,7 @@ final class MediaLibraryModule implements ModuleInterface
     public function boot(): void
     {
         $this->service->boot();
+        $this->categoryService->boot();
 
         /**
          * Fires after the media library module boots.

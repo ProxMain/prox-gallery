@@ -54,6 +54,13 @@ final class MediaLibraryCliController extends AbstractCliController
                 ],
             ]
         );
+        $this->registerSubcommand(
+            'validate',
+            [$this, 'validateTracked'],
+            [
+                'shortdesc' => 'Removes tracked rows that no longer point to existing attachments.',
+            ]
+        );
     }
 
     /**
@@ -108,9 +115,53 @@ final class MediaLibraryCliController extends AbstractCliController
         \WP_CLI::success(sprintf('Tracked image attachment ID %d.', $attachmentId));
     }
 
+    /**
+     * @param list<string>         $args
+     * @param array<string, mixed> $assocArgs
+     */
+    public function validateTracked(array $args = [], array $assocArgs = []): void
+    {
+        $result = $this->validateTrackedImages();
+
+        \WP_CLI::success(
+            sprintf(
+                'Validation complete. Removed %d stale tracked rows. Remaining %d.',
+                $result['removed'],
+                $result['remaining']
+            )
+        );
+    }
+
     public function trackAttachment(int $attachmentId): bool
     {
         return $this->service->track($attachmentId);
+    }
+
+    /**
+     * @return array{removed:int, remaining:int}
+     */
+    public function validateTrackedImages(): array
+    {
+        $tracked = $this->queue->all();
+        $valid = [];
+
+        foreach ($tracked as $image) {
+            $post = \get_post($image->id);
+
+            if (! $post instanceof \WP_Post || $post->post_type !== 'attachment') {
+                continue;
+            }
+
+            $valid[] = $image;
+        }
+
+        $removed = count($tracked) - count($valid);
+        $this->queue->replaceAll($valid);
+
+        return [
+            'removed' => $removed,
+            'remaining' => count($valid),
+        ];
     }
 
     /**

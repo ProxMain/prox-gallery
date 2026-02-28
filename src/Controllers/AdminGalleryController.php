@@ -232,11 +232,24 @@ final class AdminGalleryController implements ControllerInterface
      */
     private function adminConfigPayload(): array
     {
-        return [
+        $payload = [
             'screen' => $this->screenHookSuffix,
             'rest_nonce' => (string) \wp_create_nonce('wp_rest'),
             'ajax_url' => (string) \admin_url('admin-ajax.php'),
         ];
+
+        /**
+         * Filters payload passed to the Prox Gallery admin app bootstrap.
+         *
+         * @param array{
+         *     screen:string,
+         *     rest_nonce:string,
+         *     ajax_url:string
+         * } $payload
+         */
+        $filtered = \apply_filters('prox_gallery/admin/config_payload', $payload);
+
+        return is_array($filtered) ? $filtered : $payload;
     }
 
     private function assetVersion(string $relativePath): string

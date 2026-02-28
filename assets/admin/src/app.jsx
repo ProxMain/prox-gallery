@@ -1,128 +1,170 @@
-import { FolderOpen, Images, ShieldCheck, Upload } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TopBar } from "@/core/topbar";
+import { DashboardSection } from "@/features/dashboard/dashboard-section";
+import { GalleriesSection } from "@/features/galleries/galleries-section";
+import { MediaManagerSection } from "@/features/media-manager/media-manager-section";
+import { useMediaManagerState } from "@/features/media-manager/use-media-manager-state";
+import { SettingsSection } from "@/features/settings/settings-section";
+import { getAdminConfig } from "@/lib/admin-config";
+import { MediaCategoryActionController } from "@/lib/media-category-action-controller";
 import {
   ADMIN_MENU_ITEMS,
-  DASHBOARD_STATS,
   sectionDescription,
   sectionTitle
 } from "@/lib/admin-logic";
-
-const STAT_ICONS = {
-  images: Images,
-  upload: Upload,
-  "shield-check": ShieldCheck,
-  "folder-open": FolderOpen
-};
+import { MediaManagerActionController } from "@/lib/media-manager-action-controller";
 
 export function App() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const config = window.ProxGalleryAdminConfig ?? {};
+  const config = getAdminConfig();
   const title = sectionTitle(activeMenu);
   const description = sectionDescription(activeMenu);
 
-  return (
-    <main className="prox-gallery-admin max-w-7xl py-6">
-      <section className="mb-6 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-2">
-          {ADMIN_MENU_ITEMS.map((menuItem) => (
-            <Button
-              key={menuItem.key}
-              variant={activeMenu === menuItem.key ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveMenu(menuItem.key)}
-            >
-              {menuItem.label}
-            </Button>
-          ))}
-        </div>
-        <Badge variant="outline">Screen: {config.screen ?? "n/a"}</Badge>
-      </section>
+  const mediaManagerController = useMemo(() => {
+    const listDefinition = config.action_controllers?.media_manager?.list ?? {
+      action: "prox_gallery_media_manager_list",
+      nonce: config.rest_nonce || ""
+    };
+    const updateDefinition = config.action_controllers?.media_manager?.update ?? {
+      action: "prox_gallery_media_manager_update",
+      nonce: config.rest_nonce || ""
+    };
 
-      <section className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Prox Gallery {title}</h1>
-          <p className="text-sm text-slate-600">{description}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm">
-            Secondary Action
-          </Button>
-          <Button size="sm">Primary Action</Button>
-        </div>
-      </section>
+    if (config.ajax_url === "") {
+      return null;
+    }
+
+    return new MediaManagerActionController(
+      { ajax_url: config.ajax_url },
+      { list: listDefinition, update: updateDefinition }
+    );
+  }, [
+    config.ajax_url,
+    config.rest_nonce,
+    config.action_controllers?.media_manager?.list?.action,
+    config.action_controllers?.media_manager?.list?.nonce,
+    config.action_controllers?.media_manager?.update?.action,
+    config.action_controllers?.media_manager?.update?.nonce
+  ]);
+
+  const {
+    viewMode,
+    trackedImages,
+    isLoadingList,
+    listError,
+    setViewMode,
+    loadTrackedImages,
+    reloadTrackedImages
+  } = useMediaManagerState(mediaManagerController);
+
+  const mediaCategoryController = useMemo(() => {
+    const suggestDefinition = config.action_controllers?.media_category?.suggest ?? {
+      action: "prox_gallery_media_category_suggest",
+      nonce: config.rest_nonce || ""
+    };
+    const listDefinition = config.action_controllers?.media_category?.list ?? {
+      action: "prox_gallery_media_category_list",
+      nonce: config.rest_nonce || ""
+    };
+    const assignDefinition = config.action_controllers?.media_category?.assign ?? {
+      action: "prox_gallery_media_category_assign",
+      nonce: config.rest_nonce || ""
+    };
+
+    if (config.ajax_url === "") {
+      return null;
+    }
+
+    return new MediaCategoryActionController(
+      { ajax_url: config.ajax_url },
+      {
+        suggest: suggestDefinition,
+        list: listDefinition,
+        assign: assignDefinition
+      }
+    );
+  }, [
+    config.ajax_url,
+    config.rest_nonce,
+    config.action_controllers?.media_category?.suggest?.action,
+    config.action_controllers?.media_category?.suggest?.nonce,
+    config.action_controllers?.media_category?.list?.action,
+    config.action_controllers?.media_category?.list?.nonce,
+    config.action_controllers?.media_category?.assign?.action,
+    config.action_controllers?.media_category?.assign?.nonce
+  ]);
+
+  const handleMenuSelect = async (nextMenu) => {
+    setActiveMenu(nextMenu);
+
+    if (nextMenu === "media-manager") {
+      await loadTrackedImages();
+    }
+  };
+
+  const handleUpdateMediaMetadata = async (payload) => {
+    if (!mediaManagerController) {
+      throw new Error("Media manager action configuration is missing.");
+    }
+
+    const response = await mediaManagerController.updateTrackedImageMetadata(payload);
+    await reloadTrackedImages();
+
+    return response.item;
+  };
+
+  const handleLoadMediaCategories = async (attachmentId) => {
+    if (!mediaCategoryController) {
+      throw new Error("Media category action configuration is missing.");
+    }
+
+    const response = await mediaCategoryController.listForAttachment(attachmentId);
+    return response.items;
+  };
+
+  const handleSuggestMediaCategories = async (query) => {
+    if (!mediaCategoryController) {
+      return [];
+    }
+
+    const response = await mediaCategoryController.suggestCategories(query, 12);
+    return response.items;
+  };
+
+  const handleAssignMediaCategories = async (attachmentId, categories) => {
+    if (!mediaCategoryController) {
+      throw new Error("Media category action configuration is missing.");
+    }
+
+    const response = await mediaCategoryController.assignToAttachment(attachmentId, categories.join(","));
+    return response.items;
+  };
+
+  return (
+    <main className="prox-gallery-admin mx-auto max-w-[1100px] space-y-8 py-8">
+      <TopBar menuItems={ADMIN_MENU_ITEMS} activeMenu={activeMenu} onSelectMenu={handleMenuSelect} />
 
       {activeMenu === "dashboard" ? (
-        <>
-          <section className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {DASHBOARD_STATS.map((item) => {
-              const Icon = STAT_ICONS[item.icon];
-
-              return (
-              <Card key={item.label}>
-                <CardHeader className="pb-3">
-                  <CardDescription>{item.label}</CardDescription>
-                  <CardTitle className="flex items-center justify-between text-2xl">
-                    {item.value}
-                    <Icon className="h-5 w-5 text-slate-500" />
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-              );
-            })}
-          </section>
-          <Card>
-            <CardHeader>
-              <CardTitle>Dashboard Placeholder</CardTitle>
-              <CardDescription>This area is reserved for future dashboard widgets and summaries.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">Add your dashboard content here later.</p>
-            </CardContent>
-          </Card>
-        </>
+        <DashboardSection />
       ) : activeMenu === "media-manager" ? (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Media Manager Placeholder</CardTitle>
-              <CardDescription>This area is reserved for media management tools and workflows.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">Add your media manager UI here later.</p>
-            </CardContent>
-          </Card>
-        </>
+        <MediaManagerSection
+          config={config}
+          isLoadingList={isLoadingList}
+          listError={listError}
+          trackedImages={trackedImages}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          onReloadTrackedImages={reloadTrackedImages}
+          onUpdateMediaMetadata={handleUpdateMediaMetadata}
+          onLoadMediaCategories={handleLoadMediaCategories}
+          onSuggestMediaCategories={handleSuggestMediaCategories}
+          onAssignMediaCategories={handleAssignMediaCategories}
+        />
       ) : activeMenu === "galleries" ? (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Galleries Placeholder</CardTitle>
-              <CardDescription>This area is reserved for gallery list, creation, and organization tools.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600">Add your galleries UI here later.</p>
-            </CardContent>
-          </Card>
-        </>
+        <GalleriesSection title={title} description={description} />
       ) : (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Settings Placeholder</CardTitle>
-              <CardDescription>This area is reserved for settings forms and configuration controls.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4 text-sm text-slate-600">Add your settings controls here later.</p>
-              <pre className="overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100">
-                {JSON.stringify(config, null, 2)}
-              </pre>
-            </CardContent>
-          </Card>
-        </>
+        <SettingsSection title={title} description={description} config={config} />
       )}
     </main>
   );
