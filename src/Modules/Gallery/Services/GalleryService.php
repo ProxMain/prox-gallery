@@ -41,6 +41,8 @@ final class GalleryService implements ServiceInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string,
      *   image_ids:list<int>,
      *   image_count:int
@@ -61,6 +63,8 @@ final class GalleryService implements ServiceInterface
                 'transition_override' => array_key_exists('transition_override', $item) && is_string($item['transition_override'])
                     ? $item['transition_override']
                     : null,
+                'show_title' => array_key_exists('show_title', $item) ? (bool) $item['show_title'] : true,
+                'show_description' => array_key_exists('show_description', $item) ? (bool) $item['show_description'] : true,
                 'created_at' => (string) $item['created_at'],
                 'image_ids' => (array) $item['image_ids'],
                 'image_count' => count((array) $item['image_ids']),
@@ -80,6 +84,8 @@ final class GalleryService implements ServiceInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string
      * }
      */
@@ -91,7 +97,9 @@ final class GalleryService implements ServiceInterface
         ?bool $lightboxOverride = null,
         ?bool $hoverZoomOverride = null,
         ?bool $fullWidthOverride = null,
-        ?string $transitionOverride = null
+        ?string $transitionOverride = null,
+        bool $showTitle = true,
+        bool $showDescription = true
     ): array
     {
         $normalizedName = trim(\sanitize_text_field($name));
@@ -114,7 +122,9 @@ final class GalleryService implements ServiceInterface
             $lightboxOverride,
             $hoverZoomOverride,
             $fullWidthOverride,
-            $transitionOverride
+            $transitionOverride,
+            $showTitle,
+            $showDescription
         );
 
         return [
@@ -134,6 +144,8 @@ final class GalleryService implements ServiceInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string
      * }
      */
@@ -147,7 +159,9 @@ final class GalleryService implements ServiceInterface
         ?bool $hoverZoomOverride = null,
         ?bool $fullWidthOverride = null,
         bool $applyDisplayOverrides = false,
-        ?string $transitionOverride = null
+        ?string $transitionOverride = null,
+        ?bool $showTitle = null,
+        ?bool $showDescription = null
     ): array
     {
         if ($id <= 0) {
@@ -202,6 +216,12 @@ final class GalleryService implements ServiceInterface
             : (array_key_exists('transition_override', $current) && is_string($current['transition_override'])
                 ? $this->normalizeTransition($current['transition_override'])
                 : null);
+        $resolvedShowTitle = $applyDisplayOverrides
+            ? ($showTitle ?? (array_key_exists('show_title', $current) ? (bool) $current['show_title'] : true))
+            : (array_key_exists('show_title', $current) ? (bool) $current['show_title'] : true);
+        $resolvedShowDescription = $applyDisplayOverrides
+            ? ($showDescription ?? (array_key_exists('show_description', $current) ? (bool) $current['show_description'] : true))
+            : (array_key_exists('show_description', $current) ? (bool) $current['show_description'] : true);
 
         $updated = $this->collection->rename(
             $id,
@@ -212,7 +232,9 @@ final class GalleryService implements ServiceInterface
             $resolvedLightbox,
             $resolvedHoverZoom,
             $resolvedFullWidth,
-            $resolvedTransition
+            $resolvedTransition,
+            $resolvedShowTitle,
+            $resolvedShowDescription
         );
 
         if ($updated === null) {

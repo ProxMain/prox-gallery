@@ -119,6 +119,20 @@ export function GalleriesLibraryCard({
       });
     }
 
+    if (gallery.show_title === false) {
+      chips.push({
+        text: "Title hidden",
+        tone: "slate"
+      });
+    }
+
+    if (gallery.show_description === false) {
+      chips.push({
+        text: "Description hidden",
+        tone: "slate"
+      });
+    }
+
     return chips;
   };
 
@@ -145,6 +159,10 @@ export function GalleriesLibraryCard({
 
     if (tone === "rose") {
       return "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200";
+    }
+
+    if (tone === "slate") {
+      return "bg-slate-200 text-slate-800 ring-1 ring-inset ring-slate-300";
     }
 
     return "bg-slate-100 text-slate-700";
@@ -177,6 +195,8 @@ export function GalleriesLibraryCard({
   const [editHoverZoomOverride, setEditHoverZoomOverride] = useState("inherit");
   const [editFullWidthOverride, setEditFullWidthOverride] = useState("inherit");
   const [editTransitionOverride, setEditTransitionOverride] = useState("inherit");
+  const [editShowTitle, setEditShowTitle] = useState("on");
+  const [editShowDescription, setEditShowDescription] = useState("on");
   const [editTemplate, setEditTemplate] = useState("basic-grid");
 
   const handleCreateTemplateChange = (nextTemplate) => {
@@ -339,7 +359,11 @@ export function GalleriesLibraryCard({
         full_width_override:
           typeof gallery.full_width_override === "boolean" ? gallery.full_width_override : null,
         transition_override:
-          typeof gallery.transition_override === "string" ? gallery.transition_override : null
+          typeof gallery.transition_override === "string" ? gallery.transition_override : null,
+        show_title:
+          typeof gallery.show_title === "boolean" ? gallery.show_title : true,
+        show_description:
+          typeof gallery.show_description === "boolean" ? gallery.show_description : true
       });
       setCreateMessage("Gallery renamed.");
     } catch (renameError) {
@@ -370,6 +394,12 @@ export function GalleriesLibraryCard({
     setEditTransitionOverride(
       typeof gallery.transition_override === "string" ? gallery.transition_override : "inherit"
     );
+    setEditShowTitle(
+      typeof gallery.show_title === "boolean" ? (gallery.show_title ? "on" : "off") : "on"
+    );
+    setEditShowDescription(
+      typeof gallery.show_description === "boolean" ? (gallery.show_description ? "on" : "off") : "on"
+    );
     setCreateMessage("");
   };
 
@@ -386,7 +416,9 @@ export function GalleriesLibraryCard({
         lightbox_override: toNullableBool(editLightboxOverride),
         hover_zoom_override: toNullableBool(editHoverZoomOverride),
         full_width_override: toNullableBool(editFullWidthOverride),
-        transition_override: editTransitionOverride === "inherit" ? null : editTransitionOverride
+        transition_override: editTransitionOverride === "inherit" ? null : editTransitionOverride,
+        show_title: editShowTitle === "on",
+        show_description: editShowDescription === "on"
       });
       setActiveDisplayGalleryId(null);
       setCreateMessage("Per-gallery display settings updated.");
@@ -1014,6 +1046,35 @@ export function GalleriesLibraryCard({
                         <option value="fade">Fade</option>
                         <option value="explode">Explode</option>
                         <option value="implode">Implode</option>
+                      </select>
+                    </label>
+                  </div>
+                </fieldset>
+                <fieldset className="min-w-0 rounded border border-slate-200 bg-slate-50 p-3">
+                  <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                    Content
+                  </legend>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <label className="flex min-w-0 flex-col gap-1">
+                      <span className="text-xs font-medium text-slate-600">Show title</span>
+                      <select
+                        value={editShowTitle}
+                        onChange={(event) => setEditShowTitle(event.target.value)}
+                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
+                      >
+                        <option value="on">On</option>
+                        <option value="off">Off</option>
+                      </select>
+                    </label>
+                    <label className="flex min-w-0 flex-col gap-1">
+                      <span className="text-xs font-medium text-slate-600">Show description</span>
+                      <select
+                        value={editShowDescription}
+                        onChange={(event) => setEditShowDescription(event.target.value)}
+                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
+                      >
+                        <option value="on">On</option>
+                        <option value="off">Off</option>
                       </select>
                     </label>
                   </div>

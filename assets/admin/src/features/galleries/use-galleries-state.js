@@ -93,6 +93,14 @@ export function useGalleriesState(galleryController) {
       overrides.transition_override = payload.transition_override;
     }
 
+    if (payload && Object.prototype.hasOwnProperty.call(payload, "show_title")) {
+      overrides.show_title = payload.show_title;
+    }
+
+    if (payload && Object.prototype.hasOwnProperty.call(payload, "show_description")) {
+      overrides.show_description = payload.show_description;
+    }
+
     await galleryController.createGallery(name, description, template, {
       ...overrides
     });
@@ -129,6 +137,14 @@ export function useGalleriesState(galleryController) {
 
     if (payload && Object.prototype.hasOwnProperty.call(payload, "transition_override")) {
       overrides.transition_override = payload.transition_override;
+    }
+
+    if (payload && Object.prototype.hasOwnProperty.call(payload, "show_title")) {
+      overrides.show_title = payload.show_title;
+    }
+
+    if (payload && Object.prototype.hasOwnProperty.call(payload, "show_description")) {
+      overrides.show_description = payload.show_description;
     }
 
     await galleryController.renameGallery(id, name, description, template, {

@@ -175,6 +175,8 @@ final class FrontendGalleryService implements ServiceInterface
         foreach ($galleries as $gallery) {
             $name = isset($gallery['name']) ? (string) $gallery['name'] : '';
             $description = isset($gallery['description']) ? (string) $gallery['description'] : '';
+            $showTitle = $this->resolveBoolOverride($gallery['show_title'] ?? null, true);
+            $showDescription = $this->resolveBoolOverride($gallery['show_description'] ?? null, true);
             $columns = $this->resolveGridColumns($gallery, $columns);
             $lightboxEnabled = $this->resolveBoolOverride($gallery['lightbox_override'] ?? null, $lightbox);
             $hoverZoomEnabled = $this->resolveBoolOverride($gallery['hover_zoom_override'] ?? null, $hoverZoom);
@@ -187,9 +189,11 @@ final class FrontendGalleryService implements ServiceInterface
             $groupClass .= $lightboxEnabled ? ' prox-gallery--lightbox-enabled' : '';
             $groupClass .= $hoverZoomEnabled ? ' prox-gallery--hover-zoom' : '';
             $html .= sprintf('<section class="%s">', \esc_attr($groupClass));
-            $html .= '<h3 class="prox-gallery__title">' . \esc_html($name) . '</h3>';
+            if ($showTitle && $name !== '') {
+                $html .= '<h3 class="prox-gallery__title">' . \esc_html($name) . '</h3>';
+            }
 
-            if ($description !== '') {
+            if ($showDescription && $description !== '') {
                 $html .= '<p class="prox-gallery__description">' . \esc_html($description) . '</p>';
             }
 
@@ -280,6 +284,8 @@ final class FrontendGalleryService implements ServiceInterface
         foreach ($galleries as $gallery) {
             $name = isset($gallery['name']) ? (string) $gallery['name'] : '';
             $description = isset($gallery['description']) ? (string) $gallery['description'] : '';
+            $showTitle = $this->resolveBoolOverride($gallery['show_title'] ?? null, true);
+            $showDescription = $this->resolveBoolOverride($gallery['show_description'] ?? null, true);
             $columns = $this->resolveGridColumns($gallery, $columns);
             $lightboxEnabled = $this->resolveBoolOverride($gallery['lightbox_override'] ?? null, $lightbox);
             $hoverZoomEnabled = $this->resolveBoolOverride($gallery['hover_zoom_override'] ?? null, $hoverZoom);
@@ -292,9 +298,11 @@ final class FrontendGalleryService implements ServiceInterface
             $groupClass .= $lightboxEnabled ? ' prox-gallery--lightbox-enabled' : '';
             $groupClass .= $hoverZoomEnabled ? ' prox-gallery--hover-zoom' : '';
             $html .= sprintf('<section class="%s">', \esc_attr($groupClass));
-            $html .= '<h3 class="prox-gallery__title">' . \esc_html($name) . '</h3>';
+            if ($showTitle && $name !== '') {
+                $html .= '<h3 class="prox-gallery__title">' . \esc_html($name) . '</h3>';
+            }
 
-            if ($description !== '') {
+            if ($showDescription && $description !== '') {
                 $html .= '<p class="prox-gallery__description">' . \esc_html($description) . '</p>';
             }
 
@@ -437,6 +445,8 @@ final class FrontendGalleryService implements ServiceInterface
                 'transition_override' => array_key_exists('transition_override', $item) && is_string($item['transition_override'])
                     ? $item['transition_override']
                     : null,
+                'show_title' => array_key_exists('show_title', $item) ? (bool) $item['show_title'] : true,
+                'show_description' => array_key_exists('show_description', $item) ? (bool) $item['show_description'] : true,
                 'image_ids' => $imageIds,
             ];
         }

@@ -26,6 +26,8 @@ export type GalleryItem = {
   hover_zoom_override?: boolean | null;
   full_width_override?: boolean | null;
   transition_override?: "none" | "slide" | "fade" | "explode" | "implode" | null;
+  show_title?: boolean;
+  show_description?: boolean;
   created_at: string;
   image_ids?: number[];
   image_count?: number;
@@ -86,6 +88,8 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
       hover_zoom_override?: boolean | null;
       full_width_override?: boolean | null;
       transition_override?: "none" | "slide" | "fade" | "explode" | "implode" | null;
+      show_title?: boolean;
+      show_description?: boolean;
     } = {}
   ): Promise<GalleryCreateResponse> {
     const payload: Record<string, string | number | boolean | null> = {
@@ -129,6 +133,14 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
       payload.transition_override = overrides.transition_override ?? "inherit";
     }
 
+    if (Object.prototype.hasOwnProperty.call(overrides, "show_title")) {
+      payload.show_title = overrides.show_title ? "1" : "0";
+    }
+
+    if (Object.prototype.hasOwnProperty.call(overrides, "show_description")) {
+      payload.show_description = overrides.show_description ? "1" : "0";
+    }
+
     return this.dispatch<GalleryCreateResponse>("create", payload);
   }
 
@@ -143,6 +155,8 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
       hover_zoom_override?: boolean | null;
       full_width_override?: boolean | null;
       transition_override?: "none" | "slide" | "fade" | "explode" | "implode" | null;
+      show_title?: boolean;
+      show_description?: boolean;
     } = {}
   ): Promise<GalleryRenameResponse> {
     const payload: Record<string, string | number | boolean | null> = {
@@ -188,6 +202,14 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
 
     if (Object.prototype.hasOwnProperty.call(overrides, "transition_override")) {
       payload.transition_override = overrides.transition_override ?? "inherit";
+    }
+
+    if (Object.prototype.hasOwnProperty.call(overrides, "show_title")) {
+      payload.show_title = overrides.show_title ? "1" : "0";
+    }
+
+    if (Object.prototype.hasOwnProperty.call(overrides, "show_description")) {
+      payload.show_description = overrides.show_description ? "1" : "0";
     }
 
     return this.dispatch<GalleryRenameResponse>("rename", payload);

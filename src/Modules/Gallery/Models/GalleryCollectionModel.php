@@ -32,6 +32,8 @@ final class GalleryCollectionModel implements ModelInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string,
      *   image_ids:list<int>
      * }>
@@ -67,6 +69,8 @@ final class GalleryCollectionModel implements ModelInterface
                 'hover_zoom_override' => $this->normalizeOverrideBool($item['hover_zoom_override'] ?? null),
                 'full_width_override' => $this->normalizeOverrideBool($item['full_width_override'] ?? null),
                 'transition_override' => $this->normalizeTransitionOverride($item['transition_override'] ?? null),
+                'show_title' => $this->normalizeVisibilityBool($item['show_title'] ?? true),
+                'show_description' => $this->normalizeVisibilityBool($item['show_description'] ?? true),
                 'created_at' => isset($item['created_at']) ? (string) $item['created_at'] : '',
                 'image_ids' => $this->normalizeImageIds($item['image_ids'] ?? []),
             ];
@@ -86,6 +90,8 @@ final class GalleryCollectionModel implements ModelInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string,
      *   image_ids:list<int>
      * }> $items
@@ -106,6 +112,8 @@ final class GalleryCollectionModel implements ModelInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string,
      *   image_ids:list<int>
      * }
@@ -118,7 +126,9 @@ final class GalleryCollectionModel implements ModelInterface
         ?bool $lightboxOverride = null,
         ?bool $hoverZoomOverride = null,
         ?bool $fullWidthOverride = null,
-        ?string $transitionOverride = null
+        ?string $transitionOverride = null,
+        bool $showTitle = true,
+        bool $showDescription = true
     ): array
     {
         $items = $this->all();
@@ -140,6 +150,8 @@ final class GalleryCollectionModel implements ModelInterface
             'hover_zoom_override' => $this->normalizeOverrideBool($hoverZoomOverride),
             'full_width_override' => $this->normalizeOverrideBool($fullWidthOverride),
             'transition_override' => $this->normalizeTransitionOverride($transitionOverride),
+            'show_title' => $this->normalizeVisibilityBool($showTitle),
+            'show_description' => $this->normalizeVisibilityBool($showDescription),
             'created_at' => \gmdate('c'),
             'image_ids' => [],
         ];
@@ -160,6 +172,8 @@ final class GalleryCollectionModel implements ModelInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string,
      *   image_ids:list<int>
      * }|null
@@ -173,7 +187,9 @@ final class GalleryCollectionModel implements ModelInterface
         ?bool $lightboxOverride = null,
         ?bool $hoverZoomOverride = null,
         ?bool $fullWidthOverride = null,
-        ?string $transitionOverride = null
+        ?string $transitionOverride = null,
+        ?bool $showTitle = null,
+        ?bool $showDescription = null
     ): ?array
     {
         $items = $this->all();
@@ -203,6 +219,12 @@ final class GalleryCollectionModel implements ModelInterface
             }
             if ($transitionOverride !== null || array_key_exists('transition_override', $items[$index])) {
                 $items[$index]['transition_override'] = $this->normalizeTransitionOverride($transitionOverride);
+            }
+            if ($showTitle !== null || array_key_exists('show_title', $items[$index])) {
+                $items[$index]['show_title'] = $this->normalizeVisibilityBool($showTitle ?? true);
+            }
+            if ($showDescription !== null || array_key_exists('show_description', $items[$index])) {
+                $items[$index]['show_description'] = $this->normalizeVisibilityBool($showDescription ?? true);
             }
             $updated = $items[$index];
             break;
@@ -358,6 +380,8 @@ final class GalleryCollectionModel implements ModelInterface
      *   hover_zoom_override:bool|null,
      *   full_width_override:bool|null,
      *   transition_override:string|null,
+     *   show_title:bool,
+     *   show_description:bool,
      *   created_at:string,
      *   image_ids:list<int>
      * }|null
@@ -461,5 +485,30 @@ final class GalleryCollectionModel implements ModelInterface
         }
 
         return null;
+    }
+
+    private function normalizeVisibilityBool(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+
+            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
+                return true;
+            }
+
+            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
+                return false;
+            }
+        }
+
+        if (is_int($value)) {
+            return $value !== 0;
+        }
+
+        return true;
     }
 }
