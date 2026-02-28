@@ -18,6 +18,7 @@ use Prox\ProxGallery\Modules\AdminModule;
 use Prox\ProxGallery\Modules\CoreModule;
 use Prox\ProxGallery\Modules\FrontendModule;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaLibraryCliController;
+use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaUploadController;
 use Prox\ProxGallery\Modules\MediaLibrary\MediaLibraryModule;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
@@ -118,6 +119,13 @@ final class App
         $this->container->set(
             MediaUploadController::class,
             static fn (Container $container) => new MediaUploadController(
+                $container->get(TrackUploadedImageService::class)
+            )
+        );
+        $this->container->set(
+            MediaManagerActionController::class,
+            static fn (Container $container) => new MediaManagerActionController(
+                $container->get(UploadedImageQueueModel::class),
                 $container->get(TrackUploadedImageService::class)
             )
         );
@@ -259,6 +267,7 @@ final class App
         $manager->add($this->container->get(AdminGalleryController::class));
         $manager->add($this->container->get(FrontendGalleryController::class));
         $manager->add($this->container->get(MediaUploadController::class));
+        $manager->add($this->container->get(MediaManagerActionController::class));
         $this->addManager($manager);
     }
 
