@@ -8,6 +8,13 @@ export type ProxGalleryAdminConfig = {
     media_manager?: {
       list?: AjaxActionDefinition;
       sync?: AjaxActionDefinition;
+      update?: AjaxActionDefinition;
+    };
+    media_category?: {
+      suggest?: AjaxActionDefinition;
+      list?: AjaxActionDefinition;
+      assign?: AjaxActionDefinition;
+      taxonomy?: string;
     };
   };
 };

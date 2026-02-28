@@ -57,5 +57,54 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
         );
         self::assertIsString($payload['action_controllers']['media_manager']['sync']['nonce']);
         self::assertNotSame('', $payload['action_controllers']['media_manager']['sync']['nonce']);
+        self::assertArrayHasKey('update', $payload['action_controllers']['media_manager']);
+        self::assertSame(
+            'prox_gallery_media_manager_update',
+            $payload['action_controllers']['media_manager']['update']['action']
+        );
+        self::assertIsString($payload['action_controllers']['media_manager']['update']['nonce']);
+        self::assertNotSame('', $payload['action_controllers']['media_manager']['update']['nonce']);
+    }
+
+    public function test_it_updates_attachment_metadata(): void
+    {
+        $queue = new UploadedImageQueueModel();
+        $controller = new MediaManagerActionController($queue, new TrackUploadedImageService($queue));
+        $attachmentId = $this->createAttachment('image/jpeg', 'Old title');
+
+        $response = $controller->updateTrackedImageMetadata(
+            [
+                'attachment_id' => $attachmentId,
+                'title' => 'New title',
+                'alt_text' => 'Alt text',
+                'caption' => 'Caption text',
+                'description' => 'Description text',
+            ],
+            'prox_gallery_media_manager_update'
+        );
+
+        self::assertSame($attachmentId, $response['attachment_id']);
+        self::assertSame('New title', $response['item']['title']);
+        self::assertSame('Alt text', $response['item']['alt_text']);
+        self::assertSame('Caption text', $response['item']['caption']);
+        self::assertSame('Description text', $response['item']['description']);
+    }
+
+    private function createAttachment(string $mimeType, string $title): int
+    {
+        $attachmentId = \wp_insert_attachment(
+            [
+                'post_title' => $title,
+                'post_mime_type' => $mimeType,
+                'post_type' => 'attachment',
+                'post_status' => 'inherit',
+            ],
+            ''
+        );
+
+        self::assertIsInt($attachmentId);
+        self::assertGreaterThan(0, $attachmentId);
+
+        return $attachmentId;
     }
 }

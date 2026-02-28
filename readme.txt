@@ -2,17 +2,30 @@
 
 == Overview ==
 Prox Gallery tracks newly uploaded image attachments and stores tracked image DTO data.
-The WP-CLI command lets you list only the images tracked by the plugin.
+The WP-CLI commands let you list tracked images, manually track an attachment,
+and validate tracked rows.
 
-== Command ==
+== Commands ==
 `wp prox media list-tracked`
 `wp prox media track <id>`
+`wp prox media validate`
 
-This command prints a table with:
+Command behavior:
+- `list-tracked`: prints tracked image rows as a table.
+- `track <id>`: manually tracks an existing image attachment by ID.
+- `validate`: removes stale tracked rows when the attachment no longer exists.
+
+`list-tracked` prints a table with:
 - `id`
 - `title`
 - `mime_type`
+- `width`
+- `height`
+- `file_size`
+- `camera`
+- `iso`
 - `uploaded_at`
+- `uploaded_by`
 - `url`
 
 If no tracked images exist, it prints:
@@ -32,6 +45,8 @@ From project root:
 
 2. Run command in CLI container:
 `npx wp-env run cli wp prox media list-tracked`
+`npx wp-env run cli wp prox media track 123`
+`npx wp-env run cli wp prox media validate`
 
 == Notes ==
 - The list only includes images detected after the plugin is active.

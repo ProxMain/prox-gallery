@@ -18,10 +18,12 @@ use Prox\ProxGallery\Modules\AdminModule;
 use Prox\ProxGallery\Modules\CoreModule;
 use Prox\ProxGallery\Modules\FrontendModule;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaLibraryCliController;
+use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaCategoryActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaUploadController;
 use Prox\ProxGallery\Modules\MediaLibrary\MediaLibraryModule;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
@@ -104,7 +106,8 @@ final class App
         $this->container->set(
             MediaLibraryModule::class,
             static fn (Container $container) => new MediaLibraryModule(
-                $container->get(TrackUploadedImageService::class)
+                $container->get(TrackUploadedImageService::class),
+                $container->get(MediaCategoryService::class)
             )
         );
     }
@@ -127,6 +130,13 @@ final class App
             static fn (Container $container) => new MediaManagerActionController(
                 $container->get(UploadedImageQueueModel::class),
                 $container->get(TrackUploadedImageService::class)
+            )
+        );
+        $this->container->set(
+            MediaCategoryActionController::class,
+            static fn (Container $container) => new MediaCategoryActionController(
+                $container->get(MediaCategoryService::class),
+                $container->get(UploadedImageQueueModel::class)
             )
         );
     }
@@ -183,6 +193,10 @@ final class App
             static fn (Container $container) => new TrackUploadedImageService(
                 $container->get(UploadedImageQueueModel::class)
             )
+        );
+        $this->container->set(
+            MediaCategoryService::class,
+            static fn () => new MediaCategoryService()
         );
     }
 
@@ -268,6 +282,7 @@ final class App
         $manager->add($this->container->get(FrontendGalleryController::class));
         $manager->add($this->container->get(MediaUploadController::class));
         $manager->add($this->container->get(MediaManagerActionController::class));
+        $manager->add($this->container->get(MediaCategoryActionController::class));
         $this->addManager($manager);
     }
 

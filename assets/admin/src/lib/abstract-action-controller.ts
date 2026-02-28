@@ -45,7 +45,27 @@ export abstract class AbstractActionController<TDefinitions extends Record<strin
     });
 
     if (!response.ok) {
-      throw new Error(`Action request failed with HTTP ${response.status}.`);
+      let message = `Action request failed with HTTP ${response.status}.`;
+
+      try {
+        const errorJson = (await response.json()) as {
+          data?: { message?: string };
+        };
+
+        if (
+          typeof errorJson === "object" &&
+          errorJson !== null &&
+          errorJson.data &&
+          typeof errorJson.data.message === "string" &&
+          errorJson.data.message !== ""
+        ) {
+          message = errorJson.data.message;
+        }
+      } catch {
+        // Keep fallback HTTP message.
+      }
+
+      throw new Error(message);
     }
 
     const json = (await response.json()) as {
