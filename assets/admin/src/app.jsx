@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { TopBar } from "@/core/topbar";
 import { DashboardSection } from "@/features/dashboard/dashboard-section";
@@ -17,6 +17,7 @@ import {
 } from "@/lib/admin-logic";
 import { MediaManagerActionController } from "@/lib/media-manager-action-controller";
 import { TemplateSettingsActionController } from "@/lib/template-settings-action-controller";
+import { TrackingActionController } from "@/lib/tracking-action-controller";
 
 export function App() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -219,8 +220,52 @@ export function App() {
     config.action_controllers?.template_settings?.update?.nonce
   ]);
 
+  const trackingController = useMemo(() => {
+    const getDefinition = config.action_controllers?.tracking?.get ?? {
+      action: "prox_gallery_tracking_summary_get",
+      nonce: config.rest_nonce || ""
+    };
+
+    if (config.ajax_url === "") {
+      return null;
+    }
+
+    return new TrackingActionController(
+      { ajax_url: config.ajax_url },
+      {
+        get: getDefinition
+      }
+    );
+  }, [
+    config.ajax_url,
+    config.rest_nonce,
+    config.action_controllers?.tracking?.get?.action,
+    config.action_controllers?.tracking?.get?.nonce
+  ]);
+
+  const [dashboardSummary, setDashboardSummary] = useState(null);
+  const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
+  const [dashboardError, setDashboardError] = useState("");
+
   const handleMenuSelect = async (nextMenu) => {
     setActiveMenu(nextMenu);
+
+    if (nextMenu === "dashboard") {
+      if (trackingController) {
+        try {
+          setIsLoadingDashboard(true);
+          setDashboardError("");
+          const response = await trackingController.getSummary();
+          setDashboardSummary(response.summary);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Failed to load dashboard analytics.";
+          setDashboardError(message);
+        } finally {
+          setIsLoadingDashboard(false);
+        }
+      }
+      return;
+    }
 
     if (nextMenu === "media-manager") {
       await loadTrackedImages();
@@ -231,6 +276,45 @@ export function App() {
       await loadGalleries();
     }
   };
+
+  useEffect(() => {
+    if (activeMenu !== "dashboard" || !trackingController) {
+      return;
+    }
+
+    let active = true;
+
+    const loadDashboard = async () => {
+      try {
+        setIsLoadingDashboard(true);
+        setDashboardError("");
+        const response = await trackingController.getSummary();
+
+        if (!active) {
+          return;
+        }
+
+        setDashboardSummary(response.summary);
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : "Failed to load dashboard analytics.";
+        setDashboardError(message);
+      } finally {
+        if (active) {
+          setIsLoadingDashboard(false);
+        }
+      }
+    };
+
+    void loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, [activeMenu, trackingController]);
 
   const handleUpdateMediaMetadata = async (payload) => {
     if (!mediaManagerController) {
@@ -329,7 +413,11 @@ export function App() {
       <TopBar menuItems={ADMIN_MENU_ITEMS} activeMenu={activeMenu} onSelectMenu={handleMenuSelect} />
 
       {activeMenu === "dashboard" ? (
-        <DashboardSection />
+        <DashboardSection
+          summary={dashboardSummary}
+          isLoading={isLoadingDashboard}
+          error={dashboardError}
+        />
       ) : activeMenu === "media-manager" ? (
         <MediaManagerSection
           config={config}

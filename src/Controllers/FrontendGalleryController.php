@@ -6,13 +6,19 @@ namespace Prox\ProxGallery\Controllers;
 
 use Prox\ProxGallery\Contracts\ControllerInterface;
 use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Services\FrontendTrackingService;
 
 /**
  * Frontend boundary controller.
  */
 final class FrontendGalleryController implements ControllerInterface
 {
-    public function __construct(private FrontendGalleryService $service)
+    private const TRACK_ACTION = 'prox_gallery_track_event';
+
+    public function __construct(
+        private FrontendGalleryService $service,
+        private FrontendTrackingService $tracking
+    )
     {
     }
 
@@ -23,6 +29,9 @@ final class FrontendGalleryController implements ControllerInterface
 
     public function boot(): void
     {
+        \add_action('wp_ajax_' . self::TRACK_ACTION, [$this, 'trackEvent']);
+        \add_action('wp_ajax_nopriv_' . self::TRACK_ACTION, [$this, 'trackEvent']);
+
         if (! $this->isFrontendRequest()) {
             return;
         }
@@ -48,6 +57,28 @@ final class FrontendGalleryController implements ControllerInterface
         \do_action('prox_gallery/frontend/shortcode/rendered', $attributes, $content, $tag);
 
         return $html;
+    }
+
+    /**
+     * @return void
+     */
+    public function trackEvent(): void
+    {
+        $eventType = isset($_POST['event_type']) ? (string) $_POST['event_type'] : '';
+        $galleryId = isset($_POST['gallery_id']) ? (int) $_POST['gallery_id'] : 0;
+        $imageId = isset($_POST['image_id']) ? (int) $_POST['image_id'] : 0;
+
+        if ($eventType === 'gallery_visit') {
+            $this->tracking->recordGalleryVisit($galleryId);
+            \wp_send_json_success(['tracked' => true]);
+        }
+
+        if ($eventType === 'image_view') {
+            $this->tracking->recordImageView($galleryId, $imageId);
+            \wp_send_json_success(['tracked' => true]);
+        }
+
+        \wp_send_json_error(['message' => 'Invalid tracking event.'], 400);
     }
 
     private function enqueueFrontendAssets(): void
@@ -77,6 +108,15 @@ final class FrontendGalleryController implements ControllerInterface
             [],
             $scriptVersion,
             true
+        );
+
+        \wp_localize_script(
+            'prox-gallery-frontend',
+            'proxGalleryTracking',
+            [
+                'ajaxUrl' => \admin_url('admin-ajax.php'),
+                'action' => self::TRACK_ACTION,
+            ]
         );
     }
 

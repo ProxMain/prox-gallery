@@ -7,6 +7,7 @@ namespace Prox\ProxGallery\Bootstrap;
 use Prox\ProxGallery\Contracts\ManagerInterface;
 use Prox\ProxGallery\Controllers\AdminGalleryController;
 use Prox\ProxGallery\Controllers\FrontendGalleryController;
+use Prox\ProxGallery\Controllers\TrackingActionController;
 use Prox\ProxGallery\Controllers\TemplateSettingsActionController;
 use Prox\ProxGallery\Flows\AdminFlow;
 use Prox\ProxGallery\Flows\FrontendFlow;
@@ -37,6 +38,7 @@ use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Services\AdminConfigurationService;
 use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Services\FrontendTrackingService;
 use Prox\ProxGallery\Services\TemplateCustomizationService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 use Prox\ProxGallery\States\FrontendGalleryState;
@@ -145,7 +147,8 @@ final class App
         $this->container->set(
             FrontendGalleryController::class,
             static fn (Container $container) => new FrontendGalleryController(
-                $container->get(FrontendGalleryService::class)
+                $container->get(FrontendGalleryService::class),
+                $container->get(FrontendTrackingService::class)
             )
         );
         $this->container->set(
@@ -179,6 +182,13 @@ final class App
             TemplateSettingsActionController::class,
             static fn (Container $container) => new TemplateSettingsActionController(
                 $container->get(TemplateCustomizationService::class)
+            )
+        );
+        $this->container->set(
+            TrackingActionController::class,
+            static fn (Container $container) => new TrackingActionController(
+                $container->get(FrontendTrackingService::class),
+                $container->get(GalleryService::class)
             )
         );
     }
@@ -231,6 +241,10 @@ final class App
                 $container->get(GalleryModel::class),
                 $container->get(TemplateCustomizationService::class)
             )
+        );
+        $this->container->set(
+            FrontendTrackingService::class,
+            static fn () => new FrontendTrackingService()
         );
         $this->container->set(
             TrackUploadedImageService::class,
@@ -369,6 +383,7 @@ final class App
         $manager->add($this->container->get(MediaManagerActionController::class));
         $manager->add($this->container->get(MediaCategoryActionController::class));
         $manager->add($this->container->get(TemplateSettingsActionController::class));
+        $manager->add($this->container->get(TrackingActionController::class));
         $this->addManager($manager);
     }
 

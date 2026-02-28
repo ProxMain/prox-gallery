@@ -39,6 +39,9 @@ export type ProxGalleryAdminConfig = {
       get?: AjaxActionDefinition;
       update?: AjaxActionDefinition;
     };
+    tracking?: {
+      get?: AjaxActionDefinition;
+    };
   };
 };
 

@@ -188,7 +188,11 @@ final class FrontendGalleryService implements ServiceInterface
             $groupClass = 'prox-gallery__group';
             $groupClass .= $lightboxEnabled ? ' prox-gallery--lightbox-enabled' : '';
             $groupClass .= $hoverZoomEnabled ? ' prox-gallery--hover-zoom' : '';
-            $html .= sprintf('<section class="%s">', \esc_attr($groupClass));
+            $html .= sprintf(
+                '<section class="%s" data-prox-gallery-id="%d">',
+                \esc_attr($groupClass),
+                (int) ($gallery['id'] ?? 0)
+            );
             if ($showTitle && $name !== '') {
                 $html .= '<h3 class="prox-gallery__title">' . \esc_html($name) . '</h3>';
             }
@@ -227,10 +231,12 @@ final class FrontendGalleryService implements ServiceInterface
                 if ($lightboxEnabled && $imageUrl !== '') {
                     $title = isset($gallery['name']) ? (string) $gallery['name'] : '';
                     $html .= sprintf(
-                        '<a class="prox-gallery__link" href="%s" data-prox-gallery-lightbox="1" data-prox-gallery-caption="%s" data-prox-gallery-transition="%s">',
+                        '<a class="prox-gallery__link" href="%s" data-prox-gallery-lightbox="1" data-prox-gallery-caption="%s" data-prox-gallery-transition="%s" data-prox-gallery-id="%d" data-prox-image-id="%d">',
                         \esc_url($imageUrl),
                         \esc_attr($title),
-                        \esc_attr($transitionMode)
+                        \esc_attr($transitionMode),
+                        (int) ($gallery['id'] ?? 0),
+                        $imageId
                     );
                     $html .= $imageHtml;
                     $html .= '</a>';
@@ -297,7 +303,11 @@ final class FrontendGalleryService implements ServiceInterface
             $groupClass = 'prox-gallery__group';
             $groupClass .= $lightboxEnabled ? ' prox-gallery--lightbox-enabled' : '';
             $groupClass .= $hoverZoomEnabled ? ' prox-gallery--hover-zoom' : '';
-            $html .= sprintf('<section class="%s">', \esc_attr($groupClass));
+            $html .= sprintf(
+                '<section class="%s" data-prox-gallery-id="%d">',
+                \esc_attr($groupClass),
+                (int) ($gallery['id'] ?? 0)
+            );
             if ($showTitle && $name !== '') {
                 $html .= '<h3 class="prox-gallery__title">' . \esc_html($name) . '</h3>';
             }
@@ -336,10 +346,12 @@ final class FrontendGalleryService implements ServiceInterface
                 if ($lightboxEnabled && $imageUrl !== '') {
                     $title = isset($gallery['name']) ? (string) $gallery['name'] : '';
                     $html .= sprintf(
-                        '<a class="prox-gallery__link" href="%s" data-prox-gallery-lightbox="1" data-prox-gallery-caption="%s" data-prox-gallery-transition="%s">',
+                        '<a class="prox-gallery__link" href="%s" data-prox-gallery-lightbox="1" data-prox-gallery-caption="%s" data-prox-gallery-transition="%s" data-prox-gallery-id="%d" data-prox-image-id="%d">',
                         \esc_url($imageUrl),
                         \esc_attr($title),
-                        \esc_attr($transitionMode)
+                        \esc_attr($transitionMode),
+                        (int) ($gallery['id'] ?? 0),
+                        $imageId
                     );
                     $html .= $imageHtml;
                     $html .= '</a>';
