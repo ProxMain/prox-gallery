@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use Prox\ProxGallery\Controllers\TemplateSettingsActionController;
-use Prox\ProxGallery\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
+use Prox\ProxGallery\Modules\Admin\Controllers\TemplateSettingsActionController;
+use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 
 final class TemplateSettingsActionControllerTest extends WP_UnitTestCase
@@ -26,6 +27,8 @@ final class TemplateSettingsActionControllerTest extends WP_UnitTestCase
     public function test_it_extends_admin_config_with_template_settings_actions(): void
     {
         $controller = $this->controller();
+        $registry = new AdminConfigContributorRegistry();
+        $registry->addContributor($controller);
         $controller->boot();
 
         $payload = \apply_filters(

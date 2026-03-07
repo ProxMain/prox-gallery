@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services;
+namespace Prox\ProxGallery\Modules\Admin\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
 use Prox\ProxGallery\States\AdminConfigurationState;

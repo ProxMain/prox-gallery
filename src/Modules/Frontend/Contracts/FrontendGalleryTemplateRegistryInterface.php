@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services\Contracts;
+namespace Prox\ProxGallery\Modules\Frontend\Contracts;
 
-use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 
 /**
  * Builds and resolves frontend template definitions.

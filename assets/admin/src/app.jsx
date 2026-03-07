@@ -8,16 +8,16 @@ import { MediaManagerSection } from "@/features/media-manager/media-manager-sect
 import { useMediaManagerState } from "@/features/media-manager/use-media-manager-state";
 import { SettingsSection } from "@/features/settings/settings-section";
 import { getAdminConfig } from "@/lib/admin-config";
-import { GalleryActionController } from "@/lib/gallery-action-controller";
-import { MediaCategoryActionController } from "@/lib/media-category-action-controller";
+import { GalleryActionController } from "@/modules/gallery/controllers/gallery-action-controller";
+import { MediaCategoryActionController } from "@/modules/media-library/controllers/media-category-action-controller";
 import {
   ADMIN_MENU_ITEMS,
   sectionDescription,
   sectionTitle
 } from "@/lib/admin-logic";
-import { MediaManagerActionController } from "@/lib/media-manager-action-controller";
-import { TemplateSettingsActionController } from "@/lib/template-settings-action-controller";
-import { TrackingActionController } from "@/lib/tracking-action-controller";
+import { MediaManagerActionController } from "@/modules/media-library/controllers/media-manager-action-controller";
+import { TemplateSettingsActionController } from "@/modules/admin/controllers/template-settings-action-controller";
+import { TrackingActionController } from "@/modules/admin/controllers/tracking-action-controller";
 
 export function App() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -26,16 +26,10 @@ export function App() {
   const description = sectionDescription(activeMenu);
 
   const mediaManagerController = useMemo(() => {
-    const listDefinition = config.action_controllers?.media_manager?.list ?? {
-      action: "prox_gallery_media_manager_list",
-      nonce: config.rest_nonce || ""
-    };
-    const updateDefinition = config.action_controllers?.media_manager?.update ?? {
-      action: "prox_gallery_media_manager_update",
-      nonce: config.rest_nonce || ""
-    };
+    const listDefinition = config.action_controllers?.media_manager?.list;
+    const updateDefinition = config.action_controllers?.media_manager?.update;
 
-    if (config.ajax_url === "") {
+    if (config.ajax_url === "" || !listDefinition || !updateDefinition) {
       return null;
     }
 
@@ -45,7 +39,6 @@ export function App() {
     );
   }, [
     config.ajax_url,
-    config.rest_nonce,
     config.action_controllers?.media_manager?.list?.action,
     config.action_controllers?.media_manager?.list?.nonce,
     config.action_controllers?.media_manager?.update?.action,
@@ -63,20 +56,11 @@ export function App() {
   } = useMediaManagerState(mediaManagerController);
 
   const mediaCategoryController = useMemo(() => {
-    const suggestDefinition = config.action_controllers?.media_category?.suggest ?? {
-      action: "prox_gallery_media_category_suggest",
-      nonce: config.rest_nonce || ""
-    };
-    const listDefinition = config.action_controllers?.media_category?.list ?? {
-      action: "prox_gallery_media_category_list",
-      nonce: config.rest_nonce || ""
-    };
-    const assignDefinition = config.action_controllers?.media_category?.assign ?? {
-      action: "prox_gallery_media_category_assign",
-      nonce: config.rest_nonce || ""
-    };
+    const suggestDefinition = config.action_controllers?.media_category?.suggest;
+    const listDefinition = config.action_controllers?.media_category?.list;
+    const assignDefinition = config.action_controllers?.media_category?.assign;
 
-    if (config.ajax_url === "") {
+    if (config.ajax_url === "" || !suggestDefinition || !listDefinition || !assignDefinition) {
       return null;
     }
 
@@ -90,7 +74,6 @@ export function App() {
     );
   }, [
     config.ajax_url,
-    config.rest_nonce,
     config.action_controllers?.media_category?.suggest?.action,
     config.action_controllers?.media_category?.suggest?.nonce,
     config.action_controllers?.media_category?.list?.action,
@@ -100,44 +83,28 @@ export function App() {
   ]);
 
   const galleryController = useMemo(() => {
-    const listDefinition = config.action_controllers?.galleries?.list ?? {
-      action: "prox_gallery_gallery_list",
-      nonce: config.rest_nonce || ""
-    };
-    const createDefinition = config.action_controllers?.galleries?.create ?? {
-      action: "prox_gallery_gallery_create",
-      nonce: config.rest_nonce || ""
-    };
-    const renameDefinition = config.action_controllers?.galleries?.rename ?? {
-      action: "prox_gallery_gallery_rename",
-      nonce: config.rest_nonce || ""
-    };
-    const deleteDefinition = config.action_controllers?.galleries?.delete ?? {
-      action: "prox_gallery_gallery_delete",
-      nonce: config.rest_nonce || ""
-    };
-    const listImageGalleriesDefinition = config.action_controllers?.galleries?.list_image_galleries ?? {
-      action: "prox_gallery_gallery_list_image_galleries",
-      nonce: config.rest_nonce || ""
-    };
-    const setImageGalleriesDefinition = config.action_controllers?.galleries?.set_image_galleries ?? {
-      action: "prox_gallery_gallery_set_image_galleries",
-      nonce: config.rest_nonce || ""
-    };
-    const addImagesDefinition = config.action_controllers?.galleries?.add_images ?? {
-      action: "prox_gallery_gallery_add_images",
-      nonce: config.rest_nonce || ""
-    };
-    const setImagesDefinition = config.action_controllers?.galleries?.set_images ?? {
-      action: "prox_gallery_gallery_set_images",
-      nonce: config.rest_nonce || ""
-    };
-    const createPageDefinition = config.action_controllers?.galleries?.create_page ?? {
-      action: "prox_gallery_gallery_create_page",
-      nonce: config.rest_nonce || ""
-    };
+    const listDefinition = config.action_controllers?.galleries?.list;
+    const createDefinition = config.action_controllers?.galleries?.create;
+    const renameDefinition = config.action_controllers?.galleries?.rename;
+    const deleteDefinition = config.action_controllers?.galleries?.delete;
+    const listImageGalleriesDefinition = config.action_controllers?.galleries?.list_image_galleries;
+    const setImageGalleriesDefinition = config.action_controllers?.galleries?.set_image_galleries;
+    const addImagesDefinition = config.action_controllers?.galleries?.add_images;
+    const setImagesDefinition = config.action_controllers?.galleries?.set_images;
+    const createPageDefinition = config.action_controllers?.galleries?.create_page;
 
-    if (config.ajax_url === "") {
+    if (
+      config.ajax_url === ""
+      || !listDefinition
+      || !createDefinition
+      || !renameDefinition
+      || !deleteDefinition
+      || !listImageGalleriesDefinition
+      || !setImageGalleriesDefinition
+      || !addImagesDefinition
+      || !setImagesDefinition
+      || !createPageDefinition
+    ) {
       return null;
     }
 
@@ -157,7 +124,6 @@ export function App() {
     );
   }, [
     config.ajax_url,
-    config.rest_nonce,
     config.action_controllers?.galleries?.list?.action,
     config.action_controllers?.galleries?.list?.nonce,
     config.action_controllers?.galleries?.create?.action,
@@ -191,16 +157,10 @@ export function App() {
   } = useGalleriesState(galleryController);
 
   const templateSettingsController = useMemo(() => {
-    const getDefinition = config.action_controllers?.template_settings?.get ?? {
-      action: "prox_gallery_template_settings_get",
-      nonce: config.rest_nonce || ""
-    };
-    const updateDefinition = config.action_controllers?.template_settings?.update ?? {
-      action: "prox_gallery_template_settings_update",
-      nonce: config.rest_nonce || ""
-    };
+    const getDefinition = config.action_controllers?.template_settings?.get;
+    const updateDefinition = config.action_controllers?.template_settings?.update;
 
-    if (config.ajax_url === "") {
+    if (config.ajax_url === "" || !getDefinition || !updateDefinition) {
       return null;
     }
 
@@ -213,7 +173,6 @@ export function App() {
     );
   }, [
     config.ajax_url,
-    config.rest_nonce,
     config.action_controllers?.template_settings?.get?.action,
     config.action_controllers?.template_settings?.get?.nonce,
     config.action_controllers?.template_settings?.update?.action,
@@ -221,12 +180,9 @@ export function App() {
   ]);
 
   const trackingController = useMemo(() => {
-    const getDefinition = config.action_controllers?.tracking?.get ?? {
-      action: "prox_gallery_tracking_summary_get",
-      nonce: config.rest_nonce || ""
-    };
+    const getDefinition = config.action_controllers?.tracking?.get;
 
-    if (config.ajax_url === "") {
+    if (config.ajax_url === "" || !getDefinition) {
       return null;
     }
 
@@ -238,7 +194,6 @@ export function App() {
     );
   }, [
     config.ajax_url,
-    config.rest_nonce,
     config.action_controllers?.tracking?.get?.action,
     config.action_controllers?.tracking?.get?.nonce
   ]);

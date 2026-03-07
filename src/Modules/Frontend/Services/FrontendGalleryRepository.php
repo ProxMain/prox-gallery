@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services;
+namespace Prox\ProxGallery\Modules\Frontend\Services;
 
 use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
-use Prox\ProxGallery\Services\Contracts\FrontendGalleryRepositoryInterface;
+use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
 
 /**
  * Loads normalized gallery rows used by frontend rendering.

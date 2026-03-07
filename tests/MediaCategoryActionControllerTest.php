@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaCategoryActionController;
+use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 
@@ -16,7 +17,10 @@ final class MediaCategoryActionControllerTest extends WP_UnitTestCase
         parent::setUp();
         $this->service = new MediaCategoryService();
         $this->service->registerTaxonomy();
-        $this->controller = new MediaCategoryActionController($this->service, new UploadedImageQueueModel());
+        $this->controller = new MediaCategoryActionController(
+            $this->service,
+            new UploadedImageQueueModel()
+        );
         $this->controller->boot();
     }
 
@@ -29,6 +33,9 @@ final class MediaCategoryActionControllerTest extends WP_UnitTestCase
 
     public function test_it_exposes_media_category_action_config_to_admin_payload(): void
     {
+        $registry = new AdminConfigContributorRegistry();
+        $registry->addContributor($this->controller);
+
         $payload = \apply_filters(
             'prox_gallery/admin/config_payload',
             [

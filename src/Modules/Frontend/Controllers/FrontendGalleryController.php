@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Controllers;
+namespace Prox\ProxGallery\Modules\Frontend\Controllers;
 
 use Prox\ProxGallery\Contracts\ControllerInterface;
-use Prox\ProxGallery\Services\FrontendGalleryService;
-use Prox\ProxGallery\Services\FrontendTrackingService;
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
 
 /**
  * Frontend boundary controller.

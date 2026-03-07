@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services;
+namespace Prox\ProxGallery\Modules\Admin\Services;
 
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 
 /**

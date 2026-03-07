@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services;
+namespace Prox\ProxGallery\Modules\Frontend\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
-use Prox\ProxGallery\Models\GalleryModel;
+use Prox\ProxGallery\Modules\Gallery\Models\GalleryModel;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
-use Prox\ProxGallery\Services\Contracts\FrontendGalleryRepositoryInterface;
-use Prox\ProxGallery\Services\Contracts\FrontendGalleryTemplateRegistryInterface;
-use Prox\ProxGallery\Services\Contracts\FrontendGalleryTemplateRendererInterface;
+use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
+use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRegistryInterface;
+use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRendererInterface;
 use Prox\ProxGallery\States\FrontendGalleryState;
 
 /**

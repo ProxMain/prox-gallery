@@ -28,13 +28,13 @@ final class MediaManagerActionController extends AbstractActionController implem
     public function __construct(
         private UploadedImageQueueModel $queue,
         private TrackUploadedImageService $trackService,
-        ?MediaManagerListService $listService = null,
-        ?MediaManagerSyncService $syncService = null,
-        ?MediaManagerMetadataService $metadataService = null
+        MediaManagerListService $listService,
+        MediaManagerSyncService $syncService,
+        MediaManagerMetadataService $metadataService
     ) {
-        $this->listService = $listService ?? new MediaManagerListService($this->queue);
-        $this->syncService = $syncService ?? new MediaManagerSyncService($this->queue, $this->trackService);
-        $this->metadataService = $metadataService ?? new MediaManagerMetadataService($this->trackService);
+        $this->listService = $listService;
+        $this->syncService = $syncService;
+        $this->metadataService = $metadataService;
     }
 
     public function id(): string

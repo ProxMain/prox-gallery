@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Prox\ProxGallery\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 
 final class TemplateCustomizationServiceTest extends WP_UnitTestCase

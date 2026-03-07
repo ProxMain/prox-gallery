@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services\Contracts;
+namespace Prox\ProxGallery\Modules\Frontend\Contracts;
 
 /**
  * Renders frontend gallery templates.

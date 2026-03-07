@@ -22,6 +22,7 @@ final class AdminAssetLoader
         self::DEV_CLIENT_HANDLE,
         self::DEV_ENTRY_HANDLE,
     ];
+    private bool $buildAssetIssueReported = false;
 
     /**
      * @param array<string, mixed> $adminConfigPayload
@@ -102,6 +103,9 @@ final class AdminAssetLoader
         $assets = $this->resolveBuildAssets();
 
         if ($assets === null) {
+            $this->reportBuildAssetIssue(
+                'Unable to load admin build assets from assets/admin/build/manifest.json. Run the admin build.'
+            );
             return;
         }
 
@@ -218,5 +222,22 @@ final class AdminAssetLoader
         $default = 'http://localhost:5173';
 
         return (string) \apply_filters('prox_gallery/admin/vite_dev_server/url', $default);
+    }
+
+    private function reportBuildAssetIssue(string $message): void
+    {
+        if ($this->buildAssetIssueReported) {
+            return;
+        }
+
+        $this->buildAssetIssueReported = true;
+        \error_log('[prox-gallery] ' . $message);
+
+        \add_action(
+            'admin_notices',
+            static function () use ($message): void {
+                echo '<div class="notice notice-error"><p>' . \esc_html($message) . '</p></div>';
+            }
+        );
     }
 }

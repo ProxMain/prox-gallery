@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Controllers;
+namespace Prox\ProxGallery\Modules\Admin\Controllers;
 
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
-use Prox\ProxGallery\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Controllers\AbstractActionController;
+use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
 
 /**
  * Handles template customization settings AJAX actions.

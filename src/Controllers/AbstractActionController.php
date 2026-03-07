@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Controllers;
 
-use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Contracts\ControllerInterface;
-use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
+use LogicException;
 use Throwable;
 
 /**
@@ -40,19 +39,35 @@ abstract class AbstractActionController implements ControllerInterface
 
         foreach ($configuredActions as $action => $definition) {
             if (! is_string($action) || $action == '' || ! is_array($definition)) {
-                continue;
+                throw new LogicException('Invalid action definition key for controller "' . $this->id() . '".');
             }
 
             $callback = isset($definition['callback']) ? (string) $definition['callback'] : '';
+            $nonceAction = isset($definition['nonce_action']) ? (string) $definition['nonce_action'] : '';
+            $capability = isset($definition['capability']) ? (string) $definition['capability'] : '';
 
             if ($callback == '' || ! method_exists($this, $callback)) {
-                continue;
+                throw new LogicException(
+                    'Invalid callback definition for action "' . $action . '" in controller "' . $this->id() . '".'
+                );
+            }
+
+            if ($nonceAction == '') {
+                throw new LogicException(
+                    'Missing nonce_action for action "' . $action . '" in controller "' . $this->id() . '".'
+                );
+            }
+
+            if ($capability == '') {
+                throw new LogicException(
+                    'Missing capability for action "' . $action . '" in controller "' . $this->id() . '".'
+                );
             }
 
             $this->registeredActions[$action] = [
                 'callback' => $callback,
-                'nonce_action' => isset($definition['nonce_action']) ? (string) $definition['nonce_action'] : $this->defaultNonceAction($action),
-                'capability' => isset($definition['capability']) ? (string) $definition['capability'] : $this->defaultCapability(),
+                'nonce_action' => $nonceAction,
+                'capability' => $capability,
             ];
 
             \add_action('wp_ajax_' . $action, [$this, 'handleAjaxRequest']);
@@ -73,9 +88,6 @@ abstract class AbstractActionController implements ControllerInterface
          */
         \do_action('prox_gallery/action_controller/' . $this->id() . '/booted', $this);
 
-        if ($this instanceof AdminConfigContributorInterface) {
-            AdminConfigContributorRegistry::instance()->addContributor($this);
-        }
     }
 
     /**
@@ -169,16 +181,6 @@ abstract class AbstractActionController implements ControllerInterface
      */
     abstract protected function actions(): array;
 
-    protected function defaultCapability(): string
-    {
-        return 'manage_options';
-    }
-
-    protected function defaultNonceAction(string $action): string
-    {
-        return $action;
-    }
-
     private function isValidNonce(string $nonceAction): bool
     {
         if ($nonceAction === '') {
@@ -191,11 +193,7 @@ abstract class AbstractActionController implements ControllerInterface
             return false;
         }
 
-        if ((bool) \wp_verify_nonce($nonce, $nonceAction)) {
-            return true;
-        }
-
-        return (bool) \wp_verify_nonce($nonce, 'wp_rest');
+        return (bool) \wp_verify_nonce($nonce, $nonceAction);
     }
 
     private function currentUserCan(string $capability, string $action): bool

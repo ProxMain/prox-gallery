@@ -6,7 +6,7 @@ namespace Prox\ProxGallery\Flows;
 
 use Prox\ProxGallery\Contracts\FlowInterface;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
-use Prox\ProxGallery\Services\AdminConfigurationService;
+use Prox\ProxGallery\Modules\Admin\Services\AdminConfigurationService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 
 /**

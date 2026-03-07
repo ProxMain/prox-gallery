@@ -45,6 +45,34 @@ final class MediaLibraryUploadTest extends WP_UnitTestCase
         }
     }
 
+    public function test_it_tracks_images_immediately_when_metadata_is_generated(): void
+    {
+        App::make()->boot();
+
+        $imageId = $this->createAttachment('image/jpeg');
+        \apply_filters(
+            'wp_generate_attachment_metadata',
+            [
+                'width' => 1200,
+                'height' => 800,
+                'filesize' => 123456,
+                'file' => '2026/03/example.jpg',
+                'image_meta' => [
+                    'iso' => '200',
+                ],
+            ],
+            $imageId
+        );
+
+        $queue = new UploadedImageQueueModel();
+        $tracked = $queue->all();
+
+        self::assertCount(1, $tracked);
+        self::assertSame($imageId, $tracked[0]->id);
+        self::assertSame(1200, $tracked[0]->width);
+        self::assertSame(800, $tracked[0]->height);
+    }
+
     private function createAttachment(string $mimeType): int
     {
         $attachmentId = \wp_insert_attachment(

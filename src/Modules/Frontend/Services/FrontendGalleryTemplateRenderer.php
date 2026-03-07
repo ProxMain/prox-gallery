@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services;
+namespace Prox\ProxGallery\Modules\Frontend\Services;
 
-use Prox\ProxGallery\Services\Contracts\FrontendGalleryTemplateRendererInterface;
+use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRendererInterface;
 
 /**
  * Renders built-in frontend gallery templates.

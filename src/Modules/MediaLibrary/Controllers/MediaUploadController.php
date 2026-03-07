@@ -42,7 +42,13 @@ final class MediaUploadController implements ControllerInterface
      */
     public function onMetadataGenerated(array $metadata, int $attachmentId): array
     {
-        $this->scheduleTrack($attachmentId);
+        $tracked = $this->service->trackWithMetadata($attachmentId, $metadata);
+
+        if ($tracked) {
+            \wp_clear_scheduled_hook(self::TRACK_EVENT, [$attachmentId]);
+        } else {
+            $this->scheduleTrack($attachmentId);
+        }
 
         return $metadata;
     }

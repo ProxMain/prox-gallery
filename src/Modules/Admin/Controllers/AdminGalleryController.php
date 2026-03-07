@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Controllers;
+namespace Prox\ProxGallery\Modules\Admin\Controllers;
 
 use Prox\ProxGallery\Controllers\Admin\AdminAssetLoader;
 use Prox\ProxGallery\Controllers\Admin\AdminConfigProvider;
@@ -17,13 +17,10 @@ final class AdminGalleryController implements ControllerInterface
     private string $screenHookSuffix = '';
 
     public function __construct(
-        private ?AdminMenuRegistrar $menuRegistrar = null,
-        private ?AdminAssetLoader $assetLoader = null,
-        private ?AdminConfigProvider $configProvider = null
+        private AdminMenuRegistrar $menuRegistrar,
+        private AdminAssetLoader $assetLoader,
+        private AdminConfigProvider $configProvider
     ) {
-        $this->menuRegistrar = $this->menuRegistrar ?? new AdminMenuRegistrar();
-        $this->assetLoader = $this->assetLoader ?? new AdminAssetLoader();
-        $this->configProvider = $this->configProvider ?? new AdminConfigProvider();
     }
 
     public function id(): string

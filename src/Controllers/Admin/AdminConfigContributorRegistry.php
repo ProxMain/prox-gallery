@@ -11,22 +11,11 @@ use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
  */
 final class AdminConfigContributorRegistry
 {
-    private static ?self $instance = null;
-
     /**
      * @var array<int, AdminConfigContributorInterface>
      */
     private array $contributors = [];
     private bool $filterRegistered = false;
-
-    public static function instance(): self
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
 
     public function addContributor(AdminConfigContributorInterface $contributor): void
     {

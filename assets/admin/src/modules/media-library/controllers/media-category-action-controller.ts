@@ -2,7 +2,7 @@ import {
   AbstractActionController,
   type ActionControllerConfig,
   type AjaxActionDefinition
-} from "@/lib/abstract-action-controller";
+} from "@/modules/core/controllers/abstract-action-controller";
 
 type MediaCategoryDefinitions = {
   suggest: AjaxActionDefinition;

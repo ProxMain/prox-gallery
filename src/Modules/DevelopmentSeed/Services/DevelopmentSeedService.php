@@ -9,7 +9,7 @@ use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
-use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 
 /**
  * Generates development seed data for media, galleries, and categories.

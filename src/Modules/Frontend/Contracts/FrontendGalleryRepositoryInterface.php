@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services\Contracts;
+namespace Prox\ProxGallery\Modules\Frontend\Contracts;
 
 /**
  * Read abstraction for frontend gallery data.

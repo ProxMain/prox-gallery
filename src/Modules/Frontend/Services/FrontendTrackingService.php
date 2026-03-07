@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Services;
+namespace Prox\ProxGallery\Modules\Frontend\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
 

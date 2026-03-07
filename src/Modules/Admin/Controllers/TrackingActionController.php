@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Controllers;
+namespace Prox\ProxGallery\Modules\Admin\Controllers;
 
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
-use Prox\ProxGallery\Services\TrackingSummaryService;
+use Prox\ProxGallery\Controllers\AbstractActionController;
+use Prox\ProxGallery\Modules\Admin\Services\TrackingSummaryService;
 
 /**
  * Admin AJAX controller for analytics/tracking summaries.
@@ -14,10 +15,7 @@ final class TrackingActionController extends AbstractActionController implements
 {
     private const ACTION_GET = 'prox_gallery_tracking_summary_get';
 
-    public function __construct(
-        private TrackingSummaryService $summaryService
-    ) {
-    }
+    public function __construct(private TrackingSummaryService $summaryService) {}
 
     public function id(): string
     {
