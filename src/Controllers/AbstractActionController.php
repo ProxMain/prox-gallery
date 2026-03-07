@@ -172,7 +172,20 @@ abstract class AbstractActionController implements ControllerInterface
                 $this
             );
 
-            \wp_send_json_error(['message' => $exception->getMessage()], 500);
+            \error_log(
+                sprintf(
+                    '[prox-gallery] AJAX action failed controller=%s action=%s error=%s',
+                    $this->id(),
+                    $action,
+                    $exception->getMessage()
+                )
+            );
+
+            $message = \defined('WP_DEBUG') && \WP_DEBUG
+                ? $exception->getMessage()
+                : 'Request failed.';
+
+            \wp_send_json_error(['message' => $message], 500);
         }
     }
 

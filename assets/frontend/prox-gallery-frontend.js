@@ -6,14 +6,16 @@
 
     var ajaxUrl = window.proxGalleryTracking.ajaxUrl || "";
     var action = window.proxGalleryTracking.action || "";
+    var nonce = window.proxGalleryTracking.nonce || "";
 
-    if (!ajaxUrl || !action) {
+    if (!ajaxUrl || !action || !nonce) {
       return null;
     }
 
     return {
       ajaxUrl: ajaxUrl,
-      action: action
+      action: action,
+      nonce: nonce
     };
   }
 
@@ -26,6 +28,7 @@
 
     var params = new URLSearchParams();
     params.append("action", config.action);
+    params.append("_ajax_nonce", config.nonce);
     params.append("event_type", eventType);
 
     if (galleryId > 0) {

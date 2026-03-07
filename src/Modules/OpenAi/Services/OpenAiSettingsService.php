@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\OpenAi\Services;
 
 use InvalidArgumentException;
+use RuntimeException;
 use Prox\ProxGallery\States\AdminConfigurationState;
 
 /**
@@ -13,6 +14,7 @@ use Prox\ProxGallery\States\AdminConfigurationState;
 final class OpenAiSettingsService
 {
     public const DEFAULT_MODEL = 'gpt-4.1-mini';
+    private const API_KEY_PREFIX = 'enc:v1:';
 
     public function __construct(private AdminConfigurationState $state)
     {
@@ -35,7 +37,11 @@ final class OpenAiSettingsService
         }
 
         $openAi = isset($raw['openai']) && is_array($raw['openai']) ? $raw['openai'] : [];
-        $apiKey = isset($openAi['api_key']) ? trim((string) $openAi['api_key']) : '';
+        $apiKey = '';
+
+        if (isset($openAi['api_key']) && is_string($openAi['api_key'])) {
+            $apiKey = $this->readApiKey($openAi['api_key']);
+        }
         $model = isset($openAi['model']) ? trim((string) $openAi['model']) : self::DEFAULT_MODEL;
 
         if ($model === '') {
@@ -114,7 +120,7 @@ final class OpenAiSettingsService
         }
 
         $options['openai'] = [
-            'api_key' => $next['api_key'],
+            'api_key' => $this->encryptApiKey($next['api_key']),
             'model' => $next['model'],
             'languages' => $next['languages'],
             'prompt_templates' => $next['prompt_templates'],
@@ -267,5 +273,89 @@ final class OpenAiSettingsService
         }
 
         return $normalized;
+    }
+
+    private function readApiKey(string $storedValue): string
+    {
+        $value = trim($storedValue);
+
+        if ($value === '') {
+            return '';
+        }
+
+        if (! str_starts_with($value, self::API_KEY_PREFIX)) {
+            // Legacy plaintext value; it will be encrypted on next settings save.
+            return $value;
+        }
+
+        return $this->decryptApiKey($value);
+    }
+
+    private function encryptApiKey(string $apiKey): string
+    {
+        if (! function_exists('sodium_crypto_secretbox')) {
+            throw new RuntimeException('Libsodium extension is required to store OpenAI API keys securely.');
+        }
+
+        $nonce = random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+        $cipher = sodium_crypto_secretbox($apiKey, $nonce, $this->encryptionKey());
+        $payload = [
+            'nonce' => base64_encode($nonce),
+            'cipher' => base64_encode($cipher),
+        ];
+
+        return self::API_KEY_PREFIX . base64_encode((string) \wp_json_encode($payload));
+    }
+
+    private function decryptApiKey(string $storedValue): string
+    {
+        if (! function_exists('sodium_crypto_secretbox_open')) {
+            throw new RuntimeException('Libsodium extension is required to read encrypted OpenAI API keys.');
+        }
+
+        $raw = substr($storedValue, strlen(self::API_KEY_PREFIX));
+        $json = base64_decode($raw, true);
+
+        if (! is_string($json) || $json === '') {
+            throw new RuntimeException('Encrypted OpenAI API key payload is invalid.');
+        }
+
+        $payload = json_decode($json, true);
+
+        if (! is_array($payload)) {
+            throw new RuntimeException('Encrypted OpenAI API key payload is malformed.');
+        }
+
+        $nonce = isset($payload['nonce']) ? base64_decode((string) $payload['nonce'], true) : false;
+        $cipher = isset($payload['cipher']) ? base64_decode((string) $payload['cipher'], true) : false;
+
+        if (! is_string($nonce) || ! is_string($cipher) || $nonce === '' || $cipher === '') {
+            throw new RuntimeException('Encrypted OpenAI API key payload is incomplete.');
+        }
+
+        $plain = sodium_crypto_secretbox_open($cipher, $nonce, $this->encryptionKey());
+
+        if (! is_string($plain)) {
+            throw new RuntimeException('Failed to decrypt OpenAI API key.');
+        }
+
+        return trim($plain);
+    }
+
+    private function encryptionKey(): string
+    {
+        $material = implode(
+            '|',
+            [
+                (string) \get_site_url(),
+                defined('AUTH_KEY') ? (string) \AUTH_KEY : '',
+                defined('SECURE_AUTH_KEY') ? (string) \SECURE_AUTH_KEY : '',
+                defined('LOGGED_IN_KEY') ? (string) \LOGGED_IN_KEY : '',
+                defined('NONCE_KEY') ? (string) \NONCE_KEY : '',
+                'prox-gallery-openai-v1',
+            ]
+        );
+
+        return hash('sha256', $material, true);
     }
 }

@@ -20,6 +20,7 @@ fi
 PACKAGE_NAME="prox-gallery-${VERSION}"
 PACKAGE_ROOT="${TMP_DIR}/prox-gallery"
 ZIP_PATH="${RELEASE_DIR}/${PACKAGE_NAME}.zip"
+TMP_ZIP_PATH="${TMP_DIR}/${PACKAGE_NAME}.zip"
 
 mkdir -p "${RELEASE_DIR}" "${PACKAGE_ROOT}"
 
@@ -37,7 +38,19 @@ rsync -a "${ROOT_DIR}/" "${PACKAGE_ROOT}/" \
 
 (
   cd "${TMP_DIR}"
-  zip -rq "${ZIP_PATH}" "prox-gallery"
+  zip -rq "${TMP_ZIP_PATH}" "prox-gallery"
 )
+
+if [[ ! -s "${TMP_ZIP_PATH}" ]]; then
+  echo "Failed: generated archive is empty: ${TMP_ZIP_PATH}" >&2
+  exit 1
+fi
+
+mv -f "${TMP_ZIP_PATH}" "${ZIP_PATH}"
+
+if [[ ! -s "${ZIP_PATH}" ]]; then
+  echo "Failed: generated archive is empty after move: ${ZIP_PATH}" >&2
+  exit 1
+fi
 
 echo "Created: ${ZIP_PATH}"
