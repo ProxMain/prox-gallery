@@ -33,6 +33,7 @@ pnpm-debug.log*
 #
 /build/
 /dist/
+/release/
 /releases/
 /assets/admin/build/
 
