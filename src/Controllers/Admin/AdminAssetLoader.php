@@ -48,10 +48,21 @@ final class AdminAssetLoader
             return $tag;
         }
 
-        return sprintf(
-            '<script type="module" src="%s" id="%s-js"></script>',
-            \esc_url($src),
-            \esc_attr($handle)
+        $scriptId = \preg_quote($handle . '-js', '/');
+
+        return (string) \preg_replace_callback(
+            '/<script\b([^>]*\bid=(["\'])' . $scriptId . '\2[^>]*)>/i',
+            static function (array $matches): string {
+                $attributes = $matches[1] ?? '';
+
+                if (\preg_match('/\btype=(["\'])module\1/i', $attributes) === 1) {
+                    return (string) ($matches[0] ?? '');
+                }
+
+                return '<script type="module"' . $attributes . '>';
+            },
+            $tag,
+            1
         );
     }
 
