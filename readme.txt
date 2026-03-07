@@ -1,62 +1,96 @@
-=== Prox Gallery CLI Guide ===
+=== Prox Gallery ===
+Contributors: marcel_santing
+Tags: image gallery, photo gallery, lightbox, masonry gallery, media manager
+Requires at least: 6.9.1
+Tested up to: 6.9.1
+Requires PHP: 8.1
+Stable tag: 0.1.0
+License: GPLv3 or later
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-== Overview ==
-Prox Gallery tracks newly uploaded image attachments and stores tracked image DTO data.
-The WP-CLI commands let you list tracked images, manually track an attachment,
-and validate tracked rows.
+A WordPress image gallery and media manager plugin with responsive masonry/grid layouts, fullscreen lightbox, image organization, and optional AI-generated image titles and descriptions.
 
-Development seed tooling is available as an optional module.
-It auto-enables in WP-CLI contexts by default. For non-CLI or explicit control, set in `wp-config.php` before plugin load:
-`define('PROX_GALLERY_ENABLE_DEV_SEED_MODULE', true);`
+== Description ==
 
-== Commands ==
-`wp prox media list-tracked`
-`wp prox media track <id>`
-`wp prox media validate`
-`wp prox seed import-random [--images=<n>] [--galleries=<n>] [--max-categories=<n>] [--max-galleries=<n>] [--clear-existing]`
+Prox Gallery is an all-in-one WordPress image gallery plugin and media manager built for fast image organization and frontend display.
 
-Command behavior:
-- `list-tracked`: prints tracked image rows as a table.
-- `track <id>`: manually tracks an existing image attachment by ID.
-- `validate`: removes stale tracked rows when the attachment no longer exists.
-- `seed import-random`: generates random image attachments, creates galleries, and assigns random categories/galleries to images.
+Create responsive photo galleries, assign images to custom galleries, and display them in configurable grid or masonry layouts with a fullscreen lightbox experience.
 
-`list-tracked` prints a table with:
-- `id`
-- `title`
-- `mime_type`
-- `width`
-- `height`
-- `file_size`
-- `camera`
-- `iso`
-- `uploaded_at`
-- `uploaded_by`
-- `url`
+Gallery and media features:
 
-If no tracked images exist, it prints:
-`Success: No tracked images found.`
+- Automatic image tracking from WordPress Media Library uploads
+- Built-in media manager with image metadata editing
+- Gallery manager: create, rename, delete, and assign images to galleries
+- Frontend image gallery templates: Basic Grid and Masonry
+- Responsive gallery settings: columns, hover zoom, lightbox transitions, and full-width mode
+- Image categories for better media organization and filtering
+- Fullscreen lightbox with image title and optional info panel
+- Optional OpenAI workflow with preview + explicit apply
 
-== How Tracking Works ==
-1. The Media Library module hooks into WordPress `add_attachment`.
-2. On each new attachment, Prox Gallery checks if it is an image.
-3. If it is an image, the ID is stored in the plugin queue option:
-   `prox_gallery_uploaded_image_ids`
+AI image metadata features (admin only):
 
-== Usage With wp-env ==
-From project root:
+- Generate a short image title (max 4 words)
+- Generate image description/story text
+- Factual, Technical, and Creative prompt templates
+- Custom prompt templates and language presets
+- Per-image conscious generation action (no background auto-generation)
 
-1. Start environment:
-`npx wp-env start`
+== Installation ==
 
-2. Run command in CLI container:
-`npx wp-env run cli wp prox media list-tracked`
-`npx wp-env run cli wp prox media track 123`
-`npx wp-env run cli wp prox media validate`
-`npx wp-env run cli wp prox seed import-random --images=100 --galleries=6 --clear-existing`
+1. Upload the plugin folder to `/wp-content/plugins/`, or install it via the WordPress Plugins screen.
+2. Activate the plugin through the `Plugins` screen in WordPress.
+3. Open `Prox Gallery` in wp-admin.
+4. Configure template settings in the `Settings` section.
+5. (Optional) Configure OpenAI in `Settings > OpenAI`.
 
-== Notes ==
-- The list only includes images detected after the plugin is active.
-- Non-image attachments are ignored.
-- The queue deduplicates IDs and keeps recent tracked entries.
-- Seed tooling lives in `src/Modules/DevelopmentSeed` and only boots when `PROX_GALLERY_ENABLE_DEV_SEED_MODULE` is `true`.
+== Frequently Asked Questions ==
+
+= Does this plugin require OpenAI? =
+
+No. OpenAI is optional. Core gallery and media functionality works without it.
+
+= Who can use OpenAI generation actions? =
+
+OpenAI generation actions are available to users with upload/media capabilities, while OpenAI settings management is restricted to administrators.
+
+= Does AI content apply automatically? =
+
+No. Generation is a manual per-image action. Users must explicitly preview and apply.
+
+= Where is generated AI content stored? =
+
+- Short title is saved to the attachment title (`post_title`)
+- Description/story is saved to attachment content (`post_content`)
+
+= Is there WP-CLI support? =
+
+Yes. See the CLI manual in `docs/cli.md`.
+
+== Screenshots ==
+
+1. Gallery dashboard with image tracking and gallery overview.
+2. Media manager in list and grid view with metadata editing modal.
+3. Gallery management screen for creating galleries and assigning images.
+4. Gallery template settings for responsive Basic Grid and Masonry layouts.
+5. OpenAI settings and per-image AI title/description preview and apply flow.
+6. Frontend fullscreen lightbox with bottom title bar and info panel.
+
+== Changelog ==
+
+= 0.1.0 =
+
+- Initial public release
+- Modular plugin architecture with dedicated modules/controllers/services
+- Media upload tracking and media manager tooling
+- Gallery CRUD and image-to-gallery assignment
+- Frontend templates: Basic Grid and Masonry
+- Template customization controls and gallery-level overrides
+- Frontend tracking events for gallery/image views
+- OpenAI integration for per-image short title + description generation
+- WordPress admin React app integration for management workflows
+
+== Upgrade Notice ==
+
+= 0.1.0 =
+
+Initial release.
