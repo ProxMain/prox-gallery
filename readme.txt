@@ -4,7 +4,7 @@ Tags: image gallery, photo gallery, lightbox, masonry gallery, media manager
 Requires at least: 6.9.1
 Tested up to: 6.9.1
 Requires PHP: 8.1
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,15 @@ Yes. See the CLI manual in `docs/cli.md`.
 
 == Changelog ==
 
+= 0.1.1 =
+
+- Security hardening: generic AJAX error responses in production-style responses
+- Security hardening: frontend tracking endpoint nonce validation, input validation, and basic rate limiting
+- Security hardening: OpenAI generation/apply/config actions moved to custom capability `prox_gallery_use_openai`
+- Security hardening: OpenAI API key encrypted at rest with Libsodium
+- Frontend UX: lightbox title and info control moved to styled bottom center bar with responsive scaling improvements
+- Documentation updates for OpenAI capability model, privacy behavior, and Libsodium requirement
+
 = 0.1.0 =
 
 - Initial public release
@@ -98,6 +107,10 @@ Yes. See the CLI manual in `docs/cli.md`.
 - WordPress admin React app integration for management workflows
 
 == Upgrade Notice ==
+
+= 0.1.1 =
+
+Security and capability hardening release with improved lightbox UX.
 
 = 0.1.0 =
 
