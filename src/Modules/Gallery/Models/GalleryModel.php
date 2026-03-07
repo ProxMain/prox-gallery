@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Prox\ProxGallery\Models;
+namespace Prox\ProxGallery\Modules\Gallery\Models;
 
 use Prox\ProxGallery\Contracts\ModelInterface;
 

@@ -7,7 +7,7 @@ namespace Prox\ProxGallery\Contracts;
 /**
  * Represents a policy boundary.
  */
-interface PolicyInterface extends BootableInterface
+interface PolicyInterface
 {
     public function id(): string;
 }

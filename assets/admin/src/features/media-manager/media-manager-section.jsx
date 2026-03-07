@@ -12,7 +12,10 @@ export function MediaManagerSection({
   onUpdateMediaMetadata,
   onLoadMediaCategories,
   onSuggestMediaCategories,
-  onAssignMediaCategories
+  onAssignMediaCategories,
+  onListGalleries,
+  onLoadImageGalleries,
+  onSetImageGalleries
 }) {
   const handleDeleteLinkClick = (event, deleteUrl) => {
     if (deleteUrl === "") {
@@ -41,6 +44,9 @@ export function MediaManagerSection({
         onLoadMediaCategories={onLoadMediaCategories}
         onSuggestMediaCategories={onSuggestMediaCategories}
         onAssignMediaCategories={onAssignMediaCategories}
+        onListGalleries={onListGalleries}
+        onLoadImageGalleries={onLoadImageGalleries}
+        onSetImageGalleries={onSetImageGalleries}
         onDeleteLinkClick={handleDeleteLinkClick}
       />
     </section>

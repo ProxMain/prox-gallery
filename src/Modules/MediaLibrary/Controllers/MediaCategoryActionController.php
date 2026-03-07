@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\MediaLibrary\Controllers;
 
 use InvalidArgumentException;
+use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
@@ -12,7 +13,7 @@ use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 /**
  * Handles AJAX actions for media category suggestions and assignments.
  */
-final class MediaCategoryActionController extends AbstractActionController
+final class MediaCategoryActionController extends AbstractActionController implements AdminConfigContributorInterface
 {
     private const ACTION_SUGGEST = 'prox_gallery_media_category_suggest';
     private const ACTION_LIST = 'prox_gallery_media_category_list';
@@ -21,20 +22,11 @@ final class MediaCategoryActionController extends AbstractActionController
     public function __construct(
         private MediaCategoryService $service,
         private UploadedImageQueueModel $queue
-    )
-    {
-    }
+    ) {}
 
     public function id(): string
     {
         return 'media_category.actions';
-    }
-
-    public function boot(): void
-    {
-        parent::boot();
-
-        \add_filter('prox_gallery/admin/config_payload', [$this, 'extendAdminConfig']);
     }
 
     /**
@@ -45,17 +37,17 @@ final class MediaCategoryActionController extends AbstractActionController
         return [
             self::ACTION_SUGGEST => [
                 'callback' => 'suggestCategories',
-                'nonce_action' => '',
+                'nonce_action' => self::ACTION_SUGGEST,
                 'capability' => 'manage_options',
             ],
             self::ACTION_LIST => [
                 'callback' => 'listCategoriesForAttachment',
-                'nonce_action' => '',
+                'nonce_action' => self::ACTION_LIST,
                 'capability' => 'manage_options',
             ],
             self::ACTION_ASSIGN => [
                 'callback' => 'assignCategoriesToAttachment',
-                'nonce_action' => '',
+                'nonce_action' => self::ACTION_ASSIGN,
                 'capability' => 'manage_options',
             ],
         ];

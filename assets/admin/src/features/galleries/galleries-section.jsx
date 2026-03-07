@@ -1,21 +1,39 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GalleriesHeader } from "@/features/galleries/components/galleries-header";
+import { GalleriesLibraryCard } from "@/features/galleries/components/galleries-library-card";
 
-export function GalleriesSection({ title, description }) {
+export function GalleriesSection({
+  config,
+  galleries,
+  isLoading,
+  error,
+  onReloadGalleries,
+  onCreateGallery,
+  onRenameGallery,
+  onDeleteGallery,
+  onCreateGalleryPage,
+  onLoadTrackedImages,
+  onAddImagesToGallery,
+  onSetGalleryImages
+}) {
+  const templateOptions = config.action_controllers?.galleries?.templates ?? [];
+
   return (
-    <>
-      <section className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Prox Gallery {title}</h1>
-        <p className="text-sm text-slate-600">{description}</p>
-      </section>
-      <Card>
-        <CardHeader>
-          <CardTitle>Galleries Placeholder</CardTitle>
-          <CardDescription>This area is reserved for gallery list, creation, and organization tools.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-slate-600">Add your galleries UI here later.</p>
-        </CardContent>
-      </Card>
-    </>
+    <section className="space-y-6">
+      <GalleriesHeader config={config} templateCount={templateOptions.length} />
+      <GalleriesLibraryCard
+        galleries={galleries}
+        templateOptions={templateOptions}
+        isLoading={isLoading}
+        error={error}
+        onReloadGalleries={onReloadGalleries}
+        onCreateGallery={onCreateGallery}
+        onRenameGallery={onRenameGallery}
+        onDeleteGallery={onDeleteGallery}
+        onCreateGalleryPage={onCreateGalleryPage}
+        onLoadTrackedImages={onLoadTrackedImages}
+        onAddImagesToGallery={onAddImagesToGallery}
+        onSetGalleryImages={onSetGalleryImages}
+      />
+    </section>
   );
 }

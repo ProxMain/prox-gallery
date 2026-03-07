@@ -7,7 +7,7 @@ namespace Prox\ProxGallery\Contracts;
 /**
  * Represents mutable application state.
  */
-interface StateInterface extends BootableInterface
+interface StateInterface
 {
     public function id(): string;
 }

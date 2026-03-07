@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-use Prox\ProxGallery\Controllers\AdminGalleryController;
+use Prox\ProxGallery\Controllers\Admin\AdminAssetLoader;
+use Prox\ProxGallery\Controllers\Admin\AdminConfigProvider;
+use Prox\ProxGallery\Controllers\Admin\AdminMenuRegistrar;
+use Prox\ProxGallery\Modules\Admin\Controllers\AdminGalleryController;
 
 final class AdminGalleryControllerTest extends WP_UnitTestCase
 {
@@ -14,7 +17,7 @@ final class AdminGalleryControllerTest extends WP_UnitTestCase
 
         \set_current_screen('dashboard');
 
-        $controller = new AdminGalleryController();
+        $controller = $this->controller();
         $controller->boot();
 
         self::assertNotFalse(\has_action('admin_menu', [$controller, 'registerMenu']));
@@ -29,7 +32,7 @@ final class AdminGalleryControllerTest extends WP_UnitTestCase
 
         \set_current_screen('front');
 
-        $controller = new AdminGalleryController();
+        $controller = $this->controller();
         $controller->boot();
 
         self::assertFalse(\has_action('admin_menu', [$controller, 'registerMenu']));
@@ -41,12 +44,21 @@ final class AdminGalleryControllerTest extends WP_UnitTestCase
         $adminId = self::factory()->user->create(['role' => 'administrator']);
         \wp_set_current_user($adminId);
 
-        $controller = new AdminGalleryController();
+        $controller = $this->controller();
 
         \ob_start();
         $controller->renderPage();
         $html = (string) \ob_get_clean();
 
         self::assertStringContainsString('prox-gallery-admin-root', $html);
+    }
+
+    private function controller(): AdminGalleryController
+    {
+        return new AdminGalleryController(
+            new AdminMenuRegistrar(),
+            new AdminAssetLoader(),
+            new AdminConfigProvider()
+        );
     }
 }

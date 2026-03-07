@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
+use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 
 final class MediaManagerActionControllerTest extends WP_UnitTestCase
@@ -17,7 +21,7 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
     public function test_it_registers_nonce_protected_ajax_actions_on_boot(): void
     {
         $queue = new UploadedImageQueueModel();
-        $controller = new MediaManagerActionController($queue, new TrackUploadedImageService($queue));
+        $controller = $this->controller($queue);
         $controller->boot();
 
         self::assertNotFalse(\has_action('wp_ajax_prox_gallery_media_manager_sync', [$controller, 'handleAjaxRequest']));
@@ -26,7 +30,9 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
     public function test_it_exposes_media_manager_action_config_to_admin_payload(): void
     {
         $queue = new UploadedImageQueueModel();
-        $controller = new MediaManagerActionController($queue, new TrackUploadedImageService($queue));
+        $controller = $this->controller($queue);
+        $registry = new AdminConfigContributorRegistry();
+        $registry->addContributor($controller);
         $controller->boot();
 
         $payload = \apply_filters(
@@ -69,7 +75,7 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
     public function test_it_updates_attachment_metadata(): void
     {
         $queue = new UploadedImageQueueModel();
-        $controller = new MediaManagerActionController($queue, new TrackUploadedImageService($queue));
+        $controller = $this->controller($queue);
         $attachmentId = $this->createAttachment('image/jpeg', 'Old title');
 
         $response = $controller->updateTrackedImageMetadata(
@@ -106,5 +112,18 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
         self::assertGreaterThan(0, $attachmentId);
 
         return $attachmentId;
+    }
+
+    private function controller(UploadedImageQueueModel $queue): MediaManagerActionController
+    {
+        $trackService = new TrackUploadedImageService($queue);
+
+        return new MediaManagerActionController(
+            $queue,
+            $trackService,
+            new MediaManagerListService($queue),
+            new MediaManagerSyncService($queue, $trackService),
+            new MediaManagerMetadataService($trackService)
+        );
     }
 }
