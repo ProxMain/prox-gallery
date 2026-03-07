@@ -51,7 +51,7 @@ No. OpenAI is optional. Core gallery and media functionality works without it.
 
 = Who can use OpenAI generation actions? =
 
-OpenAI generation actions are available to users with upload/media capabilities, while OpenAI settings management is restricted to administrators.
+OpenAI generation actions require the custom capability `prox_gallery_use_openai` (granted by default to Administrators, Editors and Authors). OpenAI settings management is restricted to administrators.
 
 = Does AI content apply automatically? =
 
@@ -61,6 +61,14 @@ No. Generation is a manual per-image action. Users must explicitly preview and a
 
 - Short title is saved to the attachment title (`post_title`)
 - Description/story is saved to attachment content (`post_content`)
+
+= Does the plugin send image data to external services? =
+
+Only when a user explicitly runs an OpenAI generation action for an image. In that case, image bytes and prompt context are sent to OpenAI API for processing.
+
+= Is Libsodium required? =
+
+Yes. Prox Gallery requires the PHP Libsodium extension to encrypt and decrypt the OpenAI API key at rest.
 
 = Is there WP-CLI support? =
 

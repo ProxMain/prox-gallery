@@ -181,11 +181,7 @@ abstract class AbstractActionController implements ControllerInterface
                 )
             );
 
-            $message = \defined('WP_DEBUG') && \WP_DEBUG
-                ? $exception->getMessage()
-                : 'Request failed.';
-
-            \wp_send_json_error(['message' => $message], 500);
+            \wp_send_json_error(['message' => 'Request failed.'], 500);
         }
     }
 
