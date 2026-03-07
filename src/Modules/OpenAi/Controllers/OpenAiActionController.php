@@ -6,6 +6,7 @@ namespace Prox\ProxGallery\Modules\OpenAi\Controllers;
 
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
+use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
 
@@ -50,17 +51,17 @@ final class OpenAiActionController extends AbstractActionController implements A
             self::ACTION_CONFIG_GET => [
                 'callback' => 'getGenerationConfig',
                 'nonce_action' => self::ACTION_CONFIG_GET,
-                'capability' => 'upload_files',
+                'capability' => OpenAiModule::CAPABILITY_USE,
             ],
             self::ACTION_GENERATE => [
                 'callback' => 'generateStory',
                 'nonce_action' => self::ACTION_GENERATE,
-                'capability' => 'upload_files',
+                'capability' => OpenAiModule::CAPABILITY_USE,
             ],
             self::ACTION_APPLY => [
                 'callback' => 'applyStory',
                 'nonce_action' => self::ACTION_APPLY,
-                'capability' => 'upload_files',
+                'capability' => OpenAiModule::CAPABILITY_USE,
             ],
         ];
     }
