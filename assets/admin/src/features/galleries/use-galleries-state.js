@@ -101,9 +101,17 @@ export function useGalleriesState(galleryController) {
       overrides.show_description = payload.show_description;
     }
 
-    await galleryController.createGallery(name, description, template, {
+    const created = await galleryController.createGallery(name, description, template, {
       ...overrides
     });
+
+    const galleryId = Number(created?.item?.id ?? 0);
+
+    if (galleryId <= 0) {
+      throw new Error("Gallery was created without a valid ID.");
+    }
+
+    await galleryController.createGalleryPage(galleryId);
     await loadGalleries({ force: true });
   }, [galleryController, loadGalleries]);
 
