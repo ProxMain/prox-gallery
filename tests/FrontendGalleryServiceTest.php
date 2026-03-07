@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 use Prox\ProxGallery\Models\GalleryModel;
+use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
+use Prox\ProxGallery\Services\FrontendGalleryRepository;
 use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Services\FrontendGalleryTemplateRegistry;
+use Prox\ProxGallery\Services\FrontendGalleryTemplateRenderer;
 use Prox\ProxGallery\Services\TemplateCustomizationService;
-use Prox\ProxGallery\States\FrontendGalleryState;
 use Prox\ProxGallery\States\AdminConfigurationState;
+use Prox\ProxGallery\States\FrontendGalleryState;
 
 final class FrontendGalleryServiceTest extends WP_UnitTestCase
 {
@@ -300,11 +304,16 @@ final class FrontendGalleryServiceTest extends WP_UnitTestCase
 
     private function service(): FrontendGalleryService
     {
+        $templateSettings = new TemplateCustomizationService(new AdminConfigurationState());
+        $renderer = new FrontendGalleryTemplateRenderer($templateSettings);
+
         return new FrontendGalleryService(
             new FrontendGalleryState(),
             new FrontendVisibilityPolicy(),
             new GalleryModel(),
-            new TemplateCustomizationService(new AdminConfigurationState())
+            new FrontendGalleryRepository(new GalleryCollectionModel()),
+            $renderer,
+            new FrontendGalleryTemplateRegistry($renderer)
         );
     }
 }

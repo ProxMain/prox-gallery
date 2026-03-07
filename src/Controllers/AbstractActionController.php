@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Controllers;
 
+use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Contracts\ControllerInterface;
+use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
 use Throwable;
 
 /**
@@ -70,6 +72,10 @@ abstract class AbstractActionController implements ControllerInterface
          * @param self $controller Action controller instance.
          */
         \do_action('prox_gallery/action_controller/' . $this->id() . '/booted', $this);
+
+        if ($this instanceof AdminConfigContributorInterface) {
+            AdminConfigContributorRegistry::instance()->addContributor($this);
+        }
     }
 
     /**

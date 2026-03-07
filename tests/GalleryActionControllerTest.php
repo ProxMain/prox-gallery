@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use Prox\ProxGallery\Modules\Gallery\Controllers\GalleryActionController;
 use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
+use Prox\ProxGallery\Modules\Gallery\Services\GalleryPageProvisioningService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Models\GalleryModel;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
+use Prox\ProxGallery\Services\FrontendGalleryRepository;
 use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Services\FrontendGalleryTemplateRegistry;
+use Prox\ProxGallery\Services\FrontendGalleryTemplateRenderer;
 use Prox\ProxGallery\Services\TemplateCustomizationService;
-use Prox\ProxGallery\States\FrontendGalleryState;
 use Prox\ProxGallery\States\AdminConfigurationState;
+use Prox\ProxGallery\States\FrontendGalleryState;
 
 final class GalleryActionControllerTest extends WP_UnitTestCase
 {
@@ -226,12 +230,16 @@ final class GalleryActionControllerTest extends WP_UnitTestCase
     private function controller(): GalleryActionController
     {
         $model = new GalleryCollectionModel();
-        $service = new GalleryService($model);
+        $service = new GalleryService($model, new GalleryPageProvisioningService());
+        $templateSettings = new TemplateCustomizationService(new AdminConfigurationState());
+        $renderer = new FrontendGalleryTemplateRenderer($templateSettings);
         $frontendService = new FrontendGalleryService(
             new FrontendGalleryState(),
             new FrontendVisibilityPolicy(),
             new GalleryModel(),
-            new TemplateCustomizationService(new AdminConfigurationState())
+            new FrontendGalleryRepository($model),
+            $renderer,
+            new FrontendGalleryTemplateRegistry($renderer)
         );
 
         return new GalleryActionController($service, $frontendService);

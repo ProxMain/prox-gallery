@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Controllers;
 
+use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Services\TemplateCustomizationService;
 
 /**
  * Handles template customization settings AJAX actions.
  */
-final class TemplateSettingsActionController extends AbstractActionController
+final class TemplateSettingsActionController extends AbstractActionController implements AdminConfigContributorInterface
 {
     private const ACTION_GET = 'prox_gallery_template_settings_get';
     private const ACTION_UPDATE = 'prox_gallery_template_settings_update';
@@ -23,13 +24,6 @@ final class TemplateSettingsActionController extends AbstractActionController
         return 'template_settings.actions';
     }
 
-    public function boot(): void
-    {
-        parent::boot();
-
-        \add_filter('prox_gallery/admin/config_payload', [$this, 'extendAdminConfig']);
-    }
-
     /**
      * @return array<string, array{callback:string, nonce_action?:string, capability?:string}>
      */
@@ -38,12 +32,12 @@ final class TemplateSettingsActionController extends AbstractActionController
         return [
             self::ACTION_GET => [
                 'callback' => 'getSettings',
-                'nonce_action' => '',
+                'nonce_action' => self::ACTION_GET,
                 'capability' => 'manage_options',
             ],
             self::ACTION_UPDATE => [
                 'callback' => 'updateSettings',
-                'nonce_action' => '',
+                'nonce_action' => self::ACTION_UPDATE,
                 'capability' => 'manage_options',
             ],
         ];

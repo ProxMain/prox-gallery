@@ -23,8 +23,11 @@ use Prox\ProxGallery\Modules\DevelopmentSeed\DevelopmentSeedModule;
 use Prox\ProxGallery\Modules\DevelopmentSeed\Services\DevelopmentSeedService;
 use Prox\ProxGallery\Modules\FrontendModule;
 use Prox\ProxGallery\Modules\Gallery\Controllers\GalleryActionController;
+use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryPageProvisionerInterface;
+use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Gallery\GalleryModule;
 use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
+use Prox\ProxGallery\Modules\Gallery\Services\GalleryPageProvisioningService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaLibraryCliController;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaCategoryActionController;
@@ -38,8 +41,15 @@ use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Services\AdminConfigurationService;
 use Prox\ProxGallery\Services\FrontendGalleryService;
+use Prox\ProxGallery\Services\FrontendGalleryRepository;
+use Prox\ProxGallery\Services\FrontendGalleryTemplateRegistry;
+use Prox\ProxGallery\Services\FrontendGalleryTemplateRenderer;
 use Prox\ProxGallery\Services\FrontendTrackingService;
+use Prox\ProxGallery\Services\Contracts\FrontendGalleryRepositoryInterface;
+use Prox\ProxGallery\Services\Contracts\FrontendGalleryTemplateRegistryInterface;
+use Prox\ProxGallery\Services\Contracts\FrontendGalleryTemplateRendererInterface;
 use Prox\ProxGallery\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Services\TrackingSummaryService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 use Prox\ProxGallery\States\FrontendGalleryState;
 use Psr\Container\ContainerInterface;
@@ -187,8 +197,7 @@ final class App
         $this->container->set(
             TrackingActionController::class,
             static fn (Container $container) => new TrackingActionController(
-                $container->get(FrontendTrackingService::class),
-                $container->get(GalleryService::class)
+                $container->get(TrackingSummaryService::class)
             )
         );
     }
@@ -218,6 +227,10 @@ final class App
     {
         $this->container->set(GalleryModel::class, static fn () => new GalleryModel());
         $this->container->set(GalleryCollectionModel::class, static fn () => new GalleryCollectionModel());
+        $this->container->set(
+            GalleryRepositoryInterface::class,
+            static fn (Container $container): GalleryRepositoryInterface => $container->get(GalleryCollectionModel::class)
+        );
         $this->container->set(UploadedImageQueueModel::class, static fn () => new UploadedImageQueueModel());
     }
 
@@ -239,12 +252,51 @@ final class App
                 $container->get(FrontendGalleryState::class),
                 $container->get(FrontendVisibilityPolicy::class),
                 $container->get(GalleryModel::class),
+                $container->get(FrontendGalleryRepositoryInterface::class),
+                $container->get(FrontendGalleryTemplateRendererInterface::class),
+                $container->get(FrontendGalleryTemplateRegistryInterface::class)
+            )
+        );
+        $this->container->set(
+            FrontendGalleryRepository::class,
+            static fn (Container $container) => new FrontendGalleryRepository(
+                $container->get(GalleryRepositoryInterface::class)
+            )
+        );
+        $this->container->set(
+            FrontendGalleryRepositoryInterface::class,
+            static fn (Container $container): FrontendGalleryRepositoryInterface => $container->get(FrontendGalleryRepository::class)
+        );
+        $this->container->set(
+            FrontendGalleryTemplateRenderer::class,
+            static fn (Container $container) => new FrontendGalleryTemplateRenderer(
                 $container->get(TemplateCustomizationService::class)
             )
         );
         $this->container->set(
+            FrontendGalleryTemplateRendererInterface::class,
+            static fn (Container $container): FrontendGalleryTemplateRendererInterface => $container->get(FrontendGalleryTemplateRenderer::class)
+        );
+        $this->container->set(
+            FrontendGalleryTemplateRegistry::class,
+            static fn (Container $container) => new FrontendGalleryTemplateRegistry(
+                $container->get(FrontendGalleryTemplateRenderer::class)
+            )
+        );
+        $this->container->set(
+            FrontendGalleryTemplateRegistryInterface::class,
+            static fn (Container $container): FrontendGalleryTemplateRegistryInterface => $container->get(FrontendGalleryTemplateRegistry::class)
+        );
+        $this->container->set(
             FrontendTrackingService::class,
             static fn () => new FrontendTrackingService()
+        );
+        $this->container->set(
+            TrackingSummaryService::class,
+            static fn (Container $container) => new TrackingSummaryService(
+                $container->get(FrontendTrackingService::class),
+                $container->get(GalleryService::class)
+            )
         );
         $this->container->set(
             TrackUploadedImageService::class,
@@ -255,8 +307,17 @@ final class App
         $this->container->set(
             GalleryService::class,
             static fn (Container $container) => new GalleryService(
-                $container->get(GalleryCollectionModel::class)
+                $container->get(GalleryRepositoryInterface::class),
+                $container->get(GalleryPageProvisionerInterface::class)
             )
+        );
+        $this->container->set(
+            GalleryPageProvisioningService::class,
+            static fn () => new GalleryPageProvisioningService()
+        );
+        $this->container->set(
+            GalleryPageProvisionerInterface::class,
+            static fn (Container $container): GalleryPageProvisionerInterface => $container->get(GalleryPageProvisioningService::class)
         );
         $this->container->set(
             MediaCategoryService::class,

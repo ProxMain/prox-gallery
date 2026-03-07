@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\Gallery\Models;
 
 use Prox\ProxGallery\Contracts\ModelInterface;
+use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
 
 /**
  * Stores gallery rows for the admin gallery module.
  */
-final class GalleryCollectionModel implements ModelInterface
+final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryInterface
 {
     public function id(): string
     {
