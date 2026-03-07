@@ -22,6 +22,7 @@ export function MediaFilesCard({
   onListGalleries,
   onLoadImageGalleries,
   onSetImageGalleries,
+  openAiController,
   onDeleteLinkClick
 }) {
   const [activeModal, setActiveModal] = useState(null);
@@ -217,6 +218,7 @@ export function MediaFilesCard({
         onListGalleries={onListGalleries}
         onLoadImageGalleries={onLoadImageGalleries}
         onSetImageGalleries={onSetImageGalleries}
+        openAiController={openAiController}
         onClose={handleCloseImageModal}
       />
     </>

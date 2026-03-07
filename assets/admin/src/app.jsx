@@ -18,6 +18,7 @@ import {
 import { MediaManagerActionController } from "@/modules/media-library/controllers/media-manager-action-controller";
 import { TemplateSettingsActionController } from "@/modules/admin/controllers/template-settings-action-controller";
 import { TrackingActionController } from "@/modules/admin/controllers/tracking-action-controller";
+import { OpenAiActionController } from "@/modules/openai/controllers/openai-action-controller";
 
 export function App() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -196,6 +197,48 @@ export function App() {
     config.ajax_url,
     config.action_controllers?.tracking?.get?.action,
     config.action_controllers?.tracking?.get?.nonce
+  ]);
+
+  const openAiController = useMemo(() => {
+    const settingsGetDefinition = config.action_controllers?.openai?.settings_get;
+    const settingsUpdateDefinition = config.action_controllers?.openai?.settings_update;
+    const configGetDefinition = config.action_controllers?.openai?.config_get;
+    const generateDefinition = config.action_controllers?.openai?.generate;
+    const applyDefinition = config.action_controllers?.openai?.apply;
+
+    if (
+      config.ajax_url === ""
+      || !settingsGetDefinition
+      || !settingsUpdateDefinition
+      || !configGetDefinition
+      || !generateDefinition
+      || !applyDefinition
+    ) {
+      return null;
+    }
+
+    return new OpenAiActionController(
+      { ajax_url: config.ajax_url },
+      {
+        settings_get: settingsGetDefinition,
+        settings_update: settingsUpdateDefinition,
+        config_get: configGetDefinition,
+        generate: generateDefinition,
+        apply: applyDefinition
+      }
+    );
+  }, [
+    config.ajax_url,
+    config.action_controllers?.openai?.settings_get?.action,
+    config.action_controllers?.openai?.settings_get?.nonce,
+    config.action_controllers?.openai?.settings_update?.action,
+    config.action_controllers?.openai?.settings_update?.nonce,
+    config.action_controllers?.openai?.config_get?.action,
+    config.action_controllers?.openai?.config_get?.nonce,
+    config.action_controllers?.openai?.generate?.action,
+    config.action_controllers?.openai?.generate?.nonce,
+    config.action_controllers?.openai?.apply?.action,
+    config.action_controllers?.openai?.apply?.nonce
   ]);
 
   const [dashboardSummary, setDashboardSummary] = useState(null);
@@ -389,6 +432,7 @@ export function App() {
           onListGalleries={handleListGalleriesForImagePicker}
           onLoadImageGalleries={handleLoadImageGalleries}
           onSetImageGalleries={handleSetImageGalleries}
+          openAiController={openAiController}
         />
       ) : activeMenu === "galleries" ? (
         <GalleriesSection
@@ -411,6 +455,7 @@ export function App() {
           description={description}
           config={config}
           templateSettingsController={templateSettingsController}
+          openAiController={openAiController}
         />
       )}
     </main>

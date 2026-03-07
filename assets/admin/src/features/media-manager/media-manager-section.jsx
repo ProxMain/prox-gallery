@@ -15,7 +15,8 @@ export function MediaManagerSection({
   onAssignMediaCategories,
   onListGalleries,
   onLoadImageGalleries,
-  onSetImageGalleries
+  onSetImageGalleries,
+  openAiController
 }) {
   const handleDeleteLinkClick = (event, deleteUrl) => {
     if (deleteUrl === "") {
@@ -47,6 +48,7 @@ export function MediaManagerSection({
         onListGalleries={onListGalleries}
         onLoadImageGalleries={onLoadImageGalleries}
         onSetImageGalleries={onSetImageGalleries}
+        openAiController={openAiController}
         onDeleteLinkClick={handleDeleteLinkClick}
       />
     </section>

@@ -42,6 +42,13 @@ export type ProxGalleryAdminConfig = {
     tracking?: {
       get?: AjaxActionDefinition;
     };
+    openai?: {
+      settings_get?: AjaxActionDefinition;
+      settings_update?: AjaxActionDefinition;
+      config_get?: AjaxActionDefinition;
+      generate?: AjaxActionDefinition;
+      apply?: AjaxActionDefinition;
+    };
   };
 };
 
