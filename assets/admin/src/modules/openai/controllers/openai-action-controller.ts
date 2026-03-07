@@ -59,14 +59,15 @@ export class OpenAiActionController extends AbstractActionController<OpenAiDefin
     template_key: string;
     language: string;
     prompt_override: string;
-  }): Promise<{ action: string; attachment_id: number; story: string; language: string; template_key: string; prompt: string; model: string }> {
+  }): Promise<{ action: string; attachment_id: number; story: string; short_title: string; language: string; template_key: string; prompt: string; model: string }> {
     return this.dispatch("generate", payload);
   }
 
   public applyStory(payload: {
     attachment_id: number;
     story: string;
-  }): Promise<{ action: string; attachment_id: number; story: string }> {
+    short_title: string;
+  }): Promise<{ action: string; attachment_id: number; story: string; short_title: string }> {
     return this.dispatch("apply", payload);
   }
 }

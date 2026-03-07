@@ -19,7 +19,7 @@ final class OpenAiStoryService
     /**
      * @param array<string, mixed> $payload
      *
-     * @return array{attachment_id:int,story:string,language:string,template_key:string,prompt:string,model:string}
+     * @return array{attachment_id:int,story:string,short_title:string,language:string,template_key:string,prompt:string,model:string}
      */
     public function generate(array $payload): array
     {
@@ -105,7 +105,7 @@ final class OpenAiStoryService
                         [
                             'type' => 'input_text',
                             'text' => sprintf(
-                                "Language: %s\nTemplate: %s\nInstruction: %s\n\nUse only details grounded in the image.",
+                                "Language: %s\nTemplate: %s\nInstruction: %s\n\nReturn strictly valid JSON only with keys \"short_title\" and \"story\". The \"short_title\" must be 1 to 4 words maximum and based on the image. The \"story\" must be grounded in visible details from the image.",
                                 $language,
                                 $templateKey,
                                 $prompt
@@ -148,40 +148,32 @@ final class OpenAiStoryService
             throw new RuntimeException($error);
         }
 
-        $story = isset($json['output_text']) ? trim((string) $json['output_text']) : '';
+        $outputText = $this->extractOutputText($json);
 
-        if ($story === '' && isset($json['output']) && is_array($json['output'])) {
-            foreach ($json['output'] as $item) {
-                if (! is_array($item) || ! isset($item['content']) || ! is_array($item['content'])) {
-                    continue;
-                }
+        if ($outputText === '') {
+            throw new RuntimeException('OpenAI did not return any story payload.');
+        }
 
-                foreach ($item['content'] as $content) {
-                    if (! is_array($content)) {
-                        continue;
-                    }
+        $parsed = $this->parseGeneratedJsonPayload($outputText);
+        $shortTitle = trim((string) ($parsed['short_title'] ?? ''));
+        $story = trim((string) ($parsed['story'] ?? ''));
 
-                    if (($content['type'] ?? '') !== 'output_text') {
-                        continue;
-                    }
-
-                    $text = isset($content['text']) ? trim((string) $content['text']) : '';
-
-                    if ($text !== '') {
-                        $story = $text;
-                        break 2;
-                    }
-                }
-            }
+        if ($shortTitle === '') {
+            throw new RuntimeException('OpenAI did not return a short title.');
         }
 
         if ($story === '') {
             throw new RuntimeException('OpenAI did not return any story text.');
         }
 
+        if ($this->wordCount($shortTitle) > 4) {
+            throw new RuntimeException('OpenAI short title exceeded 4 words.');
+        }
+
         return [
             'attachment_id' => $attachmentId,
             'story' => $story,
+            'short_title' => $shortTitle,
             'language' => $language,
             'template_key' => $templateKey,
             'prompt' => $prompt,
@@ -192,12 +184,13 @@ final class OpenAiStoryService
     /**
      * @param array<string, mixed> $payload
      *
-     * @return array{attachment_id:int,story:string}
+     * @return array{attachment_id:int,story:string,short_title:string}
      */
     public function apply(array $payload): array
     {
         $attachmentId = isset($payload['attachment_id']) ? (int) $payload['attachment_id'] : 0;
         $story = isset($payload['story']) ? trim((string) $payload['story']) : '';
+        $shortTitle = isset($payload['short_title']) ? trim((string) $payload['short_title']) : '';
 
         if ($attachmentId <= 0) {
             throw new InvalidArgumentException('Attachment ID is required.');
@@ -205,6 +198,14 @@ final class OpenAiStoryService
 
         if ($story === '') {
             throw new InvalidArgumentException('Story text is required.');
+        }
+
+        if ($shortTitle === '') {
+            throw new InvalidArgumentException('Short title is required.');
+        }
+
+        if ($this->wordCount($shortTitle) > 4) {
+            throw new InvalidArgumentException('Short title must be 4 words maximum.');
         }
 
         $post = \get_post($attachmentId);
@@ -217,6 +218,7 @@ final class OpenAiStoryService
             [
                 'ID' => $attachmentId,
                 'post_content' => \sanitize_textarea_field($story),
+                'post_title' => \sanitize_text_field($shortTitle),
             ],
             true
         );
@@ -228,6 +230,76 @@ final class OpenAiStoryService
         return [
             'attachment_id' => $attachmentId,
             'story' => (string) \get_post_field('post_content', $attachmentId),
+            'short_title' => (string) \get_post_field('post_title', $attachmentId),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $json
+     */
+    private function extractOutputText(array $json): string
+    {
+        $text = isset($json['output_text']) ? trim((string) $json['output_text']) : '';
+
+        if ($text !== '') {
+            return $text;
+        }
+
+        if (! isset($json['output']) || ! is_array($json['output'])) {
+            return '';
+        }
+
+        foreach ($json['output'] as $item) {
+            if (! is_array($item) || ! isset($item['content']) || ! is_array($item['content'])) {
+                continue;
+            }
+
+            foreach ($item['content'] as $content) {
+                if (! is_array($content) || ($content['type'] ?? '') !== 'output_text') {
+                    continue;
+                }
+
+                $candidate = isset($content['text']) ? trim((string) $content['text']) : '';
+
+                if ($candidate !== '') {
+                    return $candidate;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array{short_title:string,story:string}
+     */
+    private function parseGeneratedJsonPayload(string $outputText): array
+    {
+        $payload = trim($outputText);
+
+        if (str_starts_with($payload, '```')) {
+            $payload = preg_replace('/^```[a-zA-Z0-9]*\s*/', '', $payload) ?? $payload;
+            $payload = preg_replace('/\s*```$/', '', $payload) ?? $payload;
+            $payload = trim($payload);
+        }
+
+        $decoded = \json_decode($payload, true);
+
+        if (! is_array($decoded)) {
+            throw new RuntimeException('OpenAI returned invalid JSON payload.');
+        }
+
+        return [
+            'short_title' => trim((string) ($decoded['short_title'] ?? '')),
+            'story' => trim((string) ($decoded['story'] ?? '')),
+        ];
+    }
+
+    private function wordCount(string $value): int
+    {
+        $parts = preg_split('/\s+/', trim($value)) ?: [];
+        $parts = array_values(array_filter($parts, static fn (string $item): bool => $item !== ''));
+
+        return count($parts);
     }
 }

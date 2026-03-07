@@ -72,6 +72,7 @@ export function MediaImageModal({
   const [openAiLanguage, setOpenAiLanguage] = useState("English");
   const [openAiPromptOverride, setOpenAiPromptOverride] = useState("");
   const [openAiPreview, setOpenAiPreview] = useState("");
+  const [openAiShortTitle, setOpenAiShortTitle] = useState("");
   const [openAiGeneratedPrompt, setOpenAiGeneratedPrompt] = useState("");
   const [isGeneratingOpenAi, setIsGeneratingOpenAi] = useState(false);
   const [isApplyingOpenAi, setIsApplyingOpenAi] = useState(false);
@@ -96,6 +97,7 @@ export function MediaImageModal({
     setOpenAiPreview("");
     setOpenAiGeneratedPrompt("");
     setOpenAiPromptOverride("");
+    setOpenAiShortTitle("");
     setOpenAiNotice("");
   }, [image, mode]);
 
@@ -454,6 +456,7 @@ export function MediaImageModal({
       });
 
       setOpenAiPreview(String(response.story || ""));
+      setOpenAiShortTitle(String(response.short_title || ""));
       setOpenAiGeneratedPrompt(String(response.prompt || ""));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to generate AI story.";
@@ -474,22 +477,31 @@ export function MediaImageModal({
       return;
     }
 
+    if (openAiShortTitle.trim() === "") {
+      setOpenAiNotice("Generate a short title before applying.");
+      return;
+    }
+
     try {
       setIsApplyingOpenAi(true);
       setOpenAiNotice("");
       const response = await openAiController.applyStory({
         attachment_id: image.id,
-        story: openAiPreview
+        story: openAiPreview,
+        short_title: openAiShortTitle
       });
 
       const story = String(response.story || "");
+      const shortTitle = String(response.short_title || "");
 
       setOpenAiPreview(story);
+      setOpenAiShortTitle(shortTitle);
       setFormState((current) => ({
         ...current,
+        title: shortTitle,
         description: story
       }));
-      setOpenAiNotice("Story applied to image description.");
+      setOpenAiNotice("Title and story applied to image metadata.");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to apply AI story.";
       setOpenAiNotice(message);
@@ -845,6 +857,17 @@ export function MediaImageModal({
                         />
                       </label>
 
+                      <label className="block space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Short title (max 4 words)</span>
+                        <input
+                          type="text"
+                          value={openAiShortTitle}
+                          onChange={(event) => setOpenAiShortTitle(event.target.value)}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        />
+                      </label>
+
                       <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
@@ -857,7 +880,7 @@ export function MediaImageModal({
                         <button
                           type="button"
                           onClick={handleApplyOpenAiStory}
-                          disabled={isGeneratingOpenAi || isApplyingOpenAi || openAiPreview.trim() === ""}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi || openAiPreview.trim() === "" || openAiShortTitle.trim() === ""}
                           className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           {isApplyingOpenAi ? "Applying..." : "Apply to description"}

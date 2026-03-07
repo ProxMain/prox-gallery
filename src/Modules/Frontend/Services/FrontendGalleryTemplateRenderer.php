@@ -153,11 +153,15 @@ final class FrontendGalleryTemplateRenderer implements FrontendGalleryTemplateRe
                 $html .= '<figure class="prox-gallery__item">';
 
                 if ($lightboxEnabled && $imageUrl !== '') {
-                    $title = isset($gallery['name']) ? (string) $gallery['name'] : '';
+                    $galleryTitle = isset($gallery['name']) ? (string) $gallery['name'] : '';
+                    $imageTitle = (string) \get_the_title($imageId);
+                    $imageDescription = (string) \get_post_field('post_content', $imageId);
                     $html .= sprintf(
-                        '<a class="prox-gallery__link" href="%s" data-prox-gallery-lightbox="1" data-prox-gallery-caption="%s" data-prox-gallery-transition="%s" data-prox-gallery-id="%d" data-prox-image-id="%d">',
+                        '<a class="prox-gallery__link" href="%s" data-prox-gallery-lightbox="1" data-prox-gallery-caption="%s" data-prox-image-title="%s" data-prox-image-description="%s" data-prox-gallery-transition="%s" data-prox-gallery-id="%d" data-prox-image-id="%d">',
                         \esc_url($imageUrl),
-                        \esc_attr($title),
+                        \esc_attr($galleryTitle),
+                        \esc_attr($imageTitle),
+                        \esc_attr($imageDescription),
                         \esc_attr($transitionMode),
                         (int) ($gallery['id'] ?? 0),
                         $imageId

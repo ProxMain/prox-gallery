@@ -59,11 +59,15 @@
     root.innerHTML =
       '<div class="prox-gallery-lightbox__backdrop"></div>' +
       '<div class="prox-gallery-lightbox__content">' +
+      '<div class="prox-gallery-lightbox__topbar">' +
+      '<div class="prox-gallery-lightbox__title"></div>' +
+      '<button type="button" class="prox-gallery-lightbox__info-toggle" aria-label="Toggle description" aria-expanded="false">&#9432;</button>' +
+      "</div>" +
       '<button type="button" class="prox-gallery-lightbox__nav prox-gallery-lightbox__nav--prev" aria-label="Previous">&#10094;</button>' +
       '<img class="prox-gallery-lightbox__image" alt="" />' +
       '<button type="button" class="prox-gallery-lightbox__nav prox-gallery-lightbox__nav--next" aria-label="Next">&#10095;</button>' +
       '<button type="button" class="prox-gallery-lightbox__close" aria-label="Close">&times;</button>' +
-      '<div class="prox-gallery-lightbox__caption"></div>' +
+      '<div class="prox-gallery-lightbox__info" hidden></div>' +
       "</div>";
     document.body.appendChild(root);
     return root;
@@ -92,11 +96,13 @@
 
     var lightbox = buildLightbox();
     var image = lightbox.querySelector(".prox-gallery-lightbox__image");
-    var caption = lightbox.querySelector(".prox-gallery-lightbox__caption");
     var closeButton = lightbox.querySelector(".prox-gallery-lightbox__close");
     var backdrop = lightbox.querySelector(".prox-gallery-lightbox__backdrop");
     var prevButton = lightbox.querySelector(".prox-gallery-lightbox__nav--prev");
     var nextButton = lightbox.querySelector(".prox-gallery-lightbox__nav--next");
+    var title = lightbox.querySelector(".prox-gallery-lightbox__title");
+    var infoToggleButton = lightbox.querySelector(".prox-gallery-lightbox__info-toggle");
+    var infoPanel = lightbox.querySelector(".prox-gallery-lightbox__info");
     var items = Array.prototype.slice.call(links);
     var currentIndex = -1;
     var isAnimating = false;
@@ -211,7 +217,8 @@
 
       var link = items[currentIndex];
       var href = link.getAttribute("href") || "";
-      var text = link.getAttribute("data-prox-gallery-caption") || "";
+      var imageTitle = link.getAttribute("data-prox-image-title") || "";
+      var description = link.getAttribute("data-prox-image-description") || "";
       var mode = (link.getAttribute("data-prox-gallery-transition") || "none").toLowerCase();
 
       if (!href) {
@@ -221,8 +228,14 @@
       clearTransitionClasses();
       if (mode === "none" || image.getAttribute("src") === "") {
         image.setAttribute("src", href);
-        if (caption) {
-          caption.textContent = text;
+        if (title) {
+          title.textContent = imageTitle;
+        }
+        if (infoPanel && infoToggleButton) {
+          infoPanel.textContent = description;
+          infoPanel.hidden = true;
+          infoToggleButton.setAttribute("aria-expanded", "false");
+          infoToggleButton.hidden = description.trim() === "";
         }
         return;
       }
@@ -238,8 +251,14 @@
       window.setTimeout(function () {
         clearTransitionClasses();
         image.setAttribute("src", href);
-        if (caption) {
-          caption.textContent = text;
+        if (title) {
+          title.textContent = imageTitle;
+        }
+        if (infoPanel && infoToggleButton) {
+          infoPanel.textContent = description;
+          infoPanel.hidden = true;
+          infoToggleButton.setAttribute("aria-expanded", "false");
+          infoToggleButton.hidden = description.trim() === "";
         }
 
         if (inClass) {
@@ -261,8 +280,14 @@
       if (image) {
         image.setAttribute("src", "");
       }
-      if (caption) {
-        caption.textContent = "";
+      if (title) {
+        title.textContent = "";
+      }
+      if (infoPanel && infoToggleButton) {
+        infoPanel.textContent = "";
+        infoPanel.hidden = true;
+        infoToggleButton.hidden = true;
+        infoToggleButton.setAttribute("aria-expanded", "false");
       }
     }
 
@@ -324,6 +349,14 @@
           sendTrackingEvent("image_view", nextGalleryId, nextImageId);
         }
         showIndex(currentIndex + 1, "next");
+      });
+    }
+
+    if (infoToggleButton && infoPanel) {
+      infoToggleButton.addEventListener("click", function () {
+        var isHidden = infoPanel.hidden;
+        infoPanel.hidden = !isHidden;
+        infoToggleButton.setAttribute("aria-expanded", isHidden ? "true" : "false");
       });
     }
 
