@@ -3,6 +3,10 @@ import { Bot, LayoutTemplate, Plus, Settings2, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
+import {
+  useOpenAiActionController,
+  useTemplateSettingsActionController
+} from "@/lib/action-controller-hooks";
 
 const DEFAULT_SETTINGS = {
   basic_grid_columns: 4,
@@ -87,7 +91,9 @@ function normalizeOpenAiSettings(settings) {
   };
 }
 
-export function SettingsSection({ title, description, config, templateSettingsController, openAiController }) {
+export function SettingsSection({ title, description, config, isActive }) {
+  const templateSettingsController = useTemplateSettingsActionController(config);
+  const openAiController = useOpenAiActionController(config);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -128,6 +134,10 @@ export function SettingsSection({ title, description, config, templateSettingsCo
   ]);
 
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
     let isMounted = true;
 
     const load = async () => {
@@ -182,9 +192,13 @@ export function SettingsSection({ title, description, config, templateSettingsCo
     return () => {
       isMounted = false;
     };
-  }, [templateSettingsController]);
+  }, [isActive, templateSettingsController]);
 
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
     let isMounted = true;
 
     const load = async () => {
@@ -222,7 +236,7 @@ export function SettingsSection({ title, description, config, templateSettingsCo
     return () => {
       isMounted = false;
     };
-  }, [openAiController]);
+  }, [isActive, openAiController]);
 
   const handleSave = async () => {
     if (!templateSettingsController) {
@@ -607,7 +621,7 @@ export function SettingsSection({ title, description, config, templateSettingsCo
   );
 
   return (
-    <>
+    <div className={isActive ? "" : "hidden"}>
       <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="rounded-xl border border-slate-200 bg-white p-4">
           <h1 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900">
@@ -781,6 +795,6 @@ export function SettingsSection({ title, description, config, templateSettingsCo
 
         {activeSection === "openai" ? openAiCard : null}
       </div>
-    </>
+    </div>
   );
 }

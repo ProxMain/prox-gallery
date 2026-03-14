@@ -350,6 +350,11 @@ Expected result:
 - Each feature owns its own dependencies.
 - Cross-feature coupling in `App` drops significantly.
 
+Status:
+- Fixed by moving admin action-controller construction out of [app.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/app.jsx) into shared feature hooks in [action-controller-hooks.js](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/lib/action-controller-hooks.js).
+- [DashboardSection.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/features/dashboard/dashboard-section.jsx), [MediaManagerSection.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/features/media-manager/media-manager-section.jsx), [GalleriesSection.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/features/galleries/galleries-section.jsx), and [SettingsSection.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/features/settings/settings-section.jsx) now own their feature dependencies and loading orchestration.
+- [app.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/app.jsx) is reduced to menu selection and section visibility.
+
 ### Phase 5: Standardize async resource hooks
 
 Scope:
@@ -473,6 +478,8 @@ This is the recommended order for addressing the review. The sequence is based o
 - Outcome:
   - `App` becomes section routing/navigation only
   - each feature owns its own controllers and workflows
+- Status:
+  - fixed by moving controller construction and feature loading into section-owned hooks/containers while leaving `App` responsible for menu selection only
 
 9. Split large feature components into feature-level units
 - Refactor the largest frontend monoliths:
@@ -496,6 +503,5 @@ This is the recommended order for addressing the review. The sequence is based o
 ### Recommended execution strategy
 
 Recommended order of actual implementation:
-1. frontend feature-container refactor
-2. frontend component splitting
-3. shared async hooks and TS tightening
+1. frontend component splitting
+2. shared async hooks and TS tightening

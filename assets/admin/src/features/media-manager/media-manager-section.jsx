@@ -1,23 +1,41 @@
+import { useEffect } from "react";
+
 import { MediaFilesCard } from "@/features/media-manager/components/media-files-card";
 import { MediaManagerHeader } from "@/features/media-manager/components/media-manager-header";
+import { useMediaManagerState } from "@/features/media-manager/use-media-manager-state";
+import {
+  useGalleryActionController,
+  useMediaCategoryActionController,
+  useMediaManagerActionController,
+  useOpenAiActionController
+} from "@/lib/action-controller-hooks";
 
 export function MediaManagerSection({
   config,
-  isLoadingList,
-  listError,
-  trackedImages,
-  viewMode,
-  setViewMode,
-  onReloadTrackedImages,
-  onUpdateMediaMetadata,
-  onLoadMediaCategories,
-  onSuggestMediaCategories,
-  onAssignMediaCategories,
-  onListGalleries,
-  onLoadImageGalleries,
-  onSetImageGalleries,
-  openAiController
+  isActive
 }) {
+  const mediaManagerController = useMediaManagerActionController(config);
+  const mediaCategoryController = useMediaCategoryActionController(config);
+  const galleryController = useGalleryActionController(config);
+  const openAiController = useOpenAiActionController(config);
+  const {
+    viewMode,
+    trackedImages,
+    isLoadingList,
+    listError,
+    setViewMode,
+    loadTrackedImages,
+    reloadTrackedImages
+  } = useMediaManagerState(mediaManagerController);
+
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
+    void loadTrackedImages();
+  }, [isActive, loadTrackedImages]);
+
   const handleDeleteLinkClick = (event, deleteUrl) => {
     if (deleteUrl === "") {
       event.preventDefault();
@@ -31,8 +49,73 @@ export function MediaManagerSection({
     }
   };
 
+  const handleUpdateMediaMetadata = async (payload) => {
+    if (!mediaManagerController) {
+      throw new Error("Media manager action configuration is missing.");
+    }
+
+    const response = await mediaManagerController.updateTrackedImageMetadata(payload);
+    await reloadTrackedImages();
+
+    return response.item;
+  };
+
+  const handleLoadMediaCategories = async (attachmentId) => {
+    if (!mediaCategoryController) {
+      throw new Error("Media category action configuration is missing.");
+    }
+
+    const response = await mediaCategoryController.listForAttachment(attachmentId);
+    return response.items;
+  };
+
+  const handleSuggestMediaCategories = async (query) => {
+    if (!mediaCategoryController) {
+      return [];
+    }
+
+    const response = await mediaCategoryController.suggestCategories(query, 12);
+    return response.items;
+  };
+
+  const handleAssignMediaCategories = async (attachmentId, categories) => {
+    if (!mediaCategoryController) {
+      throw new Error("Media category action configuration is missing.");
+    }
+
+    const response = await mediaCategoryController.assignToAttachment(attachmentId, categories.join(","));
+    return response.items;
+  };
+
+  const handleLoadImageGalleries = async (imageId) => {
+    if (!galleryController) {
+      return [];
+    }
+
+    const response = await galleryController.listImageGalleries(imageId);
+    return response.gallery_ids;
+  };
+
+  const handleSetImageGalleries = async (imageId, galleryIds) => {
+    if (!galleryController) {
+      throw new Error("Galleries action configuration is missing.");
+    }
+
+    const response = await galleryController.setImageGalleries(imageId, galleryIds);
+    return response.gallery_ids;
+  };
+
+  const handleListGalleries = async () => {
+    if (!galleryController) {
+      return [];
+    }
+
+    const response = await galleryController.listGalleries();
+    return response.items;
+  };
+
   return (
-    <section className="space-y-6">
+    <section className={isActive ? "space-y-6" : "hidden space-y-6"}>
       <MediaManagerHeader config={config} />
       <MediaFilesCard
         isLoadingList={isLoadingList}
@@ -40,14 +123,14 @@ export function MediaManagerSection({
         trackedImages={trackedImages}
         viewMode={viewMode}
         setViewMode={setViewMode}
-        onReloadTrackedImages={onReloadTrackedImages}
-        onUpdateMediaMetadata={onUpdateMediaMetadata}
-        onLoadMediaCategories={onLoadMediaCategories}
-        onSuggestMediaCategories={onSuggestMediaCategories}
-        onAssignMediaCategories={onAssignMediaCategories}
-        onListGalleries={onListGalleries}
-        onLoadImageGalleries={onLoadImageGalleries}
-        onSetImageGalleries={onSetImageGalleries}
+        onReloadTrackedImages={reloadTrackedImages}
+        onUpdateMediaMetadata={handleUpdateMediaMetadata}
+        onLoadMediaCategories={handleLoadMediaCategories}
+        onSuggestMediaCategories={handleSuggestMediaCategories}
+        onAssignMediaCategories={handleAssignMediaCategories}
+        onListGalleries={handleListGalleries}
+        onLoadImageGalleries={handleLoadImageGalleries}
+        onSetImageGalleries={handleSetImageGalleries}
         openAiController={openAiController}
         onDeleteLinkClick={handleDeleteLinkClick}
       />
