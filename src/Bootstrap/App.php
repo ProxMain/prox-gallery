@@ -4,66 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Bootstrap;
 
-use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Contracts\ManagerInterface;
-use Prox\ProxGallery\Controllers\Admin\AdminAssetLoader;
-use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
-use Prox\ProxGallery\Controllers\Admin\AdminConfigProvider;
-use Prox\ProxGallery\Controllers\Admin\AdminMenuRegistrar;
-use Prox\ProxGallery\Flows\AdminFlow;
-use Prox\ProxGallery\Flows\FrontendFlow;
-use Prox\ProxGallery\Managers\CliManager;
-use Prox\ProxGallery\Managers\ControllerManager;
-use Prox\ProxGallery\Managers\FlowManager;
-use Prox\ProxGallery\Managers\ModuleManager;
-use Prox\ProxGallery\Modules\AdminModule;
-use Prox\ProxGallery\Modules\CoreModule;
-use Prox\ProxGallery\Modules\DevelopmentSeed\Controllers\DevelopmentSeedCliController;
-use Prox\ProxGallery\Modules\DevelopmentSeed\DevelopmentSeedModule;
-use Prox\ProxGallery\Modules\DevelopmentSeed\Services\DevelopmentSeedService;
-use Prox\ProxGallery\Modules\Frontend\Controllers\FrontendGalleryController;
-use Prox\ProxGallery\Modules\FrontendModule;
-use Prox\ProxGallery\Modules\Gallery\Controllers\GalleryActionController;
-use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryPageProvisionerInterface;
-use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
-use Prox\ProxGallery\Modules\Gallery\GalleryModule;
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryModel;
-use Prox\ProxGallery\Modules\Gallery\Services\GalleryPageProvisioningService;
-use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
-use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaLibraryCliController;
-use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaCategoryActionController;
-use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
-use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaUploadController;
-use Prox\ProxGallery\Modules\MediaLibrary\MediaLibraryModule;
-use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
-use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
-use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
-use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
-use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
-use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
-use Prox\ProxGallery\Modules\OpenAi\Controllers\OpenAiActionController;
-use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
-use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
-use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
-use Prox\ProxGallery\Modules\Admin\Controllers\AdminGalleryController;
-use Prox\ProxGallery\Modules\Admin\Controllers\TemplateSettingsActionController;
-use Prox\ProxGallery\Modules\Admin\Controllers\TrackingActionController;
-use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
-use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
-use Prox\ProxGallery\Modules\Admin\Services\AdminConfigurationService;
-use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
-use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryRepository;
-use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryTemplateRegistry;
-use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryTemplateRenderer;
-use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
-use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
-use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRegistryInterface;
-use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRendererInterface;
-use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
-use Prox\ProxGallery\Modules\Admin\Services\TrackingSummaryService;
-use Prox\ProxGallery\States\AdminConfigurationState;
-use Prox\ProxGallery\States\FrontendGalleryState;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -72,15 +13,23 @@ use Psr\Container\ContainerInterface;
 final class App
 {
     private Container $container;
+    private AppBindingRegistrar $bindingRegistrar;
+    private AppManagerRegistrar $managerRegistrar;
 
     /**
      * @var array<string, ManagerInterface>
      */
     private array $managers = [];
 
-    private function __construct(Container $container)
+    private function __construct(
+        Container $container,
+        AppBindingRegistrar $bindingRegistrar,
+        AppManagerRegistrar $managerRegistrar
+    )
     {
         $this->container = $container;
+        $this->bindingRegistrar = $bindingRegistrar;
+        $this->managerRegistrar = $managerRegistrar;
     }
 
     /**
@@ -88,7 +37,13 @@ final class App
      */
     public static function make(): self
     {
-        return new self(new Container());
+        $developmentSeedEnabled = self::developmentSeedEnabled();
+
+        return new self(
+            new Container(),
+            new AppBindingRegistrar($developmentSeedEnabled),
+            new AppManagerRegistrar($developmentSeedEnabled)
+        );
     }
 
     /**
@@ -106,353 +61,7 @@ final class App
      */
     private function registerBindings(): void
     {
-        $this->registerManagerBindings();
-        $this->registerModuleBindings();
-        $this->registerControllerBindings();
-        $this->registerStateBindings();
-        $this->registerPolicyBindings();
-        $this->registerModelBindings();
-        $this->registerServiceBindings();
-        $this->registerFlowBindings();
-        $this->registerCliBindings();
-    }
-
-    /**
-     * Registers manager bindings.
-     */
-    private function registerManagerBindings(): void
-    {
-        $this->container->set(ModuleManager::class, static fn (): ModuleManager => new ModuleManager());
-        $this->container->set(FlowManager::class, static fn (): FlowManager => new FlowManager());
-        $this->container->set(ControllerManager::class, static fn (): ControllerManager => new ControllerManager());
-        $this->container->set(CliManager::class, static fn (): CliManager => new CliManager());
-    }
-
-    /**
-     * Registers module bindings.
-     */
-    private function registerModuleBindings(): void
-    {
-        $this->container->set(CoreModule::class, static fn () => new CoreModule());
-        $this->container->set(AdminModule::class, static fn () => new AdminModule());
-        $this->container->set(FrontendModule::class, static fn () => new FrontendModule());
-        $this->container->set(OpenAiModule::class, static fn () => new OpenAiModule());
-        $this->container->set(
-            GalleryModule::class,
-            static fn (Container $container) => new GalleryModule(
-                $container->get(GalleryService::class)
-            )
-        );
-        $this->container->set(
-            MediaLibraryModule::class,
-            static fn (Container $container) => new MediaLibraryModule(
-                $container->get(TrackUploadedImageService::class),
-                $container->get(MediaCategoryService::class)
-            )
-        );
-
-        if ($this->developmentSeedEnabled()) {
-            $this->container->set(
-                DevelopmentSeedModule::class,
-                static fn (Container $container) => new DevelopmentSeedModule(
-                    $container->get(DevelopmentSeedService::class)
-                )
-            );
-        }
-    }
-
-    /**
-     * Registers controller bindings.
-     */
-    private function registerControllerBindings(): void
-    {
-        $this->container->set(
-            AdminGalleryController::class,
-            static fn (Container $container) => new AdminGalleryController(
-                $container->get(AdminMenuRegistrar::class),
-                $container->get(AdminAssetLoader::class),
-                $container->get(AdminConfigProvider::class)
-            )
-        );
-        $this->container->set(
-            FrontendGalleryController::class,
-            static fn (Container $container) => new FrontendGalleryController(
-                $container->get(FrontendGalleryService::class),
-                $container->get(FrontendTrackingService::class)
-            )
-        );
-        $this->container->set(
-            MediaUploadController::class,
-            static fn (Container $container) => new MediaUploadController(
-                $container->get(TrackUploadedImageService::class)
-            )
-        );
-        $this->container->set(
-            MediaManagerActionController::class,
-            static fn (Container $container) => new MediaManagerActionController(
-                $container->get(UploadedImageQueueModel::class),
-                $container->get(TrackUploadedImageService::class),
-                $container->get(MediaManagerListService::class),
-                $container->get(MediaManagerSyncService::class),
-                $container->get(MediaManagerMetadataService::class)
-            )
-        );
-        $this->container->set(
-            GalleryActionController::class,
-            static fn (Container $container) => new GalleryActionController(
-                $container->get(GalleryService::class),
-                $container->get(FrontendGalleryService::class)
-            )
-        );
-        $this->container->set(
-            MediaCategoryActionController::class,
-            static fn (Container $container) => new MediaCategoryActionController(
-                $container->get(MediaCategoryService::class),
-                $container->get(UploadedImageQueueModel::class)
-            )
-        );
-        $this->container->set(
-            TemplateSettingsActionController::class,
-            static fn (Container $container) => new TemplateSettingsActionController(
-                $container->get(TemplateCustomizationService::class)
-            )
-        );
-        $this->container->set(
-            TrackingActionController::class,
-            static fn (Container $container) => new TrackingActionController(
-                $container->get(TrackingSummaryService::class)
-            )
-        );
-        $this->container->set(
-            OpenAiActionController::class,
-            static fn (Container $container) => new OpenAiActionController(
-                $container->get(OpenAiSettingsService::class),
-                $container->get(OpenAiStoryService::class)
-            )
-        );
-    }
-
-    /**
-     * Registers state bindings.
-     */
-    private function registerStateBindings(): void
-    {
-        $this->container->set(AdminConfigurationState::class, static fn () => new AdminConfigurationState());
-        $this->container->set(FrontendGalleryState::class, static fn () => new FrontendGalleryState());
-    }
-
-    /**
-     * Registers policy bindings.
-     */
-    private function registerPolicyBindings(): void
-    {
-        $this->container->set(AdminCapabilityPolicy::class, static fn () => new AdminCapabilityPolicy());
-        $this->container->set(FrontendVisibilityPolicy::class, static fn () => new FrontendVisibilityPolicy());
-    }
-
-    /**
-     * Registers model bindings.
-     */
-    private function registerModelBindings(): void
-    {
-        $this->container->set(GalleryModel::class, static fn () => new GalleryModel());
-        $this->container->set(GalleryCollectionModel::class, static fn () => new GalleryCollectionModel());
-        $this->container->set(
-            GalleryRepositoryInterface::class,
-            static fn (Container $container): GalleryRepositoryInterface => $container->get(GalleryCollectionModel::class)
-        );
-        $this->container->set(UploadedImageQueueModel::class, static fn () => new UploadedImageQueueModel());
-    }
-
-    /**
-     * Registers service bindings.
-     */
-    private function registerServiceBindings(): void
-    {
-        $this->container->set(
-            AdminConfigurationService::class,
-            static fn (Container $container) => new AdminConfigurationService(
-                $container->get(AdminConfigurationState::class),
-                $container->get(AdminCapabilityPolicy::class)
-            )
-        );
-        $this->container->set(
-            FrontendGalleryService::class,
-            static fn (Container $container) => new FrontendGalleryService(
-                $container->get(FrontendGalleryState::class),
-                $container->get(FrontendVisibilityPolicy::class),
-                $container->get(GalleryModel::class),
-                $container->get(FrontendGalleryRepositoryInterface::class),
-                $container->get(FrontendGalleryTemplateRendererInterface::class),
-                $container->get(FrontendGalleryTemplateRegistryInterface::class)
-            )
-        );
-        $this->container->set(
-            FrontendGalleryRepository::class,
-            static fn (Container $container) => new FrontendGalleryRepository(
-                $container->get(GalleryRepositoryInterface::class)
-            )
-        );
-        $this->container->set(
-            FrontendGalleryRepositoryInterface::class,
-            static fn (Container $container): FrontendGalleryRepositoryInterface => $container->get(FrontendGalleryRepository::class)
-        );
-        $this->container->set(
-            FrontendGalleryTemplateRenderer::class,
-            static fn (Container $container) => new FrontendGalleryTemplateRenderer(
-                $container->get(TemplateCustomizationService::class)
-            )
-        );
-        $this->container->set(
-            FrontendGalleryTemplateRendererInterface::class,
-            static fn (Container $container): FrontendGalleryTemplateRendererInterface => $container->get(FrontendGalleryTemplateRenderer::class)
-        );
-        $this->container->set(
-            FrontendGalleryTemplateRegistry::class,
-            static fn (Container $container) => new FrontendGalleryTemplateRegistry(
-                $container->get(FrontendGalleryTemplateRenderer::class)
-            )
-        );
-        $this->container->set(
-            FrontendGalleryTemplateRegistryInterface::class,
-            static fn (Container $container): FrontendGalleryTemplateRegistryInterface => $container->get(FrontendGalleryTemplateRegistry::class)
-        );
-        $this->container->set(
-            FrontendTrackingService::class,
-            static fn () => new FrontendTrackingService()
-        );
-        $this->container->set(
-            TrackingSummaryService::class,
-            static fn (Container $container) => new TrackingSummaryService(
-                $container->get(FrontendTrackingService::class),
-                $container->get(GalleryService::class)
-            )
-        );
-        $this->container->set(
-            TrackUploadedImageService::class,
-            static fn (Container $container) => new TrackUploadedImageService(
-                $container->get(UploadedImageQueueModel::class)
-            )
-        );
-        $this->container->set(
-            GalleryService::class,
-            static fn (Container $container) => new GalleryService(
-                $container->get(GalleryRepositoryInterface::class),
-                $container->get(GalleryPageProvisionerInterface::class)
-            )
-        );
-        $this->container->set(
-            GalleryPageProvisioningService::class,
-            static fn () => new GalleryPageProvisioningService()
-        );
-        $this->container->set(
-            GalleryPageProvisionerInterface::class,
-            static fn (Container $container): GalleryPageProvisionerInterface => $container->get(GalleryPageProvisioningService::class)
-        );
-        $this->container->set(
-            MediaCategoryService::class,
-            static fn () => new MediaCategoryService()
-        );
-        $this->container->set(
-            MediaManagerListService::class,
-            static fn (Container $container) => new MediaManagerListService(
-                $container->get(UploadedImageQueueModel::class)
-            )
-        );
-        $this->container->set(
-            MediaManagerSyncService::class,
-            static fn (Container $container) => new MediaManagerSyncService(
-                $container->get(UploadedImageQueueModel::class),
-                $container->get(TrackUploadedImageService::class)
-            )
-        );
-        $this->container->set(
-            MediaManagerMetadataService::class,
-            static fn (Container $container) => new MediaManagerMetadataService(
-                $container->get(TrackUploadedImageService::class)
-            )
-        );
-        $this->container->set(AdminMenuRegistrar::class, static fn () => new AdminMenuRegistrar());
-        $this->container->set(AdminAssetLoader::class, static fn () => new AdminAssetLoader());
-        $this->container->set(AdminConfigProvider::class, static fn () => new AdminConfigProvider());
-        $this->container->set(AdminConfigContributorRegistry::class, static fn () => new AdminConfigContributorRegistry());
-        $this->container->set(
-            TemplateCustomizationService::class,
-            static fn (Container $container) => new TemplateCustomizationService(
-                $container->get(AdminConfigurationState::class)
-            )
-        );
-        $this->container->set(
-            OpenAiSettingsService::class,
-            static fn (Container $container) => new OpenAiSettingsService(
-                $container->get(AdminConfigurationState::class)
-            )
-        );
-        $this->container->set(
-            OpenAiStoryService::class,
-            static fn (Container $container) => new OpenAiStoryService(
-                $container->get(OpenAiSettingsService::class)
-            )
-        );
-
-        if ($this->developmentSeedEnabled()) {
-            $this->container->set(
-                DevelopmentSeedService::class,
-                static fn (Container $container) => new DevelopmentSeedService(
-                    $container->get(GalleryService::class),
-                    $container->get(FrontendGalleryService::class),
-                    $container->get(MediaCategoryService::class),
-                    $container->get(TrackUploadedImageService::class),
-                    $container->get(UploadedImageQueueModel::class)
-                )
-            );
-        }
-    }
-
-    /**
-     * Registers flow bindings.
-     */
-    private function registerFlowBindings(): void
-    {
-        $this->container->set(
-            AdminFlow::class,
-            static fn (Container $container) => new AdminFlow(
-                $container->get(AdminCapabilityPolicy::class),
-                $container->get(AdminConfigurationState::class),
-                $container->get(AdminConfigurationService::class)
-            )
-        );
-        $this->container->set(
-            FrontendFlow::class,
-            static fn (Container $container) => new FrontendFlow(
-                $container->get(FrontendVisibilityPolicy::class),
-                $container->get(FrontendGalleryState::class),
-                $container->get(FrontendGalleryService::class)
-            )
-        );
-    }
-
-    /**
-     * Registers CLI bindings.
-     */
-    private function registerCliBindings(): void
-    {
-        $this->container->set(
-            MediaLibraryCliController::class,
-            static fn (Container $container) => new MediaLibraryCliController(
-                $container->get(UploadedImageQueueModel::class),
-                $container->get(TrackUploadedImageService::class)
-            )
-        );
-
-        if ($this->developmentSeedEnabled()) {
-            $this->container->set(
-                DevelopmentSeedCliController::class,
-                static fn (Container $container) => new DevelopmentSeedCliController(
-                    $container->get(DevelopmentSeedService::class)
-                )
-            );
-        }
+        $this->bindingRegistrar->register($this->container);
     }
 
     /**
@@ -460,89 +69,15 @@ final class App
      */
     private function registerManagers(): void
     {
-        $this->registerModuleManager();
-        $this->registerFlowManager();
-        $this->registerControllerManager();
-        $this->registerCliManager();
-    }
-
-    /**
-     * Registers the module manager.
-     */
-    private function registerModuleManager(): void
-    {
-        $manager = $this->container->get(ModuleManager::class);
-        $manager->add($this->container->get(CoreModule::class));
-        $manager->add($this->container->get(AdminModule::class));
-        $manager->add($this->container->get(FrontendModule::class));
-        $manager->add($this->container->get(OpenAiModule::class));
-        $manager->add($this->container->get(GalleryModule::class));
-        $manager->add($this->container->get(MediaLibraryModule::class));
-
-        if ($this->developmentSeedEnabled()) {
-            $manager->add($this->container->get(DevelopmentSeedModule::class));
-        }
-
-        $this->addManager($manager);
-    }
-
-    /**
-     * Registers the flow manager.
-     */
-    private function registerFlowManager(): void
-    {
-        $manager = $this->container->get(FlowManager::class);
-        $manager->add($this->container->get(AdminFlow::class));
-        $manager->add($this->container->get(FrontendFlow::class));
-        $this->addManager($manager);
-    }
-
-    /**
-     * Registers the controller manager.
-     */
-    private function registerControllerManager(): void
-    {
-        $manager = $this->container->get(ControllerManager::class);
-        $registry = $this->container->get(AdminConfigContributorRegistry::class);
-        $controllers = [
-            $this->container->get(AdminGalleryController::class),
-            $this->container->get(FrontendGalleryController::class),
-            $this->container->get(MediaUploadController::class),
-            $this->container->get(GalleryActionController::class),
-            $this->container->get(MediaManagerActionController::class),
-            $this->container->get(MediaCategoryActionController::class),
-            $this->container->get(TemplateSettingsActionController::class),
-            $this->container->get(TrackingActionController::class),
-            $this->container->get(OpenAiActionController::class),
-        ];
-
-        foreach ($controllers as $controller) {
-            $manager->add($controller);
-
-            if ($controller instanceof AdminConfigContributorInterface) {
-                $registry->addContributor($controller);
+        $this->managerRegistrar->register(
+            $this->container,
+            function (ManagerInterface $manager): void {
+                $this->addManager($manager);
             }
-        }
-
-        $this->addManager($manager);
+        );
     }
 
-    /**
-     * Registers the CLI manager.
-     */
-    private function registerCliManager(): void
-    {
-        $manager = $this->container->get(CliManager::class);
-        $manager->add($this->container->get(MediaLibraryCliController::class));
-
-        if ($this->developmentSeedEnabled()) {
-            $manager->add($this->container->get(DevelopmentSeedCliController::class));
-        }
-
-        $this->addManager($manager);
-    }
-
-    private function developmentSeedEnabled(): bool
+    private static function developmentSeedEnabled(): bool
     {
         return \defined('PROX_GALLERY_ENABLE_DEV_SEED_MODULE') && (bool) \PROX_GALLERY_ENABLE_DEV_SEED_MODULE;
     }

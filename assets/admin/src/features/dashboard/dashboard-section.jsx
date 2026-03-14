@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { BarChart3, Eye, FolderOpen, Globe2, Image as ImageIcon, LayoutDashboard } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
+import { useTrackingActionController } from "@/lib/action-controller-hooks";
 
 function number(value) {
   const parsed = Number(value);
@@ -23,14 +25,58 @@ function topCountryRows(countries = {}, limit = 8) {
     .slice(0, limit);
 }
 
-export function DashboardSection({ summary, isLoading = false, error = "" }) {
+export function DashboardSection({ config, isActive }) {
+  const trackingController = useTrackingActionController(config);
+  const [summary, setSummary] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isActive || !trackingController) {
+      return;
+    }
+
+    let active = true;
+
+    const loadDashboard = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const response = await trackingController.getSummary();
+
+        if (!active) {
+          return;
+        }
+
+        setSummary(response.summary);
+      } catch (loadError) {
+        if (!active) {
+          return;
+        }
+
+        const message = loadError instanceof Error ? loadError.message : "Failed to load dashboard analytics.";
+        setError(message);
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, [isActive, trackingController]);
+
   const totals = summary?.totals ?? { gallery_views: 0, image_views: 0 };
   const countries = topCountryRows(summary?.countries ?? {}, 8);
   const galleries = Array.isArray(summary?.galleries) ? summary.galleries.slice(0, 8) : [];
   const images = Array.isArray(summary?.images) ? summary.images.slice(0, 8) : [];
 
   return (
-    <>
+    <div className={isActive ? "" : "hidden"}>
       <SectionHeader
         variant="page"
         icon={LayoutDashboard}
@@ -158,7 +204,6 @@ export function DashboardSection({ summary, isLoading = false, error = "" }) {
 
       {isLoading ? <p className="text-sm text-slate-600">Loading analytics...</p> : null}
       {error !== "" ? <p className="text-sm text-red-600">{error}</p> : null}
-    </>
+    </div>
   );
 }
-

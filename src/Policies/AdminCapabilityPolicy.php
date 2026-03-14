@@ -11,6 +11,8 @@ use Prox\ProxGallery\Contracts\PolicyInterface;
  */
 final class AdminCapabilityPolicy implements PolicyInterface
 {
+    public const CAPABILITY_MANAGE = 'manage_options';
+
     public function id(): string
     {
         return 'admin.capability';
@@ -32,6 +34,6 @@ final class AdminCapabilityPolicy implements PolicyInterface
             return false;
         }
 
-        return $allowed && \current_user_can('manage_options');
+        return $allowed && \current_user_can(self::CAPABILITY_MANAGE);
     }
 }

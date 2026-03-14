@@ -11,6 +11,7 @@ use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles secured Media Manager AJAX actions.
@@ -51,17 +52,17 @@ final class MediaManagerActionController extends AbstractActionController implem
             self::ACTION_LIST => [
                 'callback' => 'listTrackedImages',
                 'nonce_action' => self::ACTION_LIST,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SYNC => [
                 'callback' => 'syncOverview',
                 'nonce_action' => self::ACTION_SYNC,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_UPDATE => [
                 'callback' => 'updateTrackedImageMetadata',
                 'nonce_action' => self::ACTION_UPDATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }
@@ -119,29 +120,14 @@ final class MediaManagerActionController extends AbstractActionController implem
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['media_manager'] = [
-            'list' => [
-                'action' => self::ACTION_LIST,
-                'nonce' => \wp_create_nonce(self::ACTION_LIST),
-            ],
-            'sync' => [
-                'action' => self::ACTION_SYNC,
-                'nonce' => \wp_create_nonce(self::ACTION_SYNC),
-            ],
-            'update' => [
-                'action' => self::ACTION_UPDATE,
-                'nonce' => \wp_create_nonce(self::ACTION_UPDATE),
-            ],
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+        return $this->extendAdminActionConfig(
+            $config,
+            'media_manager',
+            [
+                'list' => self::ACTION_LIST,
+                'sync' => self::ACTION_SYNC,
+                'update' => self::ACTION_UPDATE,
+            ]
+        );
     }
 }

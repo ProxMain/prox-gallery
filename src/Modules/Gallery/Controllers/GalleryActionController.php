@@ -8,6 +8,7 @@ use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles admin AJAX actions for gallery management.
@@ -43,47 +44,47 @@ final class GalleryActionController extends AbstractActionController implements 
             self::ACTION_LIST => [
                 'callback' => 'listGalleries',
                 'nonce_action' => self::ACTION_LIST,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_CREATE => [
                 'callback' => 'createGallery',
                 'nonce_action' => self::ACTION_CREATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_RENAME => [
                 'callback' => 'renameGallery',
                 'nonce_action' => self::ACTION_RENAME,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_DELETE => [
                 'callback' => 'deleteGallery',
                 'nonce_action' => self::ACTION_DELETE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_LIST_IMAGE_GALLERIES => [
                 'callback' => 'listImageGalleries',
                 'nonce_action' => self::ACTION_LIST_IMAGE_GALLERIES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SET_IMAGE_GALLERIES => [
                 'callback' => 'setImageGalleries',
                 'nonce_action' => self::ACTION_SET_IMAGE_GALLERIES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_ADD_IMAGES => [
                 'callback' => 'addImagesToGallery',
                 'nonce_action' => self::ACTION_ADD_IMAGES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SET_IMAGES => [
                 'callback' => 'setGalleryImages',
                 'nonce_action' => self::ACTION_SET_IMAGES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_CREATE_PAGE => [
                 'callback' => 'createGalleryPage',
                 'nonce_action' => self::ACTION_CREATE_PAGE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }
@@ -280,55 +281,24 @@ final class GalleryActionController extends AbstractActionController implements 
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['galleries'] = [
-            'list' => [
-                'action' => self::ACTION_LIST,
-                'nonce' => \wp_create_nonce(self::ACTION_LIST),
+        return $this->extendAdminActionConfig(
+            $config,
+            'galleries',
+            [
+                'list' => self::ACTION_LIST,
+                'create' => self::ACTION_CREATE,
+                'rename' => self::ACTION_RENAME,
+                'delete' => self::ACTION_DELETE,
+                'list_image_galleries' => self::ACTION_LIST_IMAGE_GALLERIES,
+                'set_image_galleries' => self::ACTION_SET_IMAGE_GALLERIES,
+                'add_images' => self::ACTION_ADD_IMAGES,
+                'set_images' => self::ACTION_SET_IMAGES,
+                'create_page' => self::ACTION_CREATE_PAGE,
             ],
-            'create' => [
-                'action' => self::ACTION_CREATE,
-                'nonce' => \wp_create_nonce(self::ACTION_CREATE),
-            ],
-            'rename' => [
-                'action' => self::ACTION_RENAME,
-                'nonce' => \wp_create_nonce(self::ACTION_RENAME),
-            ],
-            'delete' => [
-                'action' => self::ACTION_DELETE,
-                'nonce' => \wp_create_nonce(self::ACTION_DELETE),
-            ],
-            'list_image_galleries' => [
-                'action' => self::ACTION_LIST_IMAGE_GALLERIES,
-                'nonce' => \wp_create_nonce(self::ACTION_LIST_IMAGE_GALLERIES),
-            ],
-            'set_image_galleries' => [
-                'action' => self::ACTION_SET_IMAGE_GALLERIES,
-                'nonce' => \wp_create_nonce(self::ACTION_SET_IMAGE_GALLERIES),
-            ],
-            'add_images' => [
-                'action' => self::ACTION_ADD_IMAGES,
-                'nonce' => \wp_create_nonce(self::ACTION_ADD_IMAGES),
-            ],
-            'set_images' => [
-                'action' => self::ACTION_SET_IMAGES,
-                'nonce' => \wp_create_nonce(self::ACTION_SET_IMAGES),
-            ],
-            'create_page' => [
-                'action' => self::ACTION_CREATE_PAGE,
-                'nonce' => \wp_create_nonce(self::ACTION_CREATE_PAGE),
-            ],
-            'templates' => $this->frontendGalleryService->templateCatalog(),
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+            [
+                'templates' => $this->frontendGalleryService->templateCatalog(),
+            ]
+        );
     }
 
     /**

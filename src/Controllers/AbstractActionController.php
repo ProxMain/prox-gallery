@@ -264,4 +264,46 @@ abstract class AbstractActionController implements ControllerInterface
     {
         \wp_send_json_error($payload, $statusCode);
     }
+
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string, string> $actions
+     * @param array<string, mixed> $extras
+     *
+     * @return array<string, mixed>
+     */
+    protected function extendAdminActionConfig(
+        array $config,
+        string $controllerKey,
+        array $actions,
+        array $extras = []
+    ): array {
+        $controllers = [];
+
+        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
+            $controllers = $config['action_controllers'];
+        }
+
+        $controllerConfig = [];
+
+        foreach ($actions as $key => $action) {
+            if (! is_string($key) || $key === '' || ! is_string($action) || $action === '') {
+                continue;
+            }
+
+            $controllerConfig[$key] = [
+                'action' => $action,
+                'nonce' => \wp_create_nonce($action),
+            ];
+        }
+
+        $controllers[$controllerKey] = [
+            ...$controllerConfig,
+            ...$extras,
+        ];
+
+        $config['action_controllers'] = $controllers;
+
+        return $config;
+    }
 }

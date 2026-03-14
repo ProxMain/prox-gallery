@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Bot, LayoutTemplate, Plus, Settings2, X } from "lucide-react";
+import { Bot, LayoutTemplate, Plus, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
+import {
+  useOpenAiActionController,
+  useTemplateSettingsActionController
+} from "@/lib/action-controller-hooks";
+import { SettingsNavigation } from "@/features/settings/components/settings-navigation";
 
 const DEFAULT_SETTINGS = {
   basic_grid_columns: 4,
@@ -87,7 +92,9 @@ function normalizeOpenAiSettings(settings) {
   };
 }
 
-export function SettingsSection({ title, description, config, templateSettingsController, openAiController }) {
+export function SettingsSection({ title, description, config, isActive }) {
+  const templateSettingsController = useTemplateSettingsActionController(config);
+  const openAiController = useOpenAiActionController(config);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -128,6 +135,10 @@ export function SettingsSection({ title, description, config, templateSettingsCo
   ]);
 
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
     let isMounted = true;
 
     const load = async () => {
@@ -182,9 +193,13 @@ export function SettingsSection({ title, description, config, templateSettingsCo
     return () => {
       isMounted = false;
     };
-  }, [templateSettingsController]);
+  }, [isActive, templateSettingsController]);
 
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
     let isMounted = true;
 
     const load = async () => {
@@ -222,7 +237,7 @@ export function SettingsSection({ title, description, config, templateSettingsCo
     return () => {
       isMounted = false;
     };
-  }, [openAiController]);
+  }, [isActive, openAiController]);
 
   const handleSave = async () => {
     if (!templateSettingsController) {
@@ -607,47 +622,13 @@ export function SettingsSection({ title, description, config, templateSettingsCo
   );
 
   return (
-    <>
+    <div className={isActive ? "" : "hidden"}>
       <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="rounded-xl border border-slate-200 bg-white p-4">
-          <h1 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white ring-1 ring-inset ring-sky-200">
-              <Settings2 className="h-4 w-4 text-violet-700" />
-            </span>
-            Prox Gallery Settings
-          </h1>
-          <p className="mt-1 text-xs text-slate-600">{description}</p>
-          <nav className="mt-4 space-y-2">
-            <button
-              type="button"
-              onClick={() => setActiveSection("templates")}
-              className={
-                activeSection === "templates"
-                  ? "w-full rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-left text-sm font-medium text-sky-800"
-                  : "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              }
-            >
-              <span className="inline-flex items-center gap-2">
-                <LayoutTemplate className="h-4 w-4" />
-                Templates
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection("openai")}
-              className={
-                activeSection === "openai"
-                  ? "w-full rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-left text-sm font-medium text-sky-800"
-                  : "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              }
-            >
-              <span className="inline-flex items-center gap-2">
-                <Bot className="h-4 w-4" />
-                OpenAI
-              </span>
-            </button>
-          </nav>
-        </aside>
+        <SettingsNavigation
+          description={description}
+          activeSection={activeSection}
+          onSelectSection={setActiveSection}
+        />
 
         {activeSection === "templates" ? (
           <Card>
@@ -781,6 +762,6 @@ export function SettingsSection({ title, description, config, templateSettingsCo
 
         {activeSection === "openai" ? openAiCard : null}
       </div>
-    </>
+    </div>
   );
 }

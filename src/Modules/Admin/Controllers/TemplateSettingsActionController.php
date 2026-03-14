@@ -7,6 +7,7 @@ namespace Prox\ProxGallery\Modules\Admin\Controllers;
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles template customization settings AJAX actions.
@@ -34,12 +35,12 @@ final class TemplateSettingsActionController extends AbstractActionController im
             self::ACTION_GET => [
                 'callback' => 'getSettings',
                 'nonce_action' => self::ACTION_GET,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_UPDATE => [
                 'callback' => 'updateSettings',
                 'nonce_action' => self::ACTION_UPDATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }
@@ -77,25 +78,13 @@ final class TemplateSettingsActionController extends AbstractActionController im
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['template_settings'] = [
-            'get' => [
-                'action' => self::ACTION_GET,
-                'nonce' => \wp_create_nonce(self::ACTION_GET),
-            ],
-            'update' => [
-                'action' => self::ACTION_UPDATE,
-                'nonce' => \wp_create_nonce(self::ACTION_UPDATE),
-            ],
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+        return $this->extendAdminActionConfig(
+            $config,
+            'template_settings',
+            [
+                'get' => self::ACTION_GET,
+                'update' => self::ACTION_UPDATE,
+            ]
+        );
     }
 }

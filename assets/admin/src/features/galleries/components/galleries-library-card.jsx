@@ -1,46 +1,11 @@
 import { FilePlus2, Filter, FolderOpen, Images, LayoutGrid, List, Pencil, Plus, RefreshCcw, Settings2, Trash2 } from "lucide-react";
-import { useId, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
-
-function ActionIconButton({ label, description, onClick, disabled, tone = "slate", children }) {
-  const tooltipId = useId();
-  const toneClass =
-    tone === "violet"
-      ? "border-violet-200 text-violet-700 hover:bg-violet-50"
-      : tone === "emerald"
-      ? "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-      : tone === "sky"
-      ? "border-sky-200 text-sky-700 hover:bg-sky-50"
-      : tone === "red"
-      ? "border-red-200 text-red-700 hover:bg-red-50"
-      : "border-slate-200 text-slate-700 hover:bg-slate-50";
-
-  return (
-    <div className="group relative">
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        className={`inline-flex h-8 w-8 items-center justify-center rounded-md border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:opacity-60 ${toneClass}`}
-        aria-label={`${label}: ${description}`}
-        aria-describedby={tooltipId}
-      >
-        {children}
-      </button>
-      <div
-        id={tooltipId}
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-md border border-slate-200 bg-slate-900 px-2 py-1.5 text-[11px] leading-4 text-white opacity-0 shadow-lg transition duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
-      >
-        <p className="font-semibold text-white">{label}</p>
-        <p>{description}</p>
-        <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-slate-200 bg-slate-900" />
-      </div>
-    </div>
-  );
-}
+import { GalleryActionIconButton } from "@/features/galleries/components/gallery-action-icon-button";
+import { GalleryCreatePanel } from "@/features/galleries/components/gallery-create-panel";
+import { GalleryMetaChipList } from "@/features/galleries/components/gallery-meta-chip-list";
 
 export function GalleriesLibraryCard({
   galleries,
@@ -63,109 +28,6 @@ export function GalleriesLibraryCard({
     }
 
     return value === "on";
-  };
-
-  const boolOverrideLabel = (value) => {
-    if (value === null || value === undefined) {
-      return "Inherit";
-    }
-
-    return value ? "On" : "Off";
-  };
-
-  const templateLabelForGallery = (gallery) =>
-    typeof gallery.template === "string" && gallery.template !== "" ? gallery.template : "basic-grid";
-
-  const buildGalleryMetaChips = (gallery) => {
-    const chips = [
-      {
-        text: `Template: ${templateLabelForGallery(gallery)}`,
-        tone: "violet"
-      }
-    ];
-
-    if (typeof gallery.grid_columns_override === "number") {
-      chips.push({
-        text: `Columns: ${gallery.grid_columns_override}`,
-        tone: "indigo"
-      });
-    }
-
-    if (typeof gallery.lightbox_override === "boolean") {
-      chips.push({
-        text: `Lightbox: ${boolOverrideLabel(gallery.lightbox_override)}`,
-        tone: "amber"
-      });
-    }
-
-    if (typeof gallery.hover_zoom_override === "boolean") {
-      chips.push({
-        text: `Zoom: ${boolOverrideLabel(gallery.hover_zoom_override)}`,
-        tone: "sky"
-      });
-    }
-
-    if (typeof gallery.full_width_override === "boolean") {
-      chips.push({
-        text: `Full width: ${boolOverrideLabel(gallery.full_width_override)}`,
-        tone: "emerald"
-      });
-    }
-
-    if (typeof gallery.transition_override === "string" && gallery.transition_override !== "") {
-      chips.push({
-        text: `Transition: ${gallery.transition_override}`,
-        tone: "rose"
-      });
-    }
-
-    if (gallery.show_title === false) {
-      chips.push({
-        text: "Title hidden",
-        tone: "slate"
-      });
-    }
-
-    if (gallery.show_description === false) {
-      chips.push({
-        text: "Description hidden",
-        tone: "slate"
-      });
-    }
-
-    return chips;
-  };
-
-  const chipToneClass = (tone) => {
-    if (tone === "violet") {
-      return "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200";
-    }
-
-    if (tone === "indigo") {
-      return "bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-200";
-    }
-
-    if (tone === "amber") {
-      return "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200";
-    }
-
-    if (tone === "sky") {
-      return "bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200";
-    }
-
-    if (tone === "emerald") {
-      return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200";
-    }
-
-    if (tone === "rose") {
-      return "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200";
-    }
-
-    if (tone === "slate") {
-      return "bg-slate-200 text-slate-800 ring-1 ring-inset ring-slate-300";
-    }
-
-    return "bg-slate-100 text-slate-700";
   };
 
   const [viewMode, setViewMode] = useState("grid");
@@ -605,121 +467,29 @@ export function GalleriesLibraryCard({
         />
       </CardHeader>
       <CardContent>
-        {isCreateOpen ? (
-          <div className="mb-4 space-y-3 rounded-md border border-slate-200 bg-slate-50 p-3">
-            <input
-              type="text"
-              value={createName}
-              onChange={(event) => setCreateName(event.target.value)}
-              placeholder="Gallery name"
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-            />
-            <textarea
-              value={createDescription}
-              onChange={(event) => setCreateDescription(event.target.value)}
-              placeholder="Description (optional)"
-              rows={3}
-              className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-            />
-            <label className="space-y-1">
-              <span className="text-xs font-medium text-slate-600">Template</span>
-              <select
-                value={createTemplate}
-                onChange={(event) => handleCreateTemplateChange(event.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-              >
-                {availableTemplates.length > 0 ? (
-                  availableTemplates.map((template) => (
-                    <option key={template.slug} value={template.slug}>
-                      {template.label}
-                    </option>
-                  ))
-                ) : (
-                  <>
-                    <option value="basic-grid">Basic Grid</option>
-                    <option value="masonry">Masonry</option>
-                  </>
-                )}
-              </select>
-            </label>
-            <div className="grid gap-2 md:grid-cols-4">
-              <label className="space-y-1">
-                <span className="text-xs font-medium text-slate-600">Columns override</span>
-                <select
-                  value={createGridColumnsOverride}
-                  onChange={(event) => setCreateGridColumnsOverride(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-                >
-                  <option value="inherit">Inherit global</option>
-                  <option value="2">2 columns</option>
-                  <option value="3">3 columns</option>
-                  <option value="4">4 columns</option>
-                  <option value="5">5 columns</option>
-                  <option value="6">6 columns</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs font-medium text-slate-600">Lightbox override</span>
-                <select
-                  value={createLightboxOverride}
-                  onChange={(event) => setCreateLightboxOverride(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-                >
-                  <option value="inherit">Inherit global</option>
-                  <option value="on">Force on</option>
-                  <option value="off">Force off</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs font-medium text-slate-600">Hover zoom override</span>
-                <select
-                  value={createHoverZoomOverride}
-                  onChange={(event) => setCreateHoverZoomOverride(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-                >
-                  <option value="inherit">Inherit global</option>
-                  <option value="on">Force on</option>
-                  <option value="off">Force off</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs font-medium text-slate-600">Full width override</span>
-                <select
-                  value={createFullWidthOverride}
-                  onChange={(event) => setCreateFullWidthOverride(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-                >
-                  <option value="inherit">Inherit global</option>
-                  <option value="on">Force on</option>
-                  <option value="off">Force off</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-xs font-medium text-slate-600">Transition override</span>
-                <select
-                  value={createTransitionOverride}
-                  onChange={(event) => setCreateTransitionOverride(event.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
-                >
-                  <option value="inherit">Inherit global</option>
-                  <option value="none">None</option>
-                  <option value="slide">Slide</option>
-                  <option value="fade">Fade</option>
-                  <option value="explode">Explode</option>
-                  <option value="implode">Implode</option>
-                </select>
-              </label>
-            </div>
-            <button
-              type="button"
-              onClick={handleCreate}
-              disabled={isCreating || isMutating}
-              className="inline-flex items-center gap-2 rounded-md bg-sky-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isCreating ? "Creating..." : "Create gallery"}
-            </button>
-          </div>
-        ) : null}
+        <GalleryCreatePanel
+          isOpen={isCreateOpen}
+          createName={createName}
+          createDescription={createDescription}
+          createTemplate={createTemplate}
+          availableTemplates={availableTemplates}
+          createGridColumnsOverride={createGridColumnsOverride}
+          createLightboxOverride={createLightboxOverride}
+          createHoverZoomOverride={createHoverZoomOverride}
+          createFullWidthOverride={createFullWidthOverride}
+          createTransitionOverride={createTransitionOverride}
+          onNameChange={setCreateName}
+          onDescriptionChange={setCreateDescription}
+          onTemplateChange={handleCreateTemplateChange}
+          onGridColumnsOverrideChange={setCreateGridColumnsOverride}
+          onLightboxOverrideChange={setCreateLightboxOverride}
+          onHoverZoomOverrideChange={setCreateHoverZoomOverride}
+          onFullWidthOverrideChange={setCreateFullWidthOverride}
+          onTransitionOverrideChange={setCreateTransitionOverride}
+          onCreate={handleCreate}
+          isCreating={isCreating}
+          isMutating={isMutating}
+        />
 
         {isFilterOpen ? (
           <div className="mb-4 grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">
@@ -780,22 +550,11 @@ export function GalleriesLibraryCard({
                   <p className="min-h-[42px] rounded-md bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
                     {gallery.description || "No description yet. Add context so collaborators know what belongs in this gallery."}
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {buildGalleryMetaChips(gallery).map((chip) => (
-                      <span key={chip.text} className={`rounded px-2 py-1 text-[11px] font-medium ${chipToneClass(chip.tone)}`}>
-                        {chip.text}
-                      </span>
-                    ))}
-                    {buildGalleryMetaChips(gallery).length === 1 ? (
-                      <span className="rounded bg-sky-50 px-2 py-1 text-[11px] font-medium text-sky-700">
-                        Using global display defaults
-                      </span>
-                    ) : null}
-                  </div>
+                  <GalleryMetaChipList gallery={gallery} />
                 </div>
                 <footer className="mt-auto border-t border-slate-200 px-3 py-2">
                   <div className="flex items-center gap-2">
-                    <ActionIconButton
+                    <GalleryActionIconButton
                       label="Details"
                       description="Open gallery display settings and template options."
                       onClick={() => handleOpenDisplaySettings(gallery)}
@@ -803,8 +562,8 @@ export function GalleriesLibraryCard({
                       tone="violet"
                     >
                       <Settings2 className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Create page"
                       description="Create a frontend page, add shortcode and menu link."
                       onClick={() => void handleCreatePage(gallery)}
@@ -812,8 +571,8 @@ export function GalleriesLibraryCard({
                       tone="emerald"
                     >
                       <FilePlus2 className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Add images"
                       description="Select and order tracked images for this gallery."
                       onClick={() => void handleOpenAddImages(gallery.id)}
@@ -821,16 +580,16 @@ export function GalleriesLibraryCard({
                       tone="sky"
                     >
                       <Images className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Rename"
                       description="Change the gallery name and keep current settings."
                       onClick={() => void handleRename(gallery)}
                       disabled={isMutating}
                     >
                       <Pencil className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Delete"
                       description="Permanently remove this gallery and its assignments."
                       onClick={() => void handleDelete(gallery)}
@@ -838,7 +597,7 @@ export function GalleriesLibraryCard({
                       tone="red"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </ActionIconButton>
+                    </GalleryActionIconButton>
                   </div>
                 </footer>
               </article>
@@ -861,22 +620,11 @@ export function GalleriesLibraryCard({
                   <p className="rounded-md bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
                     {gallery.description || "No description yet. Add context so collaborators know what belongs in this gallery."}
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {buildGalleryMetaChips(gallery).map((chip) => (
-                      <span key={chip.text} className={`rounded px-2 py-1 text-[11px] font-medium ${chipToneClass(chip.tone)}`}>
-                        {chip.text}
-                      </span>
-                    ))}
-                    {buildGalleryMetaChips(gallery).length === 1 ? (
-                      <span className="rounded bg-sky-50 px-2 py-1 text-[11px] font-medium text-sky-700">
-                        Using global display defaults
-                      </span>
-                    ) : null}
-                  </div>
+                  <GalleryMetaChipList gallery={gallery} />
                 </div>
                 <footer className="border-t border-slate-200 px-3 py-2">
                   <div className="flex items-center gap-2">
-                    <ActionIconButton
+                    <GalleryActionIconButton
                       label="Details"
                       description="Open gallery display settings and template options."
                       onClick={() => handleOpenDisplaySettings(gallery)}
@@ -884,8 +632,8 @@ export function GalleriesLibraryCard({
                       tone="violet"
                     >
                       <Settings2 className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Create page"
                       description="Create a frontend page, add shortcode and menu link."
                       onClick={() => void handleCreatePage(gallery)}
@@ -893,8 +641,8 @@ export function GalleriesLibraryCard({
                       tone="emerald"
                     >
                       <FilePlus2 className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Add images"
                       description="Select and order tracked images for this gallery."
                       onClick={() => void handleOpenAddImages(gallery.id)}
@@ -902,16 +650,16 @@ export function GalleriesLibraryCard({
                       tone="sky"
                     >
                       <Images className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Rename"
                       description="Change the gallery name and keep current settings."
                       onClick={() => void handleRename(gallery)}
                       disabled={isMutating}
                     >
                       <Pencil className="h-4 w-4" />
-                    </ActionIconButton>
-                    <ActionIconButton
+                    </GalleryActionIconButton>
+                    <GalleryActionIconButton
                       label="Delete"
                       description="Permanently remove this gallery and its assignments."
                       onClick={() => void handleDelete(gallery)}
@@ -919,7 +667,7 @@ export function GalleriesLibraryCard({
                       tone="red"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </ActionIconButton>
+                    </GalleryActionIconButton>
                   </div>
                 </footer>
               </article>

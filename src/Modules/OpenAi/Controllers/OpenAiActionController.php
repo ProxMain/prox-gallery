@@ -9,6 +9,7 @@ use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles OpenAI admin actions.
@@ -41,12 +42,12 @@ final class OpenAiActionController extends AbstractActionController implements A
             self::ACTION_SETTINGS_GET => [
                 'callback' => 'getSettings',
                 'nonce_action' => self::ACTION_SETTINGS_GET,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SETTINGS_UPDATE => [
                 'callback' => 'updateSettings',
                 'nonce_action' => self::ACTION_SETTINGS_UPDATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_CONFIG_GET => [
                 'callback' => 'getGenerationConfig',
@@ -146,37 +147,16 @@ final class OpenAiActionController extends AbstractActionController implements A
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['openai'] = [
-            'settings_get' => [
-                'action' => self::ACTION_SETTINGS_GET,
-                'nonce' => \wp_create_nonce(self::ACTION_SETTINGS_GET),
-            ],
-            'settings_update' => [
-                'action' => self::ACTION_SETTINGS_UPDATE,
-                'nonce' => \wp_create_nonce(self::ACTION_SETTINGS_UPDATE),
-            ],
-            'config_get' => [
-                'action' => self::ACTION_CONFIG_GET,
-                'nonce' => \wp_create_nonce(self::ACTION_CONFIG_GET),
-            ],
-            'generate' => [
-                'action' => self::ACTION_GENERATE,
-                'nonce' => \wp_create_nonce(self::ACTION_GENERATE),
-            ],
-            'apply' => [
-                'action' => self::ACTION_APPLY,
-                'nonce' => \wp_create_nonce(self::ACTION_APPLY),
-            ],
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+        return $this->extendAdminActionConfig(
+            $config,
+            'openai',
+            [
+                'settings_get' => self::ACTION_SETTINGS_GET,
+                'settings_update' => self::ACTION_SETTINGS_UPDATE,
+                'config_get' => self::ACTION_CONFIG_GET,
+                'generate' => self::ACTION_GENERATE,
+                'apply' => self::ACTION_APPLY,
+            ]
+        );
     }
 }

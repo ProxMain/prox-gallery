@@ -4,7 +4,7 @@ Tags: image gallery, photo gallery, lightbox, masonry gallery, media manager
 Requires at least: 6.9.1
 Tested up to: 6.9.1
 Requires PHP: 8.1
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -85,6 +85,15 @@ Yes. See the CLI manual in `docs/cli.md`.
 
 == Changelog ==
 
+= 0.1.2 =
+
+- Architecture refactor release covering the reviewed backend and frontend responsibilities
+- Frontend admin app split into clearer feature containers, reusable components, and shared async hooks
+- Gallery settings normalization and gallery access moved behind service/repository boundaries
+- Admin capability checks and admin AJAX config assembly centralized
+- Template settings updates no longer overwrite unrelated shared plugin options
+- Added release changelog file and feature backlog document
+
 = 0.1.1 =
 
 - Security hardening: generic AJAX error responses in production-style responses
@@ -107,6 +116,10 @@ Yes. See the CLI manual in `docs/cli.md`.
 - WordPress admin React app integration for management workflows
 
 == Upgrade Notice ==
+
+= 0.1.2 =
+
+Architecture cleanup release with safer shared settings writes and a more maintainable admin frontend.
 
 = 0.1.1 =
 
