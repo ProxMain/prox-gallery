@@ -78,25 +78,13 @@ final class TemplateSettingsActionController extends AbstractActionController im
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['template_settings'] = [
-            'get' => [
-                'action' => self::ACTION_GET,
-                'nonce' => \wp_create_nonce(self::ACTION_GET),
-            ],
-            'update' => [
-                'action' => self::ACTION_UPDATE,
-                'nonce' => \wp_create_nonce(self::ACTION_UPDATE),
-            ],
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+        return $this->extendAdminActionConfig(
+            $config,
+            'template_settings',
+            [
+                'get' => self::ACTION_GET,
+                'update' => self::ACTION_UPDATE,
+            ]
+        );
     }
 }

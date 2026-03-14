@@ -62,6 +62,11 @@ Suggested direction:
 - Add a shared helper or small base abstraction that derives admin config entries directly from `actions()`.
 - Let controllers only describe action metadata once.
 
+Status:
+- Fixed by adding shared admin action-config composition to [AbstractActionController.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Controllers/AbstractActionController.php).
+- Admin action controllers now declare only their controller key plus exposed action names, while the base controller builds the shared `{ action, nonce }` payload shape.
+- Controller-specific extras like gallery `templates` and media-category `taxonomy` remain local to the relevant controllers.
+
 ### 2. Capability strings are duplicated instead of centralized
 
 Files:
@@ -491,7 +496,6 @@ This is the recommended order for addressing the review. The sequence is based o
 ### Recommended execution strategy
 
 Recommended order of actual implementation:
-1. gallery repository/storage boundary fix
-2. frontend feature-container refactor
-3. frontend component splitting
-4. shared async hooks and TS tightening
+1. frontend feature-container refactor
+2. frontend component splitting
+3. shared async hooks and TS tightening

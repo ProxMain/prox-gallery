@@ -57,21 +57,12 @@ final class TrackingActionController extends AbstractActionController implements
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['tracking'] = [
-            'get' => [
-                'action' => self::ACTION_GET,
-                'nonce' => \wp_create_nonce(self::ACTION_GET),
-            ],
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+        return $this->extendAdminActionConfig(
+            $config,
+            'tracking',
+            [
+                'get' => self::ACTION_GET,
+            ]
+        );
     }
 }

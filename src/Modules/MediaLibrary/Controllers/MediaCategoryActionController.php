@@ -127,31 +127,18 @@ final class MediaCategoryActionController extends AbstractActionController imple
      */
     public function extendAdminConfig(array $config): array
     {
-        $controllers = [];
-
-        if (isset($config['action_controllers']) && is_array($config['action_controllers'])) {
-            $controllers = $config['action_controllers'];
-        }
-
-        $controllers['media_category'] = [
-            'suggest' => [
-                'action' => self::ACTION_SUGGEST,
-                'nonce' => \wp_create_nonce(self::ACTION_SUGGEST),
+        return $this->extendAdminActionConfig(
+            $config,
+            'media_category',
+            [
+                'suggest' => self::ACTION_SUGGEST,
+                'list' => self::ACTION_LIST,
+                'assign' => self::ACTION_ASSIGN,
             ],
-            'list' => [
-                'action' => self::ACTION_LIST,
-                'nonce' => \wp_create_nonce(self::ACTION_LIST),
-            ],
-            'assign' => [
-                'action' => self::ACTION_ASSIGN,
-                'nonce' => \wp_create_nonce(self::ACTION_ASSIGN),
-            ],
-            'taxonomy' => $this->service->taxonomy(),
-        ];
-
-        $config['action_controllers'] = $controllers;
-
-        return $config;
+            [
+                'taxonomy' => $this->service->taxonomy(),
+            ]
+        );
     }
 
     /**
