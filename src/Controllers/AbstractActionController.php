@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Controllers;
 
+use InvalidArgumentException;
 use Prox\ProxGallery\Contracts\ControllerInterface;
 use LogicException;
 use Throwable;
@@ -98,17 +99,20 @@ abstract class AbstractActionController implements ControllerInterface
         $action = isset($_REQUEST['action']) ? (string) \wp_unslash($_REQUEST['action']) : '';
 
         if ($action == '' || ! isset($this->registeredActions[$action])) {
-            \wp_send_json_error(['message' => 'Unknown action.'], 404);
+            $this->sendError(['message' => 'Unknown action.'], 404);
+            return;
         }
 
         $definition = $this->registeredActions[$action];
 
         if (! $this->currentUserCan((string) $definition['capability'], $action)) {
-            \wp_send_json_error(['message' => 'You are not allowed to perform this action.'], 403);
+            $this->sendError(['message' => 'You are not allowed to perform this action.'], 403);
+            return;
         }
 
         if (! $this->isValidNonce((string) $definition['nonce_action'])) {
-            \wp_send_json_error(['message' => 'Nonce verification failed.'], 403);
+            $this->sendError(['message' => 'Nonce verification failed.'], 403);
+            return;
         }
 
         /**
@@ -156,7 +160,25 @@ abstract class AbstractActionController implements ControllerInterface
                 $this
             );
 
-            \wp_send_json_success($response);
+            $this->sendSuccess($response);
+            return;
+        } catch (InvalidArgumentException $exception) {
+            /**
+             * Fires when an AJAX action callback throws a validation/input exception.
+             *
+             * @param string                   $action
+             * @param InvalidArgumentException $exception
+             * @param self                     $controller
+             */
+            \do_action(
+                'prox_gallery/action_controller/' . $this->id() . '/dispatch_invalid',
+                $action,
+                $exception,
+                $this
+            );
+
+            $this->sendError(['message' => $exception->getMessage()], 400);
+            return;
         } catch (Throwable $exception) {
             /**
              * Fires when an AJAX action callback throws.
@@ -181,7 +203,8 @@ abstract class AbstractActionController implements ControllerInterface
                 )
             );
 
-            \wp_send_json_error(['message' => 'Request failed.'], 500);
+            $this->sendError(['message' => 'Request failed.'], 500);
+            return;
         }
     }
 
@@ -224,5 +247,21 @@ abstract class AbstractActionController implements ControllerInterface
             $capability,
             $this
         );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    protected function sendSuccess(array $payload): void
+    {
+        \wp_send_json_success($payload);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    protected function sendError(array $payload, int $statusCode): void
+    {
+        \wp_send_json_error($payload, $statusCode);
     }
 }

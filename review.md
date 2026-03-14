@@ -419,6 +419,8 @@ This is the recommended order for addressing the review. The sequence is based o
   - input errors become `400`
   - permission errors remain `403`
   - server faults remain `500`
+- Status:
+  - fixed by mapping `InvalidArgumentException` responses to `400` in [AbstractActionController.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Controllers/AbstractActionController.php) and covering the response contract in [AbstractActionControllerTest.php](/home/marcelsanting/PhpstormProjects/prox-gallery/tests/AbstractActionControllerTest.php)
 
 5. Unify admin capability ownership
 - Align menu access, policy, and action-controller capability checks across:
@@ -474,10 +476,9 @@ This is the recommended order for addressing the review. The sequence is based o
 
 Recommended order of actual implementation:
 1. gallery repository/storage boundary fix
-2. AJAX error semantics
-3. admin capability unification
-4. `App.php` composition-root refactor
-5. remove or repurpose misleading backend types
-6. frontend feature-container refactor
-7. frontend component splitting
-8. shared async hooks and TS tightening
+2. admin capability unification
+3. `App.php` composition-root refactor
+4. remove or repurpose misleading backend types
+5. frontend feature-container refactor
+6. frontend component splitting
+7. shared async hooks and TS tightening
