@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { GalleriesHeader } from "@/features/galleries/components/galleries-header";
 import { GalleriesLibraryCard } from "@/features/galleries/components/galleries-library-card";
+import { useGalleryCreationWizard } from "@/features/galleries/hooks/use-gallery-creation-wizard";
 import { useGalleriesState } from "@/features/galleries/use-galleries-state";
 import { useGalleryActionController, useMediaManagerActionController } from "@/lib/action-controller-hooks";
 
@@ -28,6 +29,9 @@ export function GalleriesSection({
     deleteGallery,
     createGalleryPage
   } = useGalleriesState(galleryController);
+  const galleryWizard = useGalleryCreationWizard({
+    onCreateGallery: createGallery
+  });
 
   useEffect(() => {
     if (!isActive) {
@@ -93,7 +97,12 @@ export function GalleriesSection({
 
   return (
     <section className={isActive ? "space-y-6" : "hidden space-y-6"}>
-      <GalleriesHeader config={config} templateCount={templateOptions.length} pagination={pagination} />
+      <GalleriesHeader
+        config={config}
+        templateCount={templateOptions.length}
+        pagination={pagination}
+        onOpenWizard={galleryWizard.openWizard}
+      />
       <GalleriesLibraryCard
         galleries={galleries}
         templateOptions={templateOptions}
@@ -114,6 +123,7 @@ export function GalleriesSection({
           setTotalItems(nextTotalItems);
           setTotalPages(nextTotalPages);
         }}
+        wizard={galleryWizard}
       />
     </section>
   );

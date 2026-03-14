@@ -4,7 +4,7 @@ import { SectionHeader } from "@/core/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export function GalleriesHeader({ config, templateCount = 0, pagination = null }) {
+export function GalleriesHeader({ config, templateCount = 0, pagination = null, onOpenWizard }) {
   return (
     <SectionHeader
       variant="page"
@@ -18,6 +18,7 @@ export function GalleriesHeader({ config, templateCount = 0, pagination = null }
           <Button
             type="button"
             variant="outline"
+            onClick={onOpenWizard}
             className="focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
           >
             New gallery wizard
