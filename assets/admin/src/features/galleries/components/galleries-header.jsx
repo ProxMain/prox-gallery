@@ -4,7 +4,7 @@ import { SectionHeader } from "@/core/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export function GalleriesHeader({ config, templateCount = 0 }) {
+export function GalleriesHeader({ config, templateCount = 0, pagination = null }) {
   return (
     <SectionHeader
       variant="page"
@@ -12,6 +12,7 @@ export function GalleriesHeader({ config, templateCount = 0 }) {
       title="Prox Gallery - Galleries"
       description="Create and organize your gallery collections."
       meta={<p className="text-xs text-slate-500">Templates loaded: {templateCount}</p>}
+      footer={pagination}
       actions={
         <>
           <Button

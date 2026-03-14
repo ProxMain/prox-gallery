@@ -1,6 +1,9 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 export function CollectionPagination({
+  className = "",
   itemLabel,
   totalItems,
   currentPage,
@@ -14,7 +17,7 @@ export function CollectionPagination({
   const endItem = totalItems === 0 ? 0 : Math.min(totalItems, currentPage * pageSize);
 
   return (
-    <div className="mb-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 md:flex-row md:items-center md:justify-between">
+    <div className={cn("flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 md:flex-row md:items-center md:justify-between", className)}>
       <div className="flex flex-wrap items-center gap-3 text-sm text-slate-700">
         <label className="flex items-center gap-2">
           <span>Show</span>

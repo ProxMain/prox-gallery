@@ -26,15 +26,17 @@ export function MediaFilesCard({
   onLoadImageGalleries,
   onSetImageGalleries,
   openAiController,
-  onDeleteLinkClick
+  onDeleteLinkClick,
+  currentPage,
+  pageSize,
+  onPageChange,
+  onPaginationChange
 }) {
   const [activeModal, setActiveModal] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [dateSort, setDateSort] = useState("date_desc");
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(24);
 
   const handleOpenImageModal = (image, mode = "view") => {
     setActiveModal({ image, mode });
@@ -117,12 +119,15 @@ export function MediaFilesCard({
   }, [visibleImages, currentPage, pageSize]);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory, dateSort, viewMode]);
+    onPageChange(1);
+  }, [searchQuery, selectedCategory, dateSort, viewMode, onPageChange]);
 
   useEffect(() => {
-    setCurrentPage((page) => Math.min(page, totalPages));
-  }, [totalPages]);
+    onPaginationChange({
+      totalItems: visibleImages.length,
+      totalPages
+    });
+  }, [visibleImages.length, totalPages, onPaginationChange]);
 
   return (
     <>
@@ -153,22 +158,6 @@ export function MediaFilesCard({
               categoryOptions={categoryOptions}
               dateSort={dateSort}
               onDateSortChange={setDateSort}
-            />
-          ) : null}
-
-          {visibleImages.length > 0 ? (
-            <CollectionPagination
-              itemLabel={viewMode === "thumbnail" ? "items" : "rows"}
-              totalItems={visibleImages.length}
-              currentPage={currentPage}
-              pageSize={pageSize}
-              onPageSizeChange={(nextPageSize) => {
-                setPageSize(nextPageSize);
-                setCurrentPage(1);
-              }}
-              onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-              totalPages={totalPages}
             />
           ) : null}
 

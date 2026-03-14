@@ -21,7 +21,11 @@ export function GalleriesLibraryCard({
   onCreateGalleryPage,
   onLoadTrackedImages,
   onAddImagesToGallery,
-  onSetGalleryImages
+  onSetGalleryImages,
+  currentPage,
+  pageSize,
+  onPageChange,
+  onPaginationChange
 }) {
   const toNullableInt = (value) => (value === "inherit" ? null : Number(value));
   const toNullableBool = (value) => {
@@ -35,8 +39,6 @@ export function GalleriesLibraryCard({
   const [viewMode, setViewMode] = useState("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(24);
   const [sortMode, setSortMode] = useState("date_desc");
   const [templateFilter, setTemplateFilter] = useState("all");
   const [createName, setCreateName] = useState("");
@@ -157,12 +159,15 @@ export function GalleriesLibraryCard({
   }, [visibleGalleries, currentPage, pageSize]);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, sortMode, templateFilter, viewMode]);
+    onPageChange(1);
+  }, [searchQuery, sortMode, templateFilter, viewMode, onPageChange]);
 
   useEffect(() => {
-    setCurrentPage((page) => Math.min(page, totalPages));
-  }, [totalPages]);
+    onPaginationChange({
+      totalItems: visibleGalleries.length,
+      totalPages
+    });
+  }, [visibleGalleries.length, totalPages, onPaginationChange]);
 
   const activeDisplayGallery = useMemo(
     () => galleries.find((item) => item.id === activeDisplayGalleryId) ?? null,
@@ -553,22 +558,6 @@ export function GalleriesLibraryCard({
               </select>
             </label>
           </div>
-        ) : null}
-
-        {visibleGalleries.length > 0 ? (
-          <CollectionPagination
-            itemLabel={viewMode === "grid" ? "galleries" : "rows"}
-            totalItems={visibleGalleries.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageSizeChange={(nextPageSize) => {
-              setPageSize(nextPageSize);
-              setCurrentPage(1);
-            }}
-            onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
-            onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-            totalPages={totalPages}
-          />
         ) : null}
 
         {isLoading ? (

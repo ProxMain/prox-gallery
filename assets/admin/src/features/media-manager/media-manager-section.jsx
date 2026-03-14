@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { MediaFilesCard } from "@/features/media-manager/components/media-files-card";
 import { MediaManagerHeader } from "@/features/media-manager/components/media-manager-header";
 import { useMediaManagerPicker } from "@/features/media-manager/hooks/use-media-manager-picker";
@@ -19,6 +20,10 @@ export function MediaManagerSection({
   const mediaCategoryController = useMediaCategoryActionController(config);
   const galleryController = useGalleryActionController(config);
   const openAiController = useOpenAiActionController(config);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(24);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const {
     viewMode,
     trackedImages,
@@ -53,6 +58,10 @@ export function MediaManagerSection({
 
     void loadTrackedImages();
   }, [isActive, loadTrackedImages]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
 
   const handleDeleteLinkClick = (event, deleteUrl) => {
     if (deleteUrl === "") {
@@ -132,6 +141,29 @@ export function MediaManagerSection({
     return response.items;
   };
 
+  const pagination = useMemo(() => {
+    if (totalItems <= 0) {
+      return null;
+    }
+
+    return (
+      <CollectionPagination
+        className="border-white/70 bg-white/80"
+        itemLabel={viewMode === "thumbnail" ? "items" : "rows"}
+        totalItems={totalItems}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageSizeChange={(nextPageSize) => {
+          setPageSize(nextPageSize);
+          setCurrentPage(1);
+        }}
+        onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
+        onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+        totalPages={totalPages}
+      />
+    );
+  }, [currentPage, pageSize, totalItems, totalPages, viewMode]);
+
   return (
     <section className={isActive ? "space-y-6" : "hidden space-y-6"}>
       <MediaManagerHeader
@@ -140,6 +172,7 @@ export function MediaManagerSection({
         onOpenPicker={openPicker}
         pickerError={pickerError}
         lastSelectionSummary={lastSelectionSummary}
+        pagination={pagination}
       />
       <MediaFilesCard
         isLoadingList={isLoadingList}
@@ -157,6 +190,13 @@ export function MediaManagerSection({
         onSetImageGalleries={handleSetImageGalleries}
         openAiController={openAiController}
         onDeleteLinkClick={handleDeleteLinkClick}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPaginationChange={({ totalItems: nextTotalItems, totalPages: nextTotalPages }) => {
+          setTotalItems(nextTotalItems);
+          setTotalPages(nextTotalPages);
+        }}
       />
     </section>
   );
