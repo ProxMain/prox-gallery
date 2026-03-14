@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\Frontend\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryModel;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRegistryInterface;
@@ -20,7 +19,6 @@ final class FrontendGalleryService implements ServiceInterface
     public function __construct(
         private FrontendGalleryState $state,
         private FrontendVisibilityPolicy $policy,
-        private GalleryModel $model,
         private FrontendGalleryRepositoryInterface $repository,
         private FrontendGalleryTemplateRendererInterface $renderer,
         private FrontendGalleryTemplateRegistryInterface $templateRegistry
@@ -39,13 +37,11 @@ final class FrontendGalleryService implements ServiceInterface
          *
          * @param FrontendGalleryState     $state  Frontend state instance.
          * @param FrontendVisibilityPolicy $policy Visibility policy instance.
-         * @param GalleryModel             $model  Gallery model instance.
          */
         \do_action(
             'prox_gallery/service/frontend_gallery/booted',
             $this->state,
-            $this->policy,
-            $this->model
+            $this->policy
         );
     }
 

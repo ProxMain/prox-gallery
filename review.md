@@ -223,6 +223,11 @@ Where responsibility should live:
 - If the repository is the source of truth, remove the inert model from the service contract.
 - If a domain model is intended, it should encapsulate real gallery state and behavior instead of existing only for signaling.
 
+Status:
+- Fixed by removing [GalleryModel.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Models/GalleryModel.php) from [FrontendGalleryService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Frontend/Services/FrontendGalleryService.php) and from bootstrap wiring in [AppBindingRegistrar.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Bootstrap/AppBindingRegistrar.php).
+- Frontend gallery boot signaling now exposes only the state and policy objects it actually depends on.
+- The repository remains the single frontend source of gallery data.
+
 ## Frontend Atomic Plan
 
 Goal:
@@ -452,6 +457,8 @@ This is the recommended order for addressing the review. The sequence is based o
 - Resolve whether [GalleryModel.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Models/GalleryModel.php#L12) should become meaningful or be removed from the frontend service contract.
 - Outcome:
   - clearer ownership of gallery state
+- Status:
+  - fixed by removing the inert gallery model from the frontend service contract and bootstrap bindings
 
 ### Phase 4: Restructure the frontend around feature boundaries
 
@@ -485,7 +492,6 @@ This is the recommended order for addressing the review. The sequence is based o
 
 Recommended order of actual implementation:
 1. gallery repository/storage boundary fix
-2. remove or repurpose misleading backend types
-3. frontend feature-container refactor
-4. frontend component splitting
-5. shared async hooks and TS tightening
+2. frontend feature-container refactor
+3. frontend component splitting
+4. shared async hooks and TS tightening

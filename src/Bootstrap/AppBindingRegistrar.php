@@ -40,7 +40,6 @@ use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryPageProvisionerInterface;
 use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Gallery\GalleryModule;
 use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryModel;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryPageProvisioningService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaCategoryActionController;
@@ -205,7 +204,6 @@ final class AppBindingRegistrar
 
     private function registerModelBindings(Container $container): void
     {
-        $container->set(GalleryModel::class, static fn () => new GalleryModel());
         $container->set(GalleryCollectionModel::class, static fn () => new GalleryCollectionModel());
         $container->set(
             GalleryRepositoryInterface::class,
@@ -228,7 +226,6 @@ final class AppBindingRegistrar
             static fn (Container $container) => new FrontendGalleryService(
                 $container->get(FrontendGalleryState::class),
                 $container->get(FrontendVisibilityPolicy::class),
-                $container->get(GalleryModel::class),
                 $container->get(FrontendGalleryRepositoryInterface::class),
                 $container->get(FrontendGalleryTemplateRendererInterface::class),
                 $container->get(FrontendGalleryTemplateRegistryInterface::class)

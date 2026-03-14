@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Prox\ProxGallery\Modules\Gallery\Controllers\GalleryActionController;
 use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryModel;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryPageProvisioningService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
@@ -239,7 +238,6 @@ final class GalleryActionControllerTest extends WP_UnitTestCase
         $frontendService = new FrontendGalleryService(
             new FrontendGalleryState(),
             new FrontendVisibilityPolicy(),
-            new GalleryModel(),
             new FrontendGalleryRepository($model),
             $renderer,
             new FrontendGalleryTemplateRegistry($renderer)

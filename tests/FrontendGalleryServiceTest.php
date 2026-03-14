@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryModel;
 use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryRepository;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
@@ -354,7 +353,6 @@ final class FrontendGalleryServiceTest extends WP_UnitTestCase
         return new FrontendGalleryService(
             new FrontendGalleryState(),
             new FrontendVisibilityPolicy(),
-            new GalleryModel(),
             new FrontendGalleryRepository(new GalleryCollectionModel()),
             $renderer,
             new FrontendGalleryTemplateRegistry($renderer)
