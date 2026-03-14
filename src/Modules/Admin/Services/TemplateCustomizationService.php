@@ -126,7 +126,17 @@ final class TemplateCustomizationService implements ServiceInterface
             $next['masonry_transition'] = $this->normalizeTransition($payload['masonry_transition']);
         }
 
-        \update_option($this->state->optionKey(), $next, false);
+        $options = \get_option($this->state->optionKey(), []);
+
+        if (! is_array($options)) {
+            $options = [];
+        }
+
+        foreach ($next as $key => $value) {
+            $options[$key] = $value;
+        }
+
+        \update_option($this->state->optionKey(), $options, false);
 
         return $next;
     }

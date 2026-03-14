@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
 use Prox\ProxGallery\States\AdminConfigurationState;
 
 final class TemplateCustomizationServiceTest extends WP_UnitTestCase
@@ -58,5 +59,50 @@ final class TemplateCustomizationServiceTest extends WP_UnitTestCase
         self::assertFalse($updated['masonry_hover_zoom']);
         self::assertTrue($updated['masonry_full_width']);
         self::assertSame('fade', $updated['masonry_transition']);
+    }
+
+    public function test_it_preserves_other_shared_option_sections_when_updating_template_settings(): void
+    {
+        $state = new AdminConfigurationState();
+        $openAiService = new OpenAiSettingsService($state);
+        $templateService = new TemplateCustomizationService($state);
+
+        $openAiService->update(
+            [
+                'api_key' => 'test-api-key',
+                'model' => 'gpt-test',
+                'languages' => ['English', 'Dutch'],
+                'prompt_templates' => [
+                    [
+                        'key' => 'custom',
+                        'label' => 'Custom',
+                        'prompt' => 'Describe carefully.',
+                        'built_in' => false,
+                    ],
+                ],
+            ]
+        );
+
+        $templateService->update(
+            [
+                'basic_grid_columns' => 5,
+                'basic_grid_transition' => 'slide',
+            ]
+        );
+
+        $options = \get_option($state->optionKey(), []);
+
+        self::assertIsArray($options);
+        self::assertArrayHasKey('openai', $options);
+        self::assertIsArray($options['openai']);
+        self::assertSame('gpt-test', $options['openai']['model']);
+        self::assertSame(['English', 'Dutch'], $options['openai']['languages']);
+        self::assertSame(5, $options['basic_grid_columns']);
+        self::assertSame('slide', $options['basic_grid_transition']);
+
+        $openAiSettings = $openAiService->settings();
+        self::assertSame('gpt-test', $openAiSettings['model']);
+        self::assertSame(['English', 'Dutch'], $openAiSettings['languages']);
+        self::assertSame('custom', $openAiSettings['prompt_templates'][3]['key']);
     }
 }
