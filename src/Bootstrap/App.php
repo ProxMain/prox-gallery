@@ -42,6 +42,10 @@ use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
+use Prox\ProxGallery\Modules\OpenAi\Controllers\OpenAiActionController;
+use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
+use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
+use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
 use Prox\ProxGallery\Modules\Admin\Controllers\AdminGalleryController;
 use Prox\ProxGallery\Modules\Admin\Controllers\TemplateSettingsActionController;
 use Prox\ProxGallery\Modules\Admin\Controllers\TrackingActionController;
@@ -132,6 +136,7 @@ final class App
         $this->container->set(CoreModule::class, static fn () => new CoreModule());
         $this->container->set(AdminModule::class, static fn () => new AdminModule());
         $this->container->set(FrontendModule::class, static fn () => new FrontendModule());
+        $this->container->set(OpenAiModule::class, static fn () => new OpenAiModule());
         $this->container->set(
             GalleryModule::class,
             static fn (Container $container) => new GalleryModule(
@@ -216,6 +221,13 @@ final class App
             TrackingActionController::class,
             static fn (Container $container) => new TrackingActionController(
                 $container->get(TrackingSummaryService::class)
+            )
+        );
+        $this->container->set(
+            OpenAiActionController::class,
+            static fn (Container $container) => new OpenAiActionController(
+                $container->get(OpenAiSettingsService::class),
+                $container->get(OpenAiStoryService::class)
             )
         );
     }
@@ -370,6 +382,18 @@ final class App
                 $container->get(AdminConfigurationState::class)
             )
         );
+        $this->container->set(
+            OpenAiSettingsService::class,
+            static fn (Container $container) => new OpenAiSettingsService(
+                $container->get(AdminConfigurationState::class)
+            )
+        );
+        $this->container->set(
+            OpenAiStoryService::class,
+            static fn (Container $container) => new OpenAiStoryService(
+                $container->get(OpenAiSettingsService::class)
+            )
+        );
 
         if ($this->developmentSeedEnabled()) {
             $this->container->set(
@@ -451,6 +475,7 @@ final class App
         $manager->add($this->container->get(CoreModule::class));
         $manager->add($this->container->get(AdminModule::class));
         $manager->add($this->container->get(FrontendModule::class));
+        $manager->add($this->container->get(OpenAiModule::class));
         $manager->add($this->container->get(GalleryModule::class));
         $manager->add($this->container->get(MediaLibraryModule::class));
 
@@ -488,6 +513,7 @@ final class App
             $this->container->get(MediaCategoryActionController::class),
             $this->container->get(TemplateSettingsActionController::class),
             $this->container->get(TrackingActionController::class),
+            $this->container->get(OpenAiActionController::class),
         ];
 
         foreach ($controllers as $controller) {

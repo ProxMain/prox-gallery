@@ -126,7 +126,7 @@ final class DevelopmentSeedService implements ServiceInterface
         $sanitizedMaxGalleries = max(1, $maxGalleriesPerImage);
 
         if ($clearExisting) {
-            \delete_option('prox_gallery_galleries');
+            $this->galleryService->clearAll();
             $this->queue->replaceAll([]);
         }
 

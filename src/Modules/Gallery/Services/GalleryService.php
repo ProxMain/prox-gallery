@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Prox\ProxGallery\Contracts\ServiceInterface;
 use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryPageProvisionerInterface;
 use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
+use Prox\ProxGallery\Modules\Gallery\Support\GallerySettingsNormalizer;
 
 /**
  * Gallery domain service for admin actions.
@@ -80,38 +81,41 @@ final class GalleryService implements ServiceInterface
         string $name,
         string $description = '',
         string $template = 'basic-grid',
-        ?int $gridColumnsOverride = null,
-        ?bool $lightboxOverride = null,
-        ?bool $hoverZoomOverride = null,
-        ?bool $fullWidthOverride = null,
-        ?string $transitionOverride = null,
-        bool $showTitle = true,
-        bool $showDescription = true
+        mixed $gridColumnsOverride = null,
+        mixed $lightboxOverride = null,
+        mixed $hoverZoomOverride = null,
+        mixed $fullWidthOverride = null,
+        mixed $transitionOverride = null,
+        mixed $showTitle = true,
+        mixed $showDescription = true
     ): array
     {
-        $normalizedName = trim(\sanitize_text_field($name));
-        $normalizedDescription = trim(\sanitize_text_field($description));
-        $normalizedTemplate = trim(\sanitize_text_field($template));
+        $normalizedName = GallerySettingsNormalizer::normalizeName($name);
+        $normalizedDescription = GallerySettingsNormalizer::normalizeDescription($description);
+        $normalizedTemplate = GallerySettingsNormalizer::normalizeTemplate($template);
+        $normalizedGridColumnsOverride = GallerySettingsNormalizer::normalizeOverrideInt($gridColumnsOverride);
+        $normalizedLightboxOverride = GallerySettingsNormalizer::normalizeOverrideBool($lightboxOverride);
+        $normalizedHoverZoomOverride = GallerySettingsNormalizer::normalizeOverrideBool($hoverZoomOverride);
+        $normalizedFullWidthOverride = GallerySettingsNormalizer::normalizeOverrideBool($fullWidthOverride);
+        $normalizedTransitionOverride = GallerySettingsNormalizer::normalizeTransitionOverride($transitionOverride);
+        $normalizedShowTitle = GallerySettingsNormalizer::normalizeVisibilityBool($showTitle);
+        $normalizedShowDescription = GallerySettingsNormalizer::normalizeVisibilityBool($showDescription);
 
         if ($normalizedName === '') {
             throw new InvalidArgumentException('Gallery name is required.');
-        }
-
-        if ($normalizedTemplate === '') {
-            $normalizedTemplate = 'basic-grid';
         }
 
         $created = $this->collection->create(
             $normalizedName,
             $normalizedDescription,
             $normalizedTemplate,
-            $gridColumnsOverride,
-            $lightboxOverride,
-            $hoverZoomOverride,
-            $fullWidthOverride,
-            $transitionOverride,
-            $showTitle,
-            $showDescription
+            $normalizedGridColumnsOverride,
+            $normalizedLightboxOverride,
+            $normalizedHoverZoomOverride,
+            $normalizedFullWidthOverride,
+            $normalizedTransitionOverride,
+            $normalizedShowTitle,
+            $normalizedShowDescription
         );
 
         return [
@@ -140,22 +144,22 @@ final class GalleryService implements ServiceInterface
         string $name,
         string $description = '',
         ?string $template = null,
-        ?int $gridColumnsOverride = null,
-        ?bool $lightboxOverride = null,
-        ?bool $hoverZoomOverride = null,
-        ?bool $fullWidthOverride = null,
+        mixed $gridColumnsOverride = null,
+        mixed $lightboxOverride = null,
+        mixed $hoverZoomOverride = null,
+        mixed $fullWidthOverride = null,
         bool $applyDisplayOverrides = false,
-        ?string $transitionOverride = null,
-        ?bool $showTitle = null,
-        ?bool $showDescription = null
+        mixed $transitionOverride = null,
+        mixed $showTitle = null,
+        mixed $showDescription = null
     ): array
     {
         if ($id <= 0) {
             throw new InvalidArgumentException('Gallery ID is required.');
         }
 
-        $normalizedName = trim(\sanitize_text_field($name));
-        $normalizedDescription = trim(\sanitize_text_field($description));
+        $normalizedName = GallerySettingsNormalizer::normalizeName($name);
+        $normalizedDescription = GallerySettingsNormalizer::normalizeDescription($description);
         $normalizedTemplate = null;
 
         if ($normalizedName === '') {
@@ -168,45 +172,48 @@ final class GalleryService implements ServiceInterface
             throw new InvalidArgumentException('Gallery not found.');
         }
 
-        if (is_string($template)) {
-            $normalizedTemplate = trim(\sanitize_text_field($template));
-            if ($normalizedTemplate === '') {
-                $normalizedTemplate = 'basic-grid';
-            }
-        } else {
-            $normalizedTemplate = (string) ($current['template'] ?? 'basic-grid');
-        }
+        $normalizedTemplate = GallerySettingsNormalizer::normalizeOptionalTemplate(
+            $template,
+            (string) ($current['template'] ?? 'basic-grid')
+        );
+        $normalizedGridColumnsOverride = GallerySettingsNormalizer::normalizeOverrideInt($gridColumnsOverride);
+        $normalizedLightboxOverride = GallerySettingsNormalizer::normalizeOverrideBool($lightboxOverride);
+        $normalizedHoverZoomOverride = GallerySettingsNormalizer::normalizeOverrideBool($hoverZoomOverride);
+        $normalizedFullWidthOverride = GallerySettingsNormalizer::normalizeOverrideBool($fullWidthOverride);
+        $normalizedTransitionOverride = GallerySettingsNormalizer::normalizeTransitionOverride($transitionOverride);
+        $normalizedShowTitle = $showTitle === null ? null : GallerySettingsNormalizer::normalizeVisibilityBool($showTitle);
+        $normalizedShowDescription = $showDescription === null ? null : GallerySettingsNormalizer::normalizeVisibilityBool($showDescription);
 
         $resolvedColumns = $applyDisplayOverrides
-            ? $gridColumnsOverride
+            ? $normalizedGridColumnsOverride
             : (array_key_exists('grid_columns_override', $current) && is_int($current['grid_columns_override'])
                 ? $current['grid_columns_override']
                 : null);
         $resolvedLightbox = $applyDisplayOverrides
-            ? $lightboxOverride
+            ? $normalizedLightboxOverride
             : (array_key_exists('lightbox_override', $current) && is_bool($current['lightbox_override'])
                 ? $current['lightbox_override']
                 : null);
         $resolvedHoverZoom = $applyDisplayOverrides
-            ? $hoverZoomOverride
+            ? $normalizedHoverZoomOverride
             : (array_key_exists('hover_zoom_override', $current) && is_bool($current['hover_zoom_override'])
                 ? $current['hover_zoom_override']
                 : null);
         $resolvedFullWidth = $applyDisplayOverrides
-            ? $fullWidthOverride
+            ? $normalizedFullWidthOverride
             : (array_key_exists('full_width_override', $current) && is_bool($current['full_width_override'])
                 ? $current['full_width_override']
                 : null);
         $resolvedTransition = $applyDisplayOverrides
-            ? $this->normalizeTransition($transitionOverride)
+            ? $normalizedTransitionOverride
             : (array_key_exists('transition_override', $current) && is_string($current['transition_override'])
-                ? $this->normalizeTransition($current['transition_override'])
+                ? GallerySettingsNormalizer::normalizeTransitionOverride($current['transition_override'])
                 : null);
         $resolvedShowTitle = $applyDisplayOverrides
-            ? ($showTitle ?? (array_key_exists('show_title', $current) ? (bool) $current['show_title'] : true))
+            ? ($normalizedShowTitle ?? (array_key_exists('show_title', $current) ? (bool) $current['show_title'] : true))
             : (array_key_exists('show_title', $current) ? (bool) $current['show_title'] : true);
         $resolvedShowDescription = $applyDisplayOverrides
-            ? ($showDescription ?? (array_key_exists('show_description', $current) ? (bool) $current['show_description'] : true))
+            ? ($normalizedShowDescription ?? (array_key_exists('show_description', $current) ? (bool) $current['show_description'] : true))
             : (array_key_exists('show_description', $current) ? (bool) $current['show_description'] : true);
 
         $updated = $this->collection->rename(
@@ -232,22 +239,6 @@ final class GalleryService implements ServiceInterface
         ];
     }
 
-    private function normalizeTransition(?string $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = strtolower(trim($value));
-        $allowed = ['none', 'slide', 'fade', 'explode', 'implode'];
-
-        if (in_array($normalized, $allowed, true)) {
-            return $normalized;
-        }
-
-        return null;
-    }
-
     public function delete(int $id): void
     {
         if ($id <= 0) {
@@ -257,6 +248,29 @@ final class GalleryService implements ServiceInterface
         if (! $this->collection->delete($id)) {
             throw new InvalidArgumentException('Gallery not found.');
         }
+    }
+
+    public function clearAll(): void
+    {
+        $this->collection->clearAll();
+    }
+
+    public function exists(int $galleryId): bool
+    {
+        if ($galleryId <= 0) {
+            return false;
+        }
+
+        return $this->collection->exists($galleryId);
+    }
+
+    public function galleryContainsImage(int $galleryId, int $imageId): bool
+    {
+        if ($galleryId <= 0 || $imageId <= 0) {
+            return false;
+        }
+
+        return $this->collection->galleryContainsImage($galleryId, $imageId);
     }
 
     /**

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Bot, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,7 +38,8 @@ export function MediaImageModal({
   onAssignCategories,
   onListGalleries,
   onLoadImageGalleries,
-  onSetImageGalleries
+  onSetImageGalleries,
+  openAiController
 }) {
   const [formState, setFormState] = useState({
     title: "",
@@ -61,6 +62,21 @@ export function MediaImageModal({
   const [isLoadingGalleries, setIsLoadingGalleries] = useState(false);
   const [galleriesNotice, setGalleriesNotice] = useState("");
   const [isSavingGalleries, setIsSavingGalleries] = useState(false);
+  const [openAiConfig, setOpenAiConfig] = useState({
+    model: "gpt-4.1-mini",
+    languages: ["English", "German", "Dutch", "French"],
+    prompt_templates: []
+  });
+  const [isOpenAiConfigLoading, setIsOpenAiConfigLoading] = useState(false);
+  const [openAiTemplateKey, setOpenAiTemplateKey] = useState("factual");
+  const [openAiLanguage, setOpenAiLanguage] = useState("English");
+  const [openAiPromptOverride, setOpenAiPromptOverride] = useState("");
+  const [openAiPreview, setOpenAiPreview] = useState("");
+  const [openAiShortTitle, setOpenAiShortTitle] = useState("");
+  const [openAiGeneratedPrompt, setOpenAiGeneratedPrompt] = useState("");
+  const [isGeneratingOpenAi, setIsGeneratingOpenAi] = useState(false);
+  const [isApplyingOpenAi, setIsApplyingOpenAi] = useState(false);
+  const [openAiNotice, setOpenAiNotice] = useState("");
   const isEditMode = mode === "edit";
 
   useEffect(() => {
@@ -78,7 +94,68 @@ export function MediaImageModal({
     setSaveError("");
     setCategorySaveNotice("");
     setCategorySaveNoticeType("success");
+    setOpenAiPreview("");
+    setOpenAiGeneratedPrompt("");
+    setOpenAiPromptOverride("");
+    setOpenAiShortTitle("");
+    setOpenAiNotice("");
   }, [image, mode]);
+
+  useEffect(() => {
+    if (!image || !openAiController) {
+      return;
+    }
+
+    let active = true;
+
+    const load = async () => {
+      try {
+        setIsOpenAiConfigLoading(true);
+        setOpenAiNotice("");
+        const response = await openAiController.getGenerationConfig();
+        const config = response?.config;
+
+        if (!active || !config) {
+          return;
+        }
+
+        const templates = Array.isArray(config.prompt_templates) ? config.prompt_templates : [];
+        const languages = Array.isArray(config.languages) ? config.languages : [];
+
+        setOpenAiConfig({
+          model: typeof config.model === "string" && config.model !== "" ? config.model : "gpt-4.1-mini",
+          prompt_templates: templates,
+          languages: languages.length > 0 ? languages : ["English"]
+        });
+
+        if (templates.length > 0) {
+          setOpenAiTemplateKey(String(templates[0].key || "factual"));
+          setOpenAiPromptOverride(String(templates[0].prompt || ""));
+        }
+
+        if (languages.length > 0) {
+          setOpenAiLanguage(String(languages[0] || "English"));
+        }
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : "Failed to load OpenAI generation settings.";
+        setOpenAiNotice(message);
+      } finally {
+        if (active) {
+          setIsOpenAiConfigLoading(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, [image, openAiController]);
 
   useEffect(() => {
     if (!image || !onLoadCategories) {
@@ -350,7 +427,88 @@ export function MediaImageModal({
 
   const categoryActionDisabled = isSavingCategories || isSaving;
   const selectedGalleries = galleries.filter((gallery) => selectedGalleryIds.includes(gallery.id));
+  const selectedOpenAiTemplate = openAiConfig.prompt_templates.find((template) => template.key === openAiTemplateKey);
   const modalTitle = image.title || `Image #${image.id}`;
+
+  const handleOpenAiTemplateChange = (value) => {
+    setOpenAiTemplateKey(value);
+    const template = openAiConfig.prompt_templates.find((item) => item.key === value);
+
+    if (template) {
+      setOpenAiPromptOverride(String(template.prompt || ""));
+    }
+  };
+
+  const handleGenerateOpenAiStory = async () => {
+    if (!openAiController) {
+      setOpenAiNotice("OpenAI action configuration is missing.");
+      return;
+    }
+
+    try {
+      setIsGeneratingOpenAi(true);
+      setOpenAiNotice("");
+      const response = await openAiController.generateStory({
+        attachment_id: image.id,
+        template_key: openAiTemplateKey,
+        language: openAiLanguage,
+        prompt_override: openAiPromptOverride
+      });
+
+      setOpenAiPreview(String(response.story || ""));
+      setOpenAiShortTitle(String(response.short_title || ""));
+      setOpenAiGeneratedPrompt(String(response.prompt || ""));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate AI story.";
+      setOpenAiNotice(message);
+    } finally {
+      setIsGeneratingOpenAi(false);
+    }
+  };
+
+  const handleApplyOpenAiStory = async () => {
+    if (!openAiController) {
+      setOpenAiNotice("OpenAI action configuration is missing.");
+      return;
+    }
+
+    if (openAiPreview.trim() === "") {
+      setOpenAiNotice("Generate a story preview before applying.");
+      return;
+    }
+
+    if (openAiShortTitle.trim() === "") {
+      setOpenAiNotice("Generate a short title before applying.");
+      return;
+    }
+
+    try {
+      setIsApplyingOpenAi(true);
+      setOpenAiNotice("");
+      const response = await openAiController.applyStory({
+        attachment_id: image.id,
+        story: openAiPreview,
+        short_title: openAiShortTitle
+      });
+
+      const story = String(response.story || "");
+      const shortTitle = String(response.short_title || "");
+
+      setOpenAiPreview(story);
+      setOpenAiShortTitle(shortTitle);
+      setFormState((current) => ({
+        ...current,
+        title: shortTitle,
+        description: story
+      }));
+      setOpenAiNotice("Title and story applied to image metadata.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to apply AI story.";
+      setOpenAiNotice(message);
+    } finally {
+      setIsApplyingOpenAi(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true">
@@ -407,11 +565,12 @@ export function MediaImageModal({
 
           <div className="p-4">
             <Tabs defaultValue="info" className="gap-3">
-              <TabsList className="grid w-full grid-cols-4 rounded-lg border border-slate-200 bg-slate-50 p-1">
+              <TabsList className="grid w-full grid-cols-5 rounded-lg border border-slate-200 bg-slate-50 p-1">
                 <TabsTrigger value="info" className="rounded-md text-xs">Info</TabsTrigger>
                 <TabsTrigger value="stats" className="rounded-md text-xs">Stats</TabsTrigger>
                 <TabsTrigger value="categories" className="rounded-md text-xs">Categories</TabsTrigger>
                 <TabsTrigger value="galleries" className="rounded-md text-xs">Galleries</TabsTrigger>
+                <TabsTrigger value="openai" className="rounded-md text-xs">OpenAI</TabsTrigger>
               </TabsList>
 
               <TabsContent value="info">
@@ -641,6 +800,113 @@ export function MediaImageModal({
                     </div>
                   )}
                   {galleriesNotice !== "" ? <p className="mt-2 text-xs text-slate-700">{galleriesNotice}</p> : null}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="openai">
+                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                    <Bot className="h-4 w-4 text-sky-700" />
+                    Generate Story
+                  </div>
+
+                  {isOpenAiConfigLoading ? (
+                    <p className="text-sm text-slate-600">Loading OpenAI configuration...</p>
+                  ) : (
+                    <>
+                      <label className="block space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Template</span>
+                        <select
+                          value={openAiTemplateKey}
+                          onChange={(event) => handleOpenAiTemplateChange(event.target.value)}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi || openAiConfig.prompt_templates.length === 0}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        >
+                          {openAiConfig.prompt_templates.map((template) => (
+                            <option key={template.key} value={template.key}>
+                              {template.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="block space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Language</span>
+                        <select
+                          value={openAiLanguage}
+                          onChange={(event) => setOpenAiLanguage(event.target.value)}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi || openAiConfig.languages.length === 0}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        >
+                          {openAiConfig.languages.map((language) => (
+                            <option key={language} value={language}>
+                              {language}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="block space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Prompt (one-off override)</span>
+                        <textarea
+                          rows={4}
+                          value={openAiPromptOverride}
+                          onChange={(event) => setOpenAiPromptOverride(event.target.value)}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        />
+                      </label>
+
+                      <label className="block space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Short title (max 4 words)</span>
+                        <input
+                          type="text"
+                          value={openAiShortTitle}
+                          onChange={(event) => setOpenAiShortTitle(event.target.value)}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        />
+                      </label>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleGenerateOpenAiStory}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi || !selectedOpenAiTemplate}
+                          className="rounded-md bg-sky-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {isGeneratingOpenAi ? "Generating..." : "Generate preview"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleApplyOpenAiStory}
+                          disabled={isGeneratingOpenAi || isApplyingOpenAi || openAiPreview.trim() === "" || openAiShortTitle.trim() === ""}
+                          className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {isApplyingOpenAi ? "Applying..." : "Apply to description"}
+                        </button>
+                        <span className="text-xs text-slate-500">Model: {openAiConfig.model}</span>
+                      </div>
+
+                      {openAiGeneratedPrompt !== "" ? (
+                        <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+                          Prompt used: {openAiGeneratedPrompt}
+                        </div>
+                      ) : null}
+
+                      <label className="block space-y-1">
+                        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">Preview</span>
+                        <textarea
+                          rows={8}
+                          value={openAiPreview}
+                          onChange={(event) => setOpenAiPreview(event.target.value)}
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        />
+                      </label>
+                    </>
+                  )}
+
+                  {openAiNotice !== "" ? <p className="text-sm text-slate-700">{openAiNotice}</p> : null}
                 </div>
               </TabsContent>
             </Tabs>

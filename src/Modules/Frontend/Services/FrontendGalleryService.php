@@ -111,6 +111,16 @@ final class FrontendGalleryService implements ServiceInterface
         return $this->templateRegistry->templateCatalog($this);
     }
 
+    public function galleryExists(int $galleryId): bool
+    {
+        return $this->repository->exists($galleryId);
+    }
+
+    public function galleryContainsImage(int $galleryId, int $imageId): bool
+    {
+        return $this->repository->galleryContainsImage($galleryId, $imageId);
+    }
+
     /**
      * @param list<array<string, mixed>> $galleries
      * @param array<string, mixed> $attributes

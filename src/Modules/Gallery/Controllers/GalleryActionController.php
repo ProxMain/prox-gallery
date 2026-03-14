@@ -114,24 +114,17 @@ final class GalleryActionController extends AbstractActionController implements 
         $name = isset($payload['name']) ? (string) $payload['name'] : '';
         $description = isset($payload['description']) ? (string) $payload['description'] : '';
         $template = isset($payload['template']) ? (string) $payload['template'] : 'basic-grid';
-        $gridColumnsOverride = $this->nullableIntOverride($payload['grid_columns_override'] ?? null);
-        $lightboxOverride = $this->nullableBoolOverride($payload['lightbox_override'] ?? null);
-        $hoverZoomOverride = $this->nullableBoolOverride($payload['hover_zoom_override'] ?? null);
-        $fullWidthOverride = $this->nullableBoolOverride($payload['full_width_override'] ?? null);
-        $transitionOverride = $this->nullableTransitionOverride($payload['transition_override'] ?? null);
-        $showTitle = $this->boolFlag($payload['show_title'] ?? true, true);
-        $showDescription = $this->boolFlag($payload['show_description'] ?? true, true);
         $item = $this->service->create(
             $name,
             $description,
             $template,
-            $gridColumnsOverride,
-            $lightboxOverride,
-            $hoverZoomOverride,
-            $fullWidthOverride,
-            $transitionOverride,
-            $showTitle,
-            $showDescription
+            $payload['grid_columns_override'] ?? null,
+            $payload['lightbox_override'] ?? null,
+            $payload['hover_zoom_override'] ?? null,
+            $payload['full_width_override'] ?? null,
+            $payload['transition_override'] ?? null,
+            $payload['show_title'] ?? true,
+            $payload['show_description'] ?? true
         );
 
         return [
@@ -158,26 +151,19 @@ final class GalleryActionController extends AbstractActionController implements 
             || array_key_exists('transition_override', $payload)
             || array_key_exists('show_title', $payload)
             || array_key_exists('show_description', $payload);
-        $gridColumnsOverride = $this->nullableIntOverride($payload['grid_columns_override'] ?? null);
-        $lightboxOverride = $this->nullableBoolOverride($payload['lightbox_override'] ?? null);
-        $hoverZoomOverride = $this->nullableBoolOverride($payload['hover_zoom_override'] ?? null);
-        $fullWidthOverride = $this->nullableBoolOverride($payload['full_width_override'] ?? null);
-        $transitionOverride = $this->nullableTransitionOverride($payload['transition_override'] ?? null);
-        $showTitle = $this->boolFlag($payload['show_title'] ?? null, true);
-        $showDescription = $this->boolFlag($payload['show_description'] ?? null, true);
         $item = $this->service->rename(
             $id,
             $name,
             $description,
             $template,
-            $gridColumnsOverride,
-            $lightboxOverride,
-            $hoverZoomOverride,
-            $fullWidthOverride,
+            $payload['grid_columns_override'] ?? null,
+            $payload['lightbox_override'] ?? null,
+            $payload['hover_zoom_override'] ?? null,
+            $payload['full_width_override'] ?? null,
             $hasDisplayOverrides,
-            $transitionOverride,
-            $showTitle,
-            $showDescription
+            $payload['transition_override'] ?? null,
+            $payload['show_title'] ?? null,
+            $payload['show_description'] ?? null
         );
 
         return [
@@ -381,92 +367,4 @@ final class GalleryActionController extends AbstractActionController implements 
         return array_values(array_unique($ids));
     }
 
-    private function nullableBoolOverride(mixed $value): ?bool
-    {
-        if ($value === null || $value === '' || $value === 'inherit') {
-            return null;
-        }
-
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $normalized = strtolower(trim($value));
-
-            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
-                return true;
-            }
-
-            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
-                return false;
-            }
-        }
-
-        return (bool) $value;
-    }
-
-    private function nullableIntOverride(mixed $value): ?int
-    {
-        if ($value === null || $value === '' || $value === 'inherit') {
-            return null;
-        }
-
-        $int = (int) $value;
-
-        if ($int < 2) {
-            return 2;
-        }
-
-        if ($int > 6) {
-            return 6;
-        }
-
-        return $int;
-    }
-
-    private function nullableTransitionOverride(mixed $value): ?string
-    {
-        if ($value === null || $value === '' || $value === 'inherit') {
-            return null;
-        }
-
-        $normalized = strtolower(trim((string) $value));
-        $allowed = ['none', 'slide', 'fade', 'explode', 'implode'];
-
-        if (in_array($normalized, $allowed, true)) {
-            return $normalized;
-        }
-
-        return null;
-    }
-
-    private function boolFlag(mixed $value, bool $default = true): bool
-    {
-        if ($value === null || $value === '') {
-            return $default;
-        }
-
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $normalized = strtolower(trim($value));
-
-            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
-                return true;
-            }
-
-            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
-                return false;
-            }
-        }
-
-        if (is_numeric($value)) {
-            return (int) $value !== 0;
-        }
-
-        return $default;
-    }
 }

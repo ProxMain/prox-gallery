@@ -64,16 +64,40 @@ final class FrontendGalleryController implements ControllerInterface
      */
     public function trackEvent(): void
     {
-        $eventType = isset($_POST['event_type']) ? (string) $_POST['event_type'] : '';
-        $galleryId = isset($_POST['gallery_id']) ? (int) $_POST['gallery_id'] : 0;
-        $imageId = isset($_POST['image_id']) ? (int) $_POST['image_id'] : 0;
+        $nonce = isset($_POST['_ajax_nonce']) ? (string) \wp_unslash($_POST['_ajax_nonce']) : '';
+
+        if ($nonce === '' || ! \wp_verify_nonce($nonce, self::TRACK_ACTION)) {
+            \wp_send_json_error(['message' => 'Nonce verification failed.'], 403);
+        }
+
+        $eventType = isset($_POST['event_type'])
+            ? \sanitize_key((string) \wp_unslash($_POST['event_type']))
+            : '';
+        $galleryId = isset($_POST['gallery_id']) ? (int) \wp_unslash($_POST['gallery_id']) : 0;
+        $imageId = isset($_POST['image_id']) ? (int) \wp_unslash($_POST['image_id']) : 0;
+
+        if ($this->isRateLimited()) {
+            \wp_send_json_error(['message' => 'Rate limit exceeded.'], 429);
+        }
 
         if ($eventType === 'gallery_visit') {
+            if (! $this->service->galleryExists($galleryId)) {
+                \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
+            }
+
             $this->tracking->recordGalleryVisit($galleryId);
             \wp_send_json_success(['tracked' => true]);
         }
 
         if ($eventType === 'image_view') {
+            if (! $this->imageExists($imageId)) {
+                \wp_send_json_error(['message' => 'Invalid image.'], 400);
+            }
+
+            if ($galleryId > 0 && ! $this->service->galleryContainsImage($galleryId, $imageId)) {
+                \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
+            }
+
             $this->tracking->recordImageView($galleryId, $imageId);
             \wp_send_json_success(['tracked' => true]);
         }
@@ -116,8 +140,42 @@ final class FrontendGalleryController implements ControllerInterface
             [
                 'ajaxUrl' => \admin_url('admin-ajax.php'),
                 'action' => self::TRACK_ACTION,
+                'nonce' => \wp_create_nonce(self::TRACK_ACTION),
             ]
         );
+    }
+
+    private function imageExists(int $imageId): bool
+    {
+        if ($imageId <= 0) {
+            return false;
+        }
+
+        $post = \get_post($imageId);
+
+        if (! $post instanceof \WP_Post || $post->post_type !== 'attachment') {
+            return false;
+        }
+
+        return (bool) \wp_attachment_is_image($imageId);
+    }
+
+    private function isRateLimited(): bool
+    {
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+        $ip = trim($ip);
+
+        if ($ip === '') {
+            $ip = 'unknown';
+        }
+
+        $bucket = \gmdate('YmdHi');
+        $key = 'prox_gallery_track_rl_' . md5($ip . '|' . $bucket);
+        $count = (int) \get_transient($key);
+        $count += 1;
+        \set_transient($key, $count, 70);
+
+        return $count > 120;
     }
 
     private function isFrontendRequest(): bool

@@ -13,4 +13,8 @@ interface FrontendGalleryRepositoryInterface
      * @return list<array<string, mixed>>
      */
     public function loadGalleries(int $galleryId): array;
+
+    public function exists(int $galleryId): bool;
+
+    public function galleryContainsImage(int $galleryId, int $imageId): bool;
 }
