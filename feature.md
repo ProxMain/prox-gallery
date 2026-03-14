@@ -607,6 +607,140 @@ Manual scenarios:
 
 ### Open questions
 
+---
+
+## Feature: Guided gallery creation wizard
+
+Status: proposed
+Priority: high
+Area: full-stack
+
+### Problem
+
+The current galleries entry point still presents a generic `New gallery` placeholder instead of guiding the user through the main gallery setup decisions.
+
+Current state:
+- [galleries-header.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/features/galleries/components/galleries-header.jsx) exposes a top-level creation action but it is not connected to a guided workflow.
+- [galleries-library-card.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/features/galleries/components/galleries-library-card.jsx) contains direct create state and raw gallery settings inputs.
+- Gallery creation already depends on multiple settings:
+  - name
+  - description
+  - template
+  - grid/lightbox/hover/full-width overrides
+  - transition
+  - title/description visibility
+- Those options are technically available, but they are not presented as a step-by-step decision flow for non-technical users.
+
+### Desired outcome
+
+The `New gallery` action should open a guided wizard that helps the user create a gallery step by step.
+
+The wizard should:
+1. collect the gallery name and optional description
+2. let the user choose a template
+3. guide template-specific display choices such as:
+   - widescreen/full-width on or off
+   - lightbox on or off
+   - hover zoom on or off
+   - transition mode
+   - optional column count where relevant
+4. show a final review step
+5. create the gallery through the existing gallery service boundary
+6. refresh the galleries list and open the created gallery for follow-up actions if useful
+
+### Constraints
+
+Architectural constraints:
+- Do not move gallery creation rules into the frontend.
+- Keep [GalleryService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Services/GalleryService.php) as the single creation boundary.
+- Do not split gallery normalization across wizard steps and controller payload shaping.
+- Keep orchestration inside the galleries feature, not in [app.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/app.jsx).
+- Reuse small UI pieces where justified, but do not create generic atoms for wizard-specific business flow.
+
+### Technical design
+
+High-level approach:
+- Replace the placeholder create action with a feature-level wizard trigger.
+- Move gallery creation flow state into a dedicated galleries wizard hook/container.
+- Keep the final create request mapped to the existing gallery action controller payload.
+- Reuse existing gallery settings vocabulary so the wizard stays aligned with the backend domain.
+
+Recommended flow:
+- Step 1: basics
+  - gallery name
+  - optional description
+- Step 2: template
+  - choose available gallery template
+- Step 3: display behavior
+  - full width / widescreen
+  - lightbox
+  - hover zoom
+  - transition
+  - columns when relevant
+- Step 4: content visibility
+  - show title
+  - show description
+- Step 5: review and create
+
+### Backend changes
+
+Backend work should stay minimal if the current gallery action controller already exposes the required create fields.
+
+Potential backend work:
+- verify the existing create payload already supports all wizard decisions
+- add missing create fields only if the wizard exposes a choice that cannot currently be persisted
+
+Do not:
+- add wizard-specific persistence outside the existing gallery service/controller path
+- create a second gallery creation service
+
+### Frontend changes
+
+Recommended structure:
+- new feature hook:
+  - `use-gallery-creation-wizard`
+- optional feature component:
+  - `gallery-creation-wizard.jsx`
+
+Responsibilities:
+- own wizard step state
+- validate per-step requirements
+- map wizard selections to the existing gallery create payload
+- submit through the existing galleries controller
+- reset and close cleanly after success
+
+Suggested locations:
+- `assets/admin/src/features/galleries/hooks/use-gallery-creation-wizard.js`
+- `assets/admin/src/features/galleries/components/gallery-creation-wizard.jsx`
+
+UI guidance:
+- the header action should become something like `New gallery`
+- the wizard should feel guided, not like a long settings form
+- template-specific options should only appear when relevant
+
+### Data / API changes
+
+Primary expectation:
+- no new backend endpoint if the existing create action is sufficient
+
+If needed:
+- extend the existing create payload only through the gallery action/controller boundary
+
+### Acceptance criteria
+
+1. Clicking the galleries header action opens a guided gallery creation wizard.
+2. The wizard walks the user through basics, template choice, display settings, and review.
+3. The created gallery is persisted through the existing gallery domain path.
+4. Template-specific options map correctly to stored gallery overrides.
+5. The wizard does not push gallery business rules into generic UI components.
+6. The galleries list refreshes after successful creation.
+
+### Open questions
+
+- Should the wizard create a frontend page automatically, or keep that as a separate explicit action?
+- Should template selection drive different copy/examples in later steps?
+- Do we want a live preview in the wizard, or should that wait for a later iteration?
+
 1. Do we want the block to support only single-gallery selection, or later multiple galleries?
 2. Should the block allow a template override, or should it always inherit the gallery’s configured template?
 3. Do we want a live visual preview in the editor, or is a metadata summary enough for v1?

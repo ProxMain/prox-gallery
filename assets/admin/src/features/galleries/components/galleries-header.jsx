@@ -20,7 +20,7 @@ export function GalleriesHeader({ config, templateCount = 0, pagination = null }
             variant="outline"
             className="focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
           >
-            New gallery (placeholder)
+            New gallery wizard
           </Button>
           <Badge variant="outline" className="h-9 px-3 text-xs font-medium text-slate-700">
             Environment: Local | Screen: {config.screen || "n/a"}
