@@ -28,6 +28,7 @@ use Prox\ProxGallery\Modules\DevelopmentSeed\Services\DevelopmentSeedService;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRegistryInterface;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRendererInterface;
+use Prox\ProxGallery\Modules\Frontend\Controllers\FrontendGalleryBlockController;
 use Prox\ProxGallery\Modules\Frontend\Controllers\FrontendGalleryController;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryRepository;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
@@ -138,6 +139,13 @@ final class AppBindingRegistrar
             static fn (Container $container) => new FrontendGalleryController(
                 $container->get(FrontendGalleryService::class),
                 $container->get(FrontendTrackingService::class)
+            )
+        );
+        $container->set(
+            FrontendGalleryBlockController::class,
+            static fn (Container $container) => new FrontendGalleryBlockController(
+                $container->get(FrontendGalleryController::class),
+                $container->get(GalleryService::class)
             )
         );
         $container->set(

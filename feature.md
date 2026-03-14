@@ -343,7 +343,7 @@ Manual scenarios:
 
 ## Feature: Gutenberg block to select and render a Prox Gallery gallery
 
-Status: proposed
+Status: in-progress
 Priority: high
 Area: full-stack
 
