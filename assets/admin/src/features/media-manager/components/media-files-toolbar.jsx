@@ -1,10 +1,14 @@
 import { Database, Filter, Settings2, WandSparkles } from "lucide-react";
 
+import { InlineSearchInput } from "@/components/ui/inline-search-input";
+
 export function MediaFilesToolbar({
   onReloadTrackedImages,
   onSetThumbnailView,
   onSetRowView,
-  onToggleFilters
+  onToggleFilters,
+  searchQuery,
+  onSearchQueryChange
 }) {
   return (
     <>
@@ -40,6 +44,12 @@ export function MediaFilesToolbar({
         <Filter className="h-4 w-4 text-slate-700" />
         <span>Filters</span>
       </button>
+      <InlineSearchInput
+        value={searchQuery}
+        onChange={onSearchQueryChange}
+        placeholder="Search media by name"
+        ariaLabel="Search media by name"
+      />
     </>
   );
 }

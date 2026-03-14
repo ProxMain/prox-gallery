@@ -2,6 +2,7 @@ import { FilePlus2, Filter, FolderOpen, Images, LayoutGrid, List, Pencil, Plus, 
 import { useMemo, useState } from "react";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { InlineSearchInput } from "@/components/ui/inline-search-input";
 import { SectionHeader } from "@/core/section-header";
 import { GalleryActionIconButton } from "@/features/galleries/components/gallery-action-icon-button";
 import { GalleryCreatePanel } from "@/features/galleries/components/gallery-create-panel";
@@ -32,6 +33,7 @@ export function GalleriesLibraryCard({
 
   const [viewMode, setViewMode] = useState("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState("date_desc");
   const [templateFilter, setTemplateFilter] = useState("all");
   const [createName, setCreateName] = useState("");
@@ -120,7 +122,12 @@ export function GalleriesLibraryCard({
   }, [availableTemplates, templateOptions]);
 
   const visibleGalleries = useMemo(() => {
-    const sorted = [...galleries].sort((left, right) => {
+    const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+    const filtered = galleries.filter((gallery) => {
+      const name = String(gallery.name || "").trim().toLowerCase();
+      return normalizedSearchQuery === "" || name.includes(normalizedSearchQuery);
+    });
+    const sorted = [...filtered].sort((left, right) => {
       const leftDate = Date.parse(String(left.created_at || ""));
       const rightDate = Date.parse(String(right.created_at || ""));
       const leftValue = Number.isNaN(leftDate) ? 0 : leftDate;
@@ -137,7 +144,7 @@ export function GalleriesLibraryCard({
       const slug = typeof gallery.template === "string" && gallery.template !== "" ? gallery.template : "basic-grid";
       return slug === templateFilter;
     });
-  }, [galleries, sortMode, templateFilter]);
+  }, [galleries, sortMode, templateFilter, searchQuery]);
 
   const activeDisplayGallery = useMemo(
     () => galleries.find((item) => item.id === activeDisplayGalleryId) ?? null,
@@ -454,6 +461,12 @@ export function GalleriesLibraryCard({
                 <Filter className="h-4 w-4 text-slate-700" />
                 <span>Filters</span>
               </button>
+              <InlineSearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search galleries by name"
+                ariaLabel="Search galleries by name"
+              />
               <button
                 type="button"
                 onClick={onReloadGalleries}
@@ -528,9 +541,13 @@ export function GalleriesLibraryCard({
           <p className="text-sm text-slate-600">Loading galleries...</p>
         ) : visibleGalleries.length === 0 ? (
           <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
-            <h3 className="text-lg font-semibold text-slate-900">No galleries yet</h3>
+            <h3 className="text-lg font-semibold text-slate-900">
+              {searchQuery.trim() !== "" ? "No galleries match your search" : "No galleries yet"}
+            </h3>
             <p className="mt-1 max-w-xl text-sm text-slate-600">
-              Use the New action to create your first gallery.
+              {searchQuery.trim() !== ""
+                ? "Try a different gallery name or clear the search field."
+                : "Use the New action to create your first gallery."}
             </p>
           </div>
         ) : viewMode === "grid" ? (
