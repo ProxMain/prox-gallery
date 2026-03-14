@@ -31,6 +31,7 @@ export function MediaFilesCard({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [dateSort, setDateSort] = useState("date_desc");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleOpenImageModal = (image, mode = "view") => {
     setActiveModal({ image, mode });
@@ -76,7 +77,14 @@ export function MediaFilesCard({
   }, [trackedImages]);
 
   const visibleImages = useMemo(() => {
+    const normalizedSearchQuery = searchQuery.trim().toLowerCase();
     const filtered = trackedImages.filter((image) => {
+      const title = String(image.title || "").trim().toLowerCase();
+
+      if (normalizedSearchQuery !== "" && !title.includes(normalizedSearchQuery)) {
+        return false;
+      }
+
       if (selectedCategory === "all") {
         return true;
       }
@@ -96,7 +104,7 @@ export function MediaFilesCard({
     });
 
     return sorted;
-  }, [trackedImages, selectedCategory, dateSort]);
+  }, [trackedImages, selectedCategory, dateSort, searchQuery]);
 
   return (
     <>
@@ -113,6 +121,8 @@ export function MediaFilesCard({
                 onSetThumbnailView={() => setViewMode("thumbnail")}
                 onSetRowView={() => setViewMode("row")}
                 onToggleFilters={() => setIsFilterOpen((current) => !current)}
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
               />
             }
           />
@@ -134,6 +144,7 @@ export function MediaFilesCard({
             <MediaFilesEmptyState
               isLoadingList={isLoadingList}
               onReloadTrackedImages={onReloadTrackedImages}
+              hasActiveSearch={searchQuery.trim() !== ""}
             />
           ) : viewMode === "thumbnail" ? (
             <MediaThumbnailGrid

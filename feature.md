@@ -4,7 +4,7 @@ This file is the working backlog for product features we want to add.
 
 How to use this file:
 - Add each feature as its own section using the template below.
-- Treat [review.md](/home/marcelsanting/PhpstormProjects/prox-gallery/review.md) as the architectural source of truth.
+- Treat the completed refactor guardrails below as the architectural source of truth for new feature work.
 - New work should follow the review guardrails:
   - single source of truth for storage and configuration
   - responsibilities must live in the correct class/layer
@@ -77,7 +77,7 @@ Architectural constraints from the review:
 - Do not bypass the media tracking service with duplicate tracking logic.
 - Do not add more top-level orchestration into [app.jsx](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/app.jsx#L23).
 - Keep a single source of truth for tracking in the media library backend service layer.
-- Follow the frontend atomic plan in [review.md](/home/marcelsanting/PhpstormProjects/prox-gallery/review.md):
+- Follow the established frontend atomic plan from the completed refactor work:
   - feature-specific orchestration goes into a media-manager container/hook
   - reusable buttons/panels belong in reusable UI layers
   - do not put WordPress media-modal integration into generic `ui` atoms
@@ -309,7 +309,7 @@ Recommended new types:
 5. Already tracked items are handled safely and do not create duplicates.
 6. After confirmation, the tracked images list refreshes automatically.
 7. The feature does not directly write queue storage outside the existing media tracking service/model path.
-8. Frontend orchestration does not expand `App` further and follows the container/hook guidance from `review.md`.
+8. Frontend orchestration does not expand `App` further and follows the established container/hook guidance.
 
 ### Testing plan
 
@@ -373,7 +373,7 @@ Editors should be able to insert a Prox Gallery block in Gutenberg and:
 
 ### Constraints
 
-Architectural constraints from [review.md](/home/marcelsanting/PhpstormProjects/prox-gallery/review.md):
+Architectural constraints from the completed refactor work:
 - do not create a second gallery data source for block rendering
 - do not duplicate gallery rendering logic just for Gutenberg
 - do not bypass repository/service boundaries
