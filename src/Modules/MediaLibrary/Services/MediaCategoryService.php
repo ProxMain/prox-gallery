@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\MediaLibrary\Services;
 
 use InvalidArgumentException;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Provides taxonomy-backed category management for media attachments.
@@ -44,10 +45,10 @@ final class MediaCategoryService
                 'rewrite' => false,
                 'query_var' => false,
                 'capabilities' => [
-                    'manage_terms' => 'manage_options',
-                    'edit_terms' => 'manage_options',
-                    'delete_terms' => 'manage_options',
-                    'assign_terms' => 'manage_options',
+                    'manage_terms' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
+                    'edit_terms' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
+                    'delete_terms' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
+                    'assign_terms' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
                 ],
             ]
         );

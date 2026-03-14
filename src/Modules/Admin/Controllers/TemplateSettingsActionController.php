@@ -7,6 +7,7 @@ namespace Prox\ProxGallery\Modules\Admin\Controllers;
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles template customization settings AJAX actions.
@@ -34,12 +35,12 @@ final class TemplateSettingsActionController extends AbstractActionController im
             self::ACTION_GET => [
                 'callback' => 'getSettings',
                 'nonce_action' => self::ACTION_GET,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_UPDATE => [
                 'callback' => 'updateSettings',
                 'nonce_action' => self::ACTION_UPDATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }

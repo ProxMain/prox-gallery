@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Controllers\Admin;
 
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
+
 /**
  * Registers and renders the plugin's admin menu page.
  */
@@ -16,7 +18,7 @@ final class AdminMenuRegistrar
         $hookSuffix = \add_menu_page(
             'Prox Gallery',
             'Prox Gallery',
-            $canManage ? 'manage_options' : 'do_not_allow',
+            $canManage ? AdminCapabilityPolicy::CAPABILITY_MANAGE : 'do_not_allow',
             self::MENU_SLUG,
             $renderPage,
             'dashicons-format-gallery',

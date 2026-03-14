@@ -429,6 +429,8 @@ This is the recommended order for addressing the review. The sequence is based o
   - action controllers that hardcode `manage_options`
 - Outcome:
   - one explicit permission model for the admin surface
+- Status:
+  - fixed by centralizing the shared admin capability in [AdminCapabilityPolicy.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Policies/AdminCapabilityPolicy.php) and reusing it from the admin menu registrar, admin action controllers, and media-category taxonomy registration
 
 ### Phase 3: Reduce composition-root and bootstrap fragility
 
@@ -476,9 +478,8 @@ This is the recommended order for addressing the review. The sequence is based o
 
 Recommended order of actual implementation:
 1. gallery repository/storage boundary fix
-2. admin capability unification
-3. `App.php` composition-root refactor
-4. remove or repurpose misleading backend types
-5. frontend feature-container refactor
-6. frontend component splitting
-7. shared async hooks and TS tightening
+2. `App.php` composition-root refactor
+3. remove or repurpose misleading backend types
+4. frontend feature-container refactor
+5. frontend component splitting
+6. shared async hooks and TS tightening

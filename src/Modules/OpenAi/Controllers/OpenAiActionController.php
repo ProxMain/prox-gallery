@@ -9,6 +9,7 @@ use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles OpenAI admin actions.
@@ -41,12 +42,12 @@ final class OpenAiActionController extends AbstractActionController implements A
             self::ACTION_SETTINGS_GET => [
                 'callback' => 'getSettings',
                 'nonce_action' => self::ACTION_SETTINGS_GET,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SETTINGS_UPDATE => [
                 'callback' => 'updateSettings',
                 'nonce_action' => self::ACTION_SETTINGS_UPDATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_CONFIG_GET => [
                 'callback' => 'getGenerationConfig',

@@ -8,6 +8,7 @@ use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles admin AJAX actions for gallery management.
@@ -43,47 +44,47 @@ final class GalleryActionController extends AbstractActionController implements 
             self::ACTION_LIST => [
                 'callback' => 'listGalleries',
                 'nonce_action' => self::ACTION_LIST,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_CREATE => [
                 'callback' => 'createGallery',
                 'nonce_action' => self::ACTION_CREATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_RENAME => [
                 'callback' => 'renameGallery',
                 'nonce_action' => self::ACTION_RENAME,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_DELETE => [
                 'callback' => 'deleteGallery',
                 'nonce_action' => self::ACTION_DELETE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_LIST_IMAGE_GALLERIES => [
                 'callback' => 'listImageGalleries',
                 'nonce_action' => self::ACTION_LIST_IMAGE_GALLERIES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SET_IMAGE_GALLERIES => [
                 'callback' => 'setImageGalleries',
                 'nonce_action' => self::ACTION_SET_IMAGE_GALLERIES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_ADD_IMAGES => [
                 'callback' => 'addImagesToGallery',
                 'nonce_action' => self::ACTION_ADD_IMAGES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SET_IMAGES => [
                 'callback' => 'setGalleryImages',
                 'nonce_action' => self::ACTION_SET_IMAGES,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_CREATE_PAGE => [
                 'callback' => 'createGalleryPage',
                 'nonce_action' => self::ACTION_CREATE_PAGE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }

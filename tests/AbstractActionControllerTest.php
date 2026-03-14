@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Prox\ProxGallery\Controllers\AbstractActionController;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 final class AbstractActionControllerTest extends WP_UnitTestCase
 {
@@ -172,17 +173,17 @@ final class TestableAbstractActionController extends AbstractActionController
             'prox_gallery_test_success' => [
                 'callback' => 'successfulAction',
                 'nonce_action' => 'prox_gallery_test_success',
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             'prox_gallery_test_invalid' => [
                 'callback' => 'invalidAction',
                 'nonce_action' => 'prox_gallery_test_invalid',
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             'prox_gallery_test_failing' => [
                 'callback' => 'failingAction',
                 'nonce_action' => 'prox_gallery_test_failing',
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }

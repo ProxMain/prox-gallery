@@ -11,6 +11,7 @@ use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles secured Media Manager AJAX actions.
@@ -51,17 +52,17 @@ final class MediaManagerActionController extends AbstractActionController implem
             self::ACTION_LIST => [
                 'callback' => 'listTrackedImages',
                 'nonce_action' => self::ACTION_LIST,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_SYNC => [
                 'callback' => 'syncOverview',
                 'nonce_action' => self::ACTION_SYNC,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_UPDATE => [
                 'callback' => 'updateTrackedImageMetadata',
                 'nonce_action' => self::ACTION_UPDATE,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }

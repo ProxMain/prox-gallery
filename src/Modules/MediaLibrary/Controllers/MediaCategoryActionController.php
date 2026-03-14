@@ -9,6 +9,7 @@ use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Handles AJAX actions for media category suggestions and assignments.
@@ -38,17 +39,17 @@ final class MediaCategoryActionController extends AbstractActionController imple
             self::ACTION_SUGGEST => [
                 'callback' => 'suggestCategories',
                 'nonce_action' => self::ACTION_SUGGEST,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_LIST => [
                 'callback' => 'listCategoriesForAttachment',
                 'nonce_action' => self::ACTION_LIST,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
             self::ACTION_ASSIGN => [
                 'callback' => 'assignCategoriesToAttachment',
                 'nonce_action' => self::ACTION_ASSIGN,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }

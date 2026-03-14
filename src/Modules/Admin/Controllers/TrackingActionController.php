@@ -7,6 +7,7 @@ namespace Prox\ProxGallery\Modules\Admin\Controllers;
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
 use Prox\ProxGallery\Modules\Admin\Services\TrackingSummaryService;
+use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
  * Admin AJAX controller for analytics/tracking summaries.
@@ -31,7 +32,7 @@ final class TrackingActionController extends AbstractActionController implements
             self::ACTION_GET => [
                 'callback' => 'getSummary',
                 'nonce_action' => self::ACTION_GET,
-                'capability' => 'manage_options',
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
     }
