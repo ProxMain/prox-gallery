@@ -17,6 +17,7 @@ type AdminConfig = {
   action_controllers?: {
     media_manager?: {
       list?: AjaxActionDefinition;
+      track_selected?: AjaxActionDefinition;
       update?: AjaxActionDefinition;
     };
     media_category?: {
@@ -55,20 +56,23 @@ type AdminConfig = {
 export function useMediaManagerActionController(config: AdminConfig): MediaManagerActionController | null {
   return useMemo(() => {
     const listDefinition = config.action_controllers?.media_manager?.list;
+    const trackSelectedDefinition = config.action_controllers?.media_manager?.track_selected;
     const updateDefinition = config.action_controllers?.media_manager?.update;
 
-    if (config.ajax_url === "" || !listDefinition || !updateDefinition) {
+    if (config.ajax_url === "" || !listDefinition || !trackSelectedDefinition || !updateDefinition) {
       return null;
     }
 
     return new MediaManagerActionController(
       { ajax_url: config.ajax_url },
-      { list: listDefinition, update: updateDefinition }
+      { list: listDefinition, track_selected: trackSelectedDefinition, update: updateDefinition }
     );
   }, [
     config.ajax_url,
     config.action_controllers?.media_manager?.list?.action,
     config.action_controllers?.media_manager?.list?.nonce,
+    config.action_controllers?.media_manager?.track_selected?.action,
+    config.action_controllers?.media_manager?.track_selected?.nonce,
     config.action_controllers?.media_manager?.update?.action,
     config.action_controllers?.media_manager?.update?.nonce
   ]);

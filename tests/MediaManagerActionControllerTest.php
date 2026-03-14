@@ -8,6 +8,7 @@ use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerTrackSelectionService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 
 final class MediaManagerActionControllerTest extends WP_UnitTestCase
@@ -70,6 +71,13 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
         );
         self::assertIsString($payload['action_controllers']['media_manager']['update']['nonce']);
         self::assertNotSame('', $payload['action_controllers']['media_manager']['update']['nonce']);
+        self::assertArrayHasKey('track_selected', $payload['action_controllers']['media_manager']);
+        self::assertSame(
+            'prox_gallery_media_manager_track_selected',
+            $payload['action_controllers']['media_manager']['track_selected']['action']
+        );
+        self::assertIsString($payload['action_controllers']['media_manager']['track_selected']['nonce']);
+        self::assertNotSame('', $payload['action_controllers']['media_manager']['track_selected']['nonce']);
     }
 
     public function test_it_updates_attachment_metadata(): void
@@ -94,6 +102,28 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
         self::assertSame('Alt text', $response['item']['alt_text']);
         self::assertSame('Caption text', $response['item']['caption']);
         self::assertSame('Description text', $response['item']['description']);
+    }
+
+    public function test_it_tracks_selected_attachments(): void
+    {
+        $queue = new UploadedImageQueueModel();
+        $controller = $this->controller($queue);
+        $imageAttachmentId = $this->createAttachment('image/jpeg', 'Track me');
+        $skippedAttachmentId = $this->createAttachment('application/pdf', 'Skip me');
+
+        $response = $controller->trackSelectedAttachments(
+            [
+                'attachment_ids' => [$imageAttachmentId, $skippedAttachmentId],
+            ],
+            'prox_gallery_media_manager_track_selected'
+        );
+
+        self::assertSame('prox_gallery_media_manager_track_selected', $response['action']);
+        self::assertSame(2, $response['requested_count']);
+        self::assertSame(1, $response['tracked_count']);
+        self::assertSame(1, $response['skipped_count']);
+        self::assertSame([$imageAttachmentId], $response['tracked_ids']);
+        self::assertSame([$skippedAttachmentId], $response['skipped_ids']);
     }
 
     private function createAttachment(string $mimeType, string $title): int
@@ -123,6 +153,7 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
             $trackService,
             new MediaManagerListService($queue),
             new MediaManagerSyncService($queue, $trackService),
+            new MediaManagerTrackSelectionService($trackService),
             new MediaManagerMetadataService($trackService)
         );
     }

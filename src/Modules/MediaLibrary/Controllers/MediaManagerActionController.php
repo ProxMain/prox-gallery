@@ -10,6 +10,7 @@ use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerTrackSelectionService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
@@ -20,10 +21,12 @@ final class MediaManagerActionController extends AbstractActionController implem
 {
     private const ACTION_LIST = 'prox_gallery_media_manager_list';
     private const ACTION_SYNC = 'prox_gallery_media_manager_sync';
+    private const ACTION_TRACK_SELECTED = 'prox_gallery_media_manager_track_selected';
     private const ACTION_UPDATE = 'prox_gallery_media_manager_update';
 
     private MediaManagerListService $listService;
     private MediaManagerSyncService $syncService;
+    private MediaManagerTrackSelectionService $trackSelectionService;
     private MediaManagerMetadataService $metadataService;
 
     public function __construct(
@@ -31,10 +34,12 @@ final class MediaManagerActionController extends AbstractActionController implem
         private TrackUploadedImageService $trackService,
         MediaManagerListService $listService,
         MediaManagerSyncService $syncService,
+        MediaManagerTrackSelectionService $trackSelectionService,
         MediaManagerMetadataService $metadataService
     ) {
         $this->listService = $listService;
         $this->syncService = $syncService;
+        $this->trackSelectionService = $trackSelectionService;
         $this->metadataService = $metadataService;
     }
 
@@ -62,6 +67,11 @@ final class MediaManagerActionController extends AbstractActionController implem
             self::ACTION_UPDATE => [
                 'callback' => 'updateTrackedImageMetadata',
                 'nonce_action' => self::ACTION_UPDATE,
+                'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
+            ],
+            self::ACTION_TRACK_SELECTED => [
+                'callback' => 'trackSelectedAttachments',
+                'nonce_action' => self::ACTION_TRACK_SELECTED,
                 'capability' => AdminCapabilityPolicy::CAPABILITY_MANAGE,
             ],
         ];
@@ -114,6 +124,21 @@ final class MediaManagerActionController extends AbstractActionController implem
     }
 
     /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    public function trackSelectedAttachments(array $payload, string $action): array
+    {
+        $result = $this->trackSelectionService->trackSelection($payload);
+
+        return [
+            'action' => $action,
+            ...$result,
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $config
      *
      * @return array<string, mixed>
@@ -126,6 +151,7 @@ final class MediaManagerActionController extends AbstractActionController implem
             [
                 'list' => self::ACTION_LIST,
                 'sync' => self::ACTION_SYNC,
+                'track_selected' => self::ACTION_TRACK_SELECTED,
                 'update' => self::ACTION_UPDATE,
             ]
         );

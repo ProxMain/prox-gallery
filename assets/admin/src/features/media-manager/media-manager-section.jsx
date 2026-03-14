@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 import { MediaFilesCard } from "@/features/media-manager/components/media-files-card";
 import { MediaManagerHeader } from "@/features/media-manager/components/media-manager-header";
+import { useMediaManagerPicker } from "@/features/media-manager/hooks/use-media-manager-picker";
 import { useMediaManagerState } from "@/features/media-manager/use-media-manager-state";
 import {
   useGalleryActionController,
@@ -27,6 +28,23 @@ export function MediaManagerSection({
     loadTrackedImages,
     reloadTrackedImages
   } = useMediaManagerState(mediaManagerController);
+  const {
+    isOpeningPicker,
+    pickerError,
+    lastSelectionSummary,
+    openPicker
+  } = useMediaManagerPicker({
+    onTrackSelection: async (attachmentIds) => {
+      if (!mediaManagerController) {
+        throw new Error("Media manager action configuration is missing.");
+      }
+
+      const response = await mediaManagerController.trackSelectedAttachments(attachmentIds);
+      await reloadTrackedImages();
+
+      return response;
+    }
+  });
 
   useEffect(() => {
     if (!isActive) {
@@ -116,7 +134,13 @@ export function MediaManagerSection({
 
   return (
     <section className={isActive ? "space-y-6" : "hidden space-y-6"}>
-      <MediaManagerHeader config={config} />
+      <MediaManagerHeader
+        config={config}
+        isOpeningPicker={isOpeningPicker}
+        onOpenPicker={openPicker}
+        pickerError={pickerError}
+        lastSelectionSummary={lastSelectionSummary}
+      />
       <MediaFilesCard
         isLoadingList={isLoadingList}
         listError={listError}

@@ -52,6 +52,7 @@ use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
+use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerTrackSelectionService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 use Prox\ProxGallery\Modules\OpenAi\Controllers\OpenAiActionController;
 use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
@@ -152,6 +153,7 @@ final class AppBindingRegistrar
                 $container->get(TrackUploadedImageService::class),
                 $container->get(MediaManagerListService::class),
                 $container->get(MediaManagerSyncService::class),
+                $container->get(MediaManagerTrackSelectionService::class),
                 $container->get(MediaManagerMetadataService::class)
             )
         );
@@ -304,6 +306,12 @@ final class AppBindingRegistrar
         $container->set(
             MediaManagerMetadataService::class,
             static fn (Container $container) => new MediaManagerMetadataService(
+                $container->get(TrackUploadedImageService::class)
+            )
+        );
+        $container->set(
+            MediaManagerTrackSelectionService::class,
+            static fn (Container $container) => new MediaManagerTrackSelectionService(
                 $container->get(TrackUploadedImageService::class)
             )
         );

@@ -72,6 +72,7 @@ final class AdminAssetLoader
     private function enqueueDevAssets(array $adminConfigPayload): void
     {
         $devServer = rtrim($this->devServerUrl(), '/');
+        \wp_enqueue_media();
 
         \wp_enqueue_script(
             self::DEV_CLIENT_HANDLE,
@@ -119,6 +120,8 @@ final class AdminAssetLoader
             );
             return;
         }
+
+        \wp_enqueue_media();
 
         foreach ($assets['styles'] as $index => $relativePath) {
             \wp_enqueue_style(
