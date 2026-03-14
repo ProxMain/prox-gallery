@@ -18,6 +18,11 @@ Suggested direction:
 - Let each module register its own bindings/controllers/flows into the container, or move registrations into per-module provider classes.
 - Keep `App` responsible only for high-level boot sequencing.
 
+Status:
+- Fixed by extracting container registration into [AppBindingRegistrar.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Bootstrap/AppBindingRegistrar.php) and manager population into [AppManagerRegistrar.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Bootstrap/AppManagerRegistrar.php).
+- [App.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Bootstrap/App.php) now coordinates lifecycle boot only: build container, delegate bindings, delegate manager registration, and boot managers.
+- This is still bootstrap-level extraction rather than full per-module providers, but it removes the main composition-root hotspot and lowers the change surface in `App`.
+
 ### 2. `FrontendGalleryController` mixes boundary, domain, persistence, and infrastructure concerns
 
 Files:
@@ -440,6 +445,8 @@ This is the recommended order for addressing the review. The sequence is based o
   - less bootstrap coupling
   - lower change surface when adding features
   - fewer merge conflicts
+- Status:
+  - fixed by splitting binding registration and manager population into dedicated bootstrap collaborators while leaving `App` as the lifecycle orchestrator
 
 7. Reassess dead or misleading backend types
 - Resolve whether [GalleryModel.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Models/GalleryModel.php#L12) should become meaningful or be removed from the frontend service contract.
@@ -478,8 +485,7 @@ This is the recommended order for addressing the review. The sequence is based o
 
 Recommended order of actual implementation:
 1. gallery repository/storage boundary fix
-2. `App.php` composition-root refactor
-3. remove or repurpose misleading backend types
-4. frontend feature-container refactor
-5. frontend component splitting
-6. shared async hooks and TS tightening
+2. remove or repurpose misleading backend types
+3. frontend feature-container refactor
+4. frontend component splitting
+5. shared async hooks and TS tightening
