@@ -490,6 +490,8 @@ This is the recommended order for addressing the review. The sequence is based o
   - reusable feature molecules
   - state moved into hooks
   - cleaner atomic reuse
+- Status:
+  - fixed by extracting reusable gallery action/meta/create subcomponents, media toolbar/filter components, and settings navigation into feature-local molecules while leaving workflow state in the owning feature files
 
 10. Standardize async resource hooks and tighten TS boundaries
 - Consolidate duplicated reducer/loading patterns in:
@@ -503,5 +505,4 @@ This is the recommended order for addressing the review. The sequence is based o
 ### Recommended execution strategy
 
 Recommended order of actual implementation:
-1. frontend component splitting
-2. shared async hooks and TS tightening
+1. shared async hooks and TS tightening
