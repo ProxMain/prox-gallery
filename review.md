@@ -501,8 +501,11 @@ This is the recommended order for addressing the review. The sequence is based o
 - Outcome:
   - predictable async behavior
   - safer reuse contracts
+- Status:
+  - fixed by introducing shared load/reload/error collection state in [use-loadable-collection.ts](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/lib/use-loadable-collection.ts) and by moving the shared controller-construction layer to typed hooks in [action-controller-hooks.ts](/home/marcelsanting/PhpstormProjects/prox-gallery/assets/admin/src/lib/action-controller-hooks.ts)
 
 ### Recommended execution strategy
 
 Recommended order of actual implementation:
+1. completed
 1. shared async hooks and TS tightening

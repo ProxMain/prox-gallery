@@ -7,7 +7,52 @@ import { MediaCategoryActionController } from "@/modules/media-library/controlle
 import { MediaManagerActionController } from "@/modules/media-library/controllers/media-manager-action-controller";
 import { OpenAiActionController } from "@/modules/openai/controllers/openai-action-controller";
 
-export function useMediaManagerActionController(config) {
+type AjaxActionDefinition = {
+  action: string;
+  nonce: string;
+};
+
+type AdminConfig = {
+  ajax_url: string;
+  action_controllers?: {
+    media_manager?: {
+      list?: AjaxActionDefinition;
+      update?: AjaxActionDefinition;
+    };
+    media_category?: {
+      suggest?: AjaxActionDefinition;
+      list?: AjaxActionDefinition;
+      assign?: AjaxActionDefinition;
+    };
+    galleries?: {
+      list?: AjaxActionDefinition;
+      create?: AjaxActionDefinition;
+      rename?: AjaxActionDefinition;
+      delete?: AjaxActionDefinition;
+      list_image_galleries?: AjaxActionDefinition;
+      set_image_galleries?: AjaxActionDefinition;
+      add_images?: AjaxActionDefinition;
+      set_images?: AjaxActionDefinition;
+      create_page?: AjaxActionDefinition;
+    };
+    template_settings?: {
+      get?: AjaxActionDefinition;
+      update?: AjaxActionDefinition;
+    };
+    tracking?: {
+      get?: AjaxActionDefinition;
+    };
+    openai?: {
+      settings_get?: AjaxActionDefinition;
+      settings_update?: AjaxActionDefinition;
+      config_get?: AjaxActionDefinition;
+      generate?: AjaxActionDefinition;
+      apply?: AjaxActionDefinition;
+    };
+  };
+};
+
+export function useMediaManagerActionController(config: AdminConfig): MediaManagerActionController | null {
   return useMemo(() => {
     const listDefinition = config.action_controllers?.media_manager?.list;
     const updateDefinition = config.action_controllers?.media_manager?.update;
@@ -29,7 +74,7 @@ export function useMediaManagerActionController(config) {
   ]);
 }
 
-export function useMediaCategoryActionController(config) {
+export function useMediaCategoryActionController(config: AdminConfig): MediaCategoryActionController | null {
   return useMemo(() => {
     const suggestDefinition = config.action_controllers?.media_category?.suggest;
     const listDefinition = config.action_controllers?.media_category?.list;
@@ -58,7 +103,7 @@ export function useMediaCategoryActionController(config) {
   ]);
 }
 
-export function useGalleryActionController(config) {
+export function useGalleryActionController(config: AdminConfig): GalleryActionController | null {
   return useMemo(() => {
     const listDefinition = config.action_controllers?.galleries?.list;
     const createDefinition = config.action_controllers?.galleries?.create;
@@ -122,7 +167,7 @@ export function useGalleryActionController(config) {
   ]);
 }
 
-export function useTemplateSettingsActionController(config) {
+export function useTemplateSettingsActionController(config: AdminConfig): TemplateSettingsActionController | null {
   return useMemo(() => {
     const getDefinition = config.action_controllers?.template_settings?.get;
     const updateDefinition = config.action_controllers?.template_settings?.update;
@@ -147,7 +192,7 @@ export function useTemplateSettingsActionController(config) {
   ]);
 }
 
-export function useTrackingActionController(config) {
+export function useTrackingActionController(config: AdminConfig): TrackingActionController | null {
   return useMemo(() => {
     const getDefinition = config.action_controllers?.tracking?.get;
 
@@ -168,7 +213,7 @@ export function useTrackingActionController(config) {
   ]);
 }
 
-export function useOpenAiActionController(config) {
+export function useOpenAiActionController(config: AdminConfig): OpenAiActionController | null {
   return useMemo(() => {
     const settingsGetDefinition = config.action_controllers?.openai?.settings_get;
     const settingsUpdateDefinition = config.action_controllers?.openai?.settings_update;

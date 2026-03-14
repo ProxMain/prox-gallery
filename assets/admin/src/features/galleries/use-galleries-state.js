@@ -1,66 +1,23 @@
-import { useCallback, useReducer } from "react";
+import { useCallback } from "react";
 
-const initialState = {
-  galleries: [],
-  isLoading: false,
-  error: "",
-  hasLoaded: false
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case "load_start":
-      return {
-        ...state,
-        isLoading: true,
-        error: ""
-      };
-    case "load_success":
-      return {
-        ...state,
-        isLoading: false,
-        error: "",
-        galleries: action.payload,
-        hasLoaded: true
-      };
-    case "load_error":
-      return {
-        ...state,
-        isLoading: false,
-        error: action.payload
-      };
-    default:
-      return state;
-  }
-}
+import { useLoadableCollection } from "@/lib/use-loadable-collection";
 
 export function useGalleriesState(galleryController) {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  const loadGalleries = useCallback(async ({ force = false } = {}) => {
-    if (!galleryController) {
-      dispatch({ type: "load_error", payload: "Galleries action configuration is missing." });
-      return;
+  const {
+    items,
+    isLoading,
+    error,
+    load,
+    reload
+  } = useLoadableCollection({
+    missingMessage: "Galleries action configuration is missing.",
+    loadErrorMessage: "Failed to load galleries.",
+    controller: galleryController,
+    loadItems: async (controller) => {
+      const response = await controller.listGalleries();
+      return response.items;
     }
-
-    if (state.isLoading) {
-      return;
-    }
-
-    if (!force && state.hasLoaded) {
-      return;
-    }
-
-    dispatch({ type: "load_start" });
-
-    try {
-      const response = await galleryController.listGalleries();
-      dispatch({ type: "load_success", payload: response.items });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to load galleries.";
-      dispatch({ type: "load_error", payload: message });
-    }
-  }, [galleryController, state.hasLoaded, state.isLoading]);
+  });
 
   const createGallery = useCallback(async (payload) => {
     const name = payload?.name ?? "";
@@ -112,8 +69,8 @@ export function useGalleriesState(galleryController) {
     }
 
     await galleryController.createGalleryPage(galleryId);
-    await loadGalleries({ force: true });
-  }, [galleryController, loadGalleries]);
+    await reload();
+  }, [galleryController, reload]);
 
   const renameGallery = useCallback(async (payload) => {
     const id = payload?.id ?? 0;
@@ -158,8 +115,8 @@ export function useGalleriesState(galleryController) {
     await galleryController.renameGallery(id, name, description, template, {
       ...overrides
     });
-    await loadGalleries({ force: true });
-  }, [galleryController, loadGalleries]);
+    await reload();
+  }, [galleryController, reload]);
 
   const deleteGallery = useCallback(async ({ id }) => {
     if (!galleryController) {
@@ -167,8 +124,8 @@ export function useGalleriesState(galleryController) {
     }
 
     await galleryController.deleteGallery(id);
-    await loadGalleries({ force: true });
-  }, [galleryController, loadGalleries]);
+    await reload();
+  }, [galleryController, reload]);
 
   const createGalleryPage = useCallback(async ({ id }) => {
     if (!galleryController) {
@@ -179,9 +136,11 @@ export function useGalleriesState(galleryController) {
   }, [galleryController]);
 
   return {
-    ...state,
-    loadGalleries,
-    reloadGalleries: () => loadGalleries({ force: true }),
+    galleries: items,
+    isLoading,
+    error,
+    loadGalleries: load,
+    reloadGalleries: reload,
     createGallery,
     renameGallery,
     deleteGallery,
