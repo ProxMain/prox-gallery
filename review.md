@@ -178,6 +178,13 @@ Where responsibility should live:
 - Put gallery normalization in one domain-level place, such as a value object/factory or a dedicated normalizer used by the repository and service.
 - Controllers should only deserialize request payloads; models/repositories should persist already-normalized data.
 
+Status:
+- Fixed by introducing [GallerySettingsNormalizer.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Support/GallerySettingsNormalizer.php) as the canonical gallery settings normalizer.
+- [GalleryActionController.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Controllers/GalleryActionController.php) now passes raw payload values into [GalleryService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Services/GalleryService.php), instead of owning normalization rules itself.
+- [GalleryService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Services/GalleryService.php) now normalizes names, descriptions, templates, overrides, transitions, and visibility flags before persistence.
+- [GalleryCollectionModel.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Models/GalleryCollectionModel.php) still normalizes values on read to keep legacy stored rows safe, but write-time normalization now comes from the service boundary.
+- Regression coverage was added in [GalleryServiceTest.php](/home/marcelsanting/PhpstormProjects/prox-gallery/tests/GalleryServiceTest.php).
+
 ### 4. Development seeding bypasses the gallery persistence boundary
 
 Files:
@@ -404,6 +411,7 @@ This is the recommended order for addressing the review. The sequence is based o
   - [GalleryCollectionModel.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Gallery/Models/GalleryCollectionModel.php#L42)
 - Outcome:
   - one domain-level normalization path for gallery settings and overrides
+- Status: fixed, with read-side legacy normalization retained in the repository model
 
 4. Fix error semantics in AJAX action handling
 - Update [AbstractActionController.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Controllers/AbstractActionController.php#L122) so validation/input errors no longer collapse into generic `500 Request failed`.
@@ -466,11 +474,10 @@ This is the recommended order for addressing the review. The sequence is based o
 
 Recommended order of actual implementation:
 1. gallery repository/storage boundary fix
-2. gallery normalization centralization
-3. AJAX error semantics
-4. admin capability unification
-5. `App.php` composition-root refactor
-6. remove or repurpose misleading backend types
-7. frontend feature-container refactor
-8. frontend component splitting
-9. shared async hooks and TS tightening
+2. AJAX error semantics
+3. admin capability unification
+4. `App.php` composition-root refactor
+5. remove or repurpose misleading backend types
+6. frontend feature-container refactor
+7. frontend component splitting
+8. shared async hooks and TS tightening

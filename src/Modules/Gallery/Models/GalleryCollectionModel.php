@@ -6,6 +6,7 @@ namespace Prox\ProxGallery\Modules\Gallery\Models;
 
 use Prox\ProxGallery\Contracts\ModelInterface;
 use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
+use Prox\ProxGallery\Modules\Gallery\Support\GallerySettingsNormalizer;
 
 /**
  * Stores gallery rows for the admin gallery module.
@@ -62,16 +63,16 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
 
             $items[] = [
                 'id' => $id,
-                'name' => isset($item['name']) ? (string) $item['name'] : '',
-                'description' => isset($item['description']) ? (string) $item['description'] : '',
-                'template' => isset($item['template']) ? (string) $item['template'] : 'basic-grid',
-                'grid_columns_override' => $this->normalizeOverrideInt($item['grid_columns_override'] ?? null, 2, 6),
-                'lightbox_override' => $this->normalizeOverrideBool($item['lightbox_override'] ?? null),
-                'hover_zoom_override' => $this->normalizeOverrideBool($item['hover_zoom_override'] ?? null),
-                'full_width_override' => $this->normalizeOverrideBool($item['full_width_override'] ?? null),
-                'transition_override' => $this->normalizeTransitionOverride($item['transition_override'] ?? null),
-                'show_title' => $this->normalizeVisibilityBool($item['show_title'] ?? true),
-                'show_description' => $this->normalizeVisibilityBool($item['show_description'] ?? true),
+                'name' => GallerySettingsNormalizer::normalizeName((string) ($item['name'] ?? '')),
+                'description' => GallerySettingsNormalizer::normalizeDescription((string) ($item['description'] ?? '')),
+                'template' => GallerySettingsNormalizer::normalizeTemplate((string) ($item['template'] ?? 'basic-grid')),
+                'grid_columns_override' => GallerySettingsNormalizer::normalizeOverrideInt($item['grid_columns_override'] ?? null),
+                'lightbox_override' => GallerySettingsNormalizer::normalizeOverrideBool($item['lightbox_override'] ?? null),
+                'hover_zoom_override' => GallerySettingsNormalizer::normalizeOverrideBool($item['hover_zoom_override'] ?? null),
+                'full_width_override' => GallerySettingsNormalizer::normalizeOverrideBool($item['full_width_override'] ?? null),
+                'transition_override' => GallerySettingsNormalizer::normalizeTransitionOverride($item['transition_override'] ?? null),
+                'show_title' => GallerySettingsNormalizer::normalizeVisibilityBool($item['show_title'] ?? true),
+                'show_description' => GallerySettingsNormalizer::normalizeVisibilityBool($item['show_description'] ?? true),
                 'created_at' => isset($item['created_at']) ? (string) $item['created_at'] : '',
                 'image_ids' => $this->normalizeImageIds($item['image_ids'] ?? []),
             ];
@@ -151,13 +152,13 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
             'name' => $name,
             'description' => $description,
             'template' => $template,
-            'grid_columns_override' => $this->normalizeOverrideInt($gridColumnsOverride, 2, 6),
-            'lightbox_override' => $this->normalizeOverrideBool($lightboxOverride),
-            'hover_zoom_override' => $this->normalizeOverrideBool($hoverZoomOverride),
-            'full_width_override' => $this->normalizeOverrideBool($fullWidthOverride),
-            'transition_override' => $this->normalizeTransitionOverride($transitionOverride),
-            'show_title' => $this->normalizeVisibilityBool($showTitle),
-            'show_description' => $this->normalizeVisibilityBool($showDescription),
+            'grid_columns_override' => $gridColumnsOverride,
+            'lightbox_override' => $lightboxOverride,
+            'hover_zoom_override' => $hoverZoomOverride,
+            'full_width_override' => $fullWidthOverride,
+            'transition_override' => $transitionOverride,
+            'show_title' => $showTitle,
+            'show_description' => $showDescription,
             'created_at' => \gmdate('c'),
             'image_ids' => [],
         ];
@@ -212,25 +213,25 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
                 $items[$index]['template'] = $template;
             }
             if ($gridColumnsOverride !== null || array_key_exists('grid_columns_override', $items[$index])) {
-                $items[$index]['grid_columns_override'] = $this->normalizeOverrideInt($gridColumnsOverride, 2, 6);
+                $items[$index]['grid_columns_override'] = $gridColumnsOverride;
             }
             if ($lightboxOverride !== null || array_key_exists('lightbox_override', $items[$index])) {
-                $items[$index]['lightbox_override'] = $this->normalizeOverrideBool($lightboxOverride);
+                $items[$index]['lightbox_override'] = $lightboxOverride;
             }
             if ($hoverZoomOverride !== null || array_key_exists('hover_zoom_override', $items[$index])) {
-                $items[$index]['hover_zoom_override'] = $this->normalizeOverrideBool($hoverZoomOverride);
+                $items[$index]['hover_zoom_override'] = $hoverZoomOverride;
             }
             if ($fullWidthOverride !== null || array_key_exists('full_width_override', $items[$index])) {
-                $items[$index]['full_width_override'] = $this->normalizeOverrideBool($fullWidthOverride);
+                $items[$index]['full_width_override'] = $fullWidthOverride;
             }
             if ($transitionOverride !== null || array_key_exists('transition_override', $items[$index])) {
-                $items[$index]['transition_override'] = $this->normalizeTransitionOverride($transitionOverride);
+                $items[$index]['transition_override'] = $transitionOverride;
             }
             if ($showTitle !== null || array_key_exists('show_title', $items[$index])) {
-                $items[$index]['show_title'] = $this->normalizeVisibilityBool($showTitle ?? true);
+                $items[$index]['show_title'] = $showTitle ?? true;
             }
             if ($showDescription !== null || array_key_exists('show_description', $items[$index])) {
-                $items[$index]['show_description'] = $this->normalizeVisibilityBool($showDescription ?? true);
+                $items[$index]['show_description'] = $showDescription ?? true;
             }
             $updated = $items[$index];
             break;
@@ -449,92 +450,4 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         return array_values(array_unique($ids));
     }
 
-    private function normalizeOverrideBool(mixed $value): ?bool
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $normalized = strtolower(trim($value));
-
-            if ($normalized === 'inherit') {
-                return null;
-            }
-
-            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
-                return true;
-            }
-
-            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
-                return false;
-            }
-        }
-
-        return (bool) $value;
-    }
-
-    private function normalizeOverrideInt(mixed $value, int $min, int $max): ?int
-    {
-        if ($value === null || $value === '' || $value === 'inherit') {
-            return null;
-        }
-
-        $number = (int) $value;
-
-        if ($number < $min) {
-            return $min;
-        }
-
-        if ($number > $max) {
-            return $max;
-        }
-
-        return $number;
-    }
-
-    private function normalizeTransitionOverride(mixed $value): ?string
-    {
-        if ($value === null || $value === '' || $value === 'inherit') {
-            return null;
-        }
-
-        $normalized = strtolower(trim((string) $value));
-        $allowed = ['none', 'slide', 'fade', 'explode', 'implode'];
-
-        if (in_array($normalized, $allowed, true)) {
-            return $normalized;
-        }
-
-        return null;
-    }
-
-    private function normalizeVisibilityBool(mixed $value): bool
-    {
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $normalized = strtolower(trim($value));
-
-            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
-                return true;
-            }
-
-            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
-                return false;
-            }
-        }
-
-        if (is_int($value)) {
-            return $value !== 0;
-        }
-
-        return true;
-    }
 }
