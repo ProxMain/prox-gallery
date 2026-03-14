@@ -1,6 +1,7 @@
 import { Images } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
 import { MediaFilesEmptyState } from "@/features/media-manager/components/media-files-empty-state";
@@ -32,6 +33,8 @@ export function MediaFilesCard({
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [dateSort, setDateSort] = useState("date_desc");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(24);
 
   const handleOpenImageModal = (image, mode = "view") => {
     setActiveModal({ image, mode });
@@ -106,6 +109,21 @@ export function MediaFilesCard({
     return sorted;
   }, [trackedImages, selectedCategory, dateSort, searchQuery]);
 
+  const totalPages = Math.max(1, Math.ceil(visibleImages.length / pageSize));
+  const paginatedImages = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+
+    return visibleImages.slice(startIndex, startIndex + pageSize);
+  }, [visibleImages, currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, dateSort, viewMode]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
   return (
     <>
       <Card>
@@ -138,6 +156,22 @@ export function MediaFilesCard({
             />
           ) : null}
 
+          {visibleImages.length > 0 ? (
+            <CollectionPagination
+              itemLabel={viewMode === "thumbnail" ? "items" : "rows"}
+              totalItems={visibleImages.length}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              onPageSizeChange={(nextPageSize) => {
+                setPageSize(nextPageSize);
+                setCurrentPage(1);
+              }}
+              onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              totalPages={totalPages}
+            />
+          ) : null}
+
           {isLoadingList ? (
             <p className="text-sm text-slate-600">Loading tracked images...</p>
           ) : visibleImages.length === 0 ? (
@@ -148,14 +182,14 @@ export function MediaFilesCard({
             />
           ) : viewMode === "thumbnail" ? (
             <MediaThumbnailGrid
-              trackedImages={visibleImages}
+              trackedImages={paginatedImages}
               onDeleteLinkClick={onDeleteLinkClick}
               onViewClick={(image) => handleOpenImageModal(image, "view")}
               onEditClick={(image) => handleOpenImageModal(image, "edit")}
             />
           ) : (
             <MediaRowsList
-              trackedImages={visibleImages}
+              trackedImages={paginatedImages}
               onDeleteLinkClick={onDeleteLinkClick}
               onViewClick={(image) => handleOpenImageModal(image, "view")}
               onEditClick={(image) => handleOpenImageModal(image, "edit")}

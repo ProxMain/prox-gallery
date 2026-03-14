@@ -1,6 +1,7 @@
 import { FilePlus2, Filter, FolderOpen, Images, LayoutGrid, List, Pencil, Plus, RefreshCcw, Settings2, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InlineSearchInput } from "@/components/ui/inline-search-input";
 import { SectionHeader } from "@/core/section-header";
@@ -34,6 +35,8 @@ export function GalleriesLibraryCard({
   const [viewMode, setViewMode] = useState("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(24);
   const [sortMode, setSortMode] = useState("date_desc");
   const [templateFilter, setTemplateFilter] = useState("all");
   const [createName, setCreateName] = useState("");
@@ -145,6 +148,21 @@ export function GalleriesLibraryCard({
       return slug === templateFilter;
     });
   }, [galleries, sortMode, templateFilter, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleGalleries.length / pageSize));
+  const paginatedGalleries = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+
+    return visibleGalleries.slice(startIndex, startIndex + pageSize);
+  }, [visibleGalleries, currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, sortMode, templateFilter, viewMode]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
 
   const activeDisplayGallery = useMemo(
     () => galleries.find((item) => item.id === activeDisplayGalleryId) ?? null,
@@ -537,6 +555,22 @@ export function GalleriesLibraryCard({
           </div>
         ) : null}
 
+        {visibleGalleries.length > 0 ? (
+          <CollectionPagination
+            itemLabel={viewMode === "grid" ? "galleries" : "rows"}
+            totalItems={visibleGalleries.length}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setCurrentPage(1);
+            }}
+            onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            totalPages={totalPages}
+          />
+        ) : null}
+
         {isLoading ? (
           <p className="text-sm text-slate-600">Loading galleries...</p>
         ) : visibleGalleries.length === 0 ? (
@@ -552,7 +586,7 @@ export function GalleriesLibraryCard({
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {visibleGalleries.map((gallery) => (
+            {paginatedGalleries.map((gallery) => (
               <article key={gallery.id} className="flex h-full flex-col rounded-lg border border-slate-200 bg-white">
                 <header className="flex items-start justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
                   <div className="min-w-0">
@@ -622,7 +656,7 @@ export function GalleriesLibraryCard({
           </div>
         ) : (
           <div className="space-y-2">
-            {visibleGalleries.map((gallery) => (
+            {paginatedGalleries.map((gallery) => (
               <article key={gallery.id} className="rounded-lg border border-slate-200 bg-white">
                 <header className="flex items-start justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
                   <div className="min-w-0">
