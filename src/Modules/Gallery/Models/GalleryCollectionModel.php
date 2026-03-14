@@ -102,6 +102,11 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         \update_option($this->optionKey(), array_values($items), false);
     }
 
+    public function clearAll(): void
+    {
+        $this->replaceAll([]);
+    }
+
     /**
      * @return array{
      *   id:int,
@@ -262,6 +267,26 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         $this->replaceAll($remaining);
 
         return true;
+    }
+
+    public function exists(int $id): bool
+    {
+        return $this->find($id) !== null;
+    }
+
+    public function galleryContainsImage(int $galleryId, int $imageId): bool
+    {
+        if ($galleryId <= 0 || $imageId <= 0) {
+            return false;
+        }
+
+        $gallery = $this->find($galleryId);
+
+        if ($gallery === null) {
+            return false;
+        }
+
+        return in_array($imageId, $gallery['image_ids'], true);
     }
 
     /**

@@ -81,7 +81,7 @@ final class FrontendGalleryController implements ControllerInterface
         }
 
         if ($eventType === 'gallery_visit') {
-            if (! $this->galleryExists($galleryId)) {
+            if (! $this->service->galleryExists($galleryId)) {
                 \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
             }
 
@@ -94,7 +94,7 @@ final class FrontendGalleryController implements ControllerInterface
                 \wp_send_json_error(['message' => 'Invalid image.'], 400);
             }
 
-            if ($galleryId > 0 && ! $this->galleryContainsImage($galleryId, $imageId)) {
+            if ($galleryId > 0 && ! $this->service->galleryContainsImage($galleryId, $imageId)) {
                 \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
             }
 
@@ -158,62 +158,6 @@ final class FrontendGalleryController implements ControllerInterface
         }
 
         return (bool) \wp_attachment_is_image($imageId);
-    }
-
-    private function galleryExists(int $galleryId): bool
-    {
-        if ($galleryId <= 0) {
-            return false;
-        }
-
-        $items = \get_option('prox_gallery_galleries', []);
-
-        if (! is_array($items)) {
-            return false;
-        }
-
-        foreach ($items as $item) {
-            if (! is_array($item)) {
-                continue;
-            }
-
-            if ((int) ($item['id'] ?? 0) === $galleryId) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function galleryContainsImage(int $galleryId, int $imageId): bool
-    {
-        if ($galleryId <= 0 || $imageId <= 0) {
-            return false;
-        }
-
-        $items = \get_option('prox_gallery_galleries', []);
-
-        if (! is_array($items)) {
-            return false;
-        }
-
-        foreach ($items as $item) {
-            if (! is_array($item) || (int) ($item['id'] ?? 0) !== $galleryId) {
-                continue;
-            }
-
-            $imageIds = isset($item['image_ids']) && is_array($item['image_ids']) ? $item['image_ids'] : [];
-
-            foreach ($imageIds as $candidateId) {
-                if ((int) $candidateId === $imageId) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        return false;
     }
 
     private function isRateLimited(): bool

@@ -302,6 +302,50 @@ final class FrontendGalleryServiceTest extends WP_UnitTestCase
         self::assertContains('masonry', $slugs);
     }
 
+    public function test_it_checks_gallery_existence_through_the_repository_boundary(): void
+    {
+        \update_option(
+            'prox_gallery_galleries',
+            [
+                [
+                    'id' => 61,
+                    'name' => 'Exists',
+                    'description' => '',
+                    'image_ids' => [],
+                ],
+            ],
+            false
+        );
+
+        $service = $this->service();
+
+        self::assertTrue($service->galleryExists(61));
+        self::assertFalse($service->galleryExists(62));
+        self::assertFalse($service->galleryExists(0));
+    }
+
+    public function test_it_checks_gallery_image_membership_through_the_repository_boundary(): void
+    {
+        \update_option(
+            'prox_gallery_galleries',
+            [
+                [
+                    'id' => 62,
+                    'name' => 'Membership',
+                    'description' => '',
+                    'image_ids' => [101, 102],
+                ],
+            ],
+            false
+        );
+
+        $service = $this->service();
+
+        self::assertTrue($service->galleryContainsImage(62, 101));
+        self::assertFalse($service->galleryContainsImage(62, 999));
+        self::assertFalse($service->galleryContainsImage(999, 101));
+    }
+
     private function service(): FrontendGalleryService
     {
         $templateSettings = new TemplateCustomizationService(new AdminConfigurationState());

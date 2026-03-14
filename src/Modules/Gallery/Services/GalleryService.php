@@ -259,6 +259,29 @@ final class GalleryService implements ServiceInterface
         }
     }
 
+    public function clearAll(): void
+    {
+        $this->collection->clearAll();
+    }
+
+    public function exists(int $galleryId): bool
+    {
+        if ($galleryId <= 0) {
+            return false;
+        }
+
+        return $this->collection->exists($galleryId);
+    }
+
+    public function galleryContainsImage(int $galleryId, int $imageId): bool
+    {
+        if ($galleryId <= 0 || $imageId <= 0) {
+            return false;
+        }
+
+        return $this->collection->galleryContainsImage($galleryId, $imageId);
+    }
+
     /**
      * @return list<int>
      */

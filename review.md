@@ -114,6 +114,10 @@ Suggested direction:
 
 ### 1. `prox_gallery_options` has split ownership, and one writer overwrites the other
 
+Status:
+- Fixed in [src/Modules/Admin/Services/TemplateCustomizationService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Admin/Services/TemplateCustomizationService.php)
+- Covered by regression test in [tests/TemplateCustomizationServiceTest.php](/home/marcelsanting/PhpstormProjects/prox-gallery/tests/TemplateCustomizationServiceTest.php)
+
 Files:
 - [src/States/AdminConfigurationState.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/States/AdminConfigurationState.php#L21)
 - [src/Modules/Admin/Services/TemplateCustomizationService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Admin/Services/TemplateCustomizationService.php#L46)
@@ -121,12 +125,16 @@ Files:
 - [src/Modules/OpenAi/Services/OpenAiSettingsService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/OpenAi/Services/OpenAiSettingsService.php#L31)
 - [src/Modules/OpenAi/Services/OpenAiSettingsService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/OpenAi/Services/OpenAiSettingsService.php#L90)
 
-Why it is a problem:
+Original problem:
 - `TemplateCustomizationService` and `OpenAiSettingsService` both use `prox_gallery_options` as their backing store.
 - `OpenAiSettingsService` treats that option as a shared document and merges its `openai` subtree before saving.
 - `TemplateCustomizationService` writes only its own keys back to the full option, which can erase unrelated configuration stored by other services.
 
-Where responsibility should live:
+Resolution:
+- `TemplateCustomizationService` now merges template keys into the existing options document before writing.
+- This removes the overwrite bug while keeping the current shared option structure intact.
+
+Remaining recommendation:
 - Either introduce a single configuration repository for `prox_gallery_options`, or give each feature its own option key.
 - Individual services should not each define their own persistence semantics for the same option record.
 
@@ -375,12 +383,11 @@ This is the recommended order for addressing the review. The sequence is based o
 
 ### Phase 1: Fix the highest-risk source-of-truth issues
 
-1. Unify ownership of `prox_gallery_options`
-- Fix the conflict between [TemplateCustomizationService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Admin/Services/TemplateCustomizationService.php#L84) and [OpenAiSettingsService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/OpenAi/Services/OpenAiSettingsService.php#L90).
-- This is the most urgent issue because it can silently overwrite configuration data.
-- Outcome:
-  - one clear configuration repository or merge strategy
-  - no feature service writes the shared option record independently
+1. `prox_gallery_options` overwrite bug
+- Fixed by making [TemplateCustomizationService.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Admin/Services/TemplateCustomizationService.php#L84) merge into the existing option document instead of replacing it.
+- Regression coverage added in [tests/TemplateCustomizationServiceTest.php](/home/marcelsanting/PhpstormProjects/prox-gallery/tests/TemplateCustomizationServiceTest.php).
+- Follow-up still recommended:
+  - introduce a clearer configuration repository or per-feature option ownership later
 
 2. Stop bypassing gallery storage/repository boundaries
 - Remove direct gallery option reads from [FrontendGalleryController.php](/home/marcelsanting/PhpstormProjects/prox-gallery/src/Modules/Frontend/Controllers/FrontendGalleryController.php#L163).
@@ -458,13 +465,12 @@ This is the recommended order for addressing the review. The sequence is based o
 ### Recommended execution strategy
 
 Recommended order of actual implementation:
-1. `prox_gallery_options` ownership fix
-2. gallery repository/storage boundary fix
-3. gallery normalization centralization
-4. AJAX error semantics
-5. admin capability unification
-6. `App.php` composition-root refactor
-7. remove or repurpose misleading backend types
-8. frontend feature-container refactor
-9. frontend component splitting
-10. shared async hooks and TS tightening
+1. gallery repository/storage boundary fix
+2. gallery normalization centralization
+3. AJAX error semantics
+4. admin capability unification
+5. `App.php` composition-root refactor
+6. remove or repurpose misleading backend types
+7. frontend feature-container refactor
+8. frontend component splitting
+9. shared async hooks and TS tightening

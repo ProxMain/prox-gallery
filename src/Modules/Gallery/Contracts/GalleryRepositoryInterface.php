@@ -28,6 +28,8 @@ interface GalleryRepositoryInterface
      */
     public function all(): array;
 
+    public function clearAll(): void;
+
     /**
      * @return array{
      *   id:int,
@@ -109,6 +111,10 @@ interface GalleryRepositoryInterface
     ): ?array;
 
     public function delete(int $id): bool;
+
+    public function exists(int $id): bool;
+
+    public function galleryContainsImage(int $galleryId, int $imageId): bool;
 
     /**
      * @return list<int>
