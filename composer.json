@@ -1,6 +1,6 @@
 {
     "name": "prox/prox-gallery",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "An open source gallery",
     "type": "wordpress-plugin",
     "scripts": {
