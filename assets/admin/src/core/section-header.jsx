@@ -6,6 +6,7 @@ export function SectionHeader({
   icon: Icon,
   actions = null,
   meta = null,
+  footer = null,
   variant = "card",
   framed = true,
   className = ""
@@ -43,6 +44,7 @@ export function SectionHeader({
           </div>
           {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
         </div>
+        {footer ? <div className="mt-3">{footer}</div> : null}
       </div>
     </header>
   );

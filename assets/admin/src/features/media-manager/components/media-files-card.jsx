@@ -1,6 +1,7 @@
 import { Images } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
 import { MediaFilesEmptyState } from "@/features/media-manager/components/media-files-empty-state";
@@ -25,7 +26,11 @@ export function MediaFilesCard({
   onLoadImageGalleries,
   onSetImageGalleries,
   openAiController,
-  onDeleteLinkClick
+  onDeleteLinkClick,
+  currentPage,
+  pageSize,
+  onPageChange,
+  onPaginationChange
 }) {
   const [activeModal, setActiveModal] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -106,6 +111,24 @@ export function MediaFilesCard({
     return sorted;
   }, [trackedImages, selectedCategory, dateSort, searchQuery]);
 
+  const totalPages = Math.max(1, Math.ceil(visibleImages.length / pageSize));
+  const paginatedImages = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+
+    return visibleImages.slice(startIndex, startIndex + pageSize);
+  }, [visibleImages, currentPage, pageSize]);
+
+  useEffect(() => {
+    onPageChange(1);
+  }, [searchQuery, selectedCategory, dateSort, viewMode, onPageChange]);
+
+  useEffect(() => {
+    onPaginationChange({
+      totalItems: visibleImages.length,
+      totalPages
+    });
+  }, [visibleImages.length, totalPages, onPaginationChange]);
+
   return (
     <>
       <Card>
@@ -148,14 +171,14 @@ export function MediaFilesCard({
             />
           ) : viewMode === "thumbnail" ? (
             <MediaThumbnailGrid
-              trackedImages={visibleImages}
+              trackedImages={paginatedImages}
               onDeleteLinkClick={onDeleteLinkClick}
               onViewClick={(image) => handleOpenImageModal(image, "view")}
               onEditClick={(image) => handleOpenImageModal(image, "edit")}
             />
           ) : (
             <MediaRowsList
-              trackedImages={visibleImages}
+              trackedImages={paginatedImages}
               onDeleteLinkClick={onDeleteLinkClick}
               onViewClick={(image) => handleOpenImageModal(image, "view")}
               onEditClick={(image) => handleOpenImageModal(image, "edit")}

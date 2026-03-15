@@ -1,11 +1,12 @@
-import { FilePlus2, Filter, FolderOpen, Images, LayoutGrid, List, Pencil, Plus, RefreshCcw, Settings2, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { FilePlus2, Filter, FolderOpen, Images, LayoutGrid, List, Pencil, RefreshCcw, Settings2, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
+import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InlineSearchInput } from "@/components/ui/inline-search-input";
 import { SectionHeader } from "@/core/section-header";
 import { GalleryActionIconButton } from "@/features/galleries/components/gallery-action-icon-button";
-import { GalleryCreatePanel } from "@/features/galleries/components/gallery-create-panel";
+import { GalleryCreationWizard } from "@/features/galleries/components/gallery-creation-wizard";
 import { GalleryMetaChipList } from "@/features/galleries/components/gallery-meta-chip-list";
 
 export function GalleriesLibraryCard({
@@ -20,32 +21,18 @@ export function GalleriesLibraryCard({
   onCreateGalleryPage,
   onLoadTrackedImages,
   onAddImagesToGallery,
-  onSetGalleryImages
+  onSetGalleryImages,
+  currentPage,
+  pageSize,
+  onPageChange,
+  onPaginationChange,
+  wizard
 }) {
-  const toNullableInt = (value) => (value === "inherit" ? null : Number(value));
-  const toNullableBool = (value) => {
-    if (value === "inherit") {
-      return null;
-    }
-
-    return value === "on";
-  };
-
   const [viewMode, setViewMode] = useState("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState("date_desc");
   const [templateFilter, setTemplateFilter] = useState("all");
-  const [createName, setCreateName] = useState("");
-  const [createDescription, setCreateDescription] = useState("");
-  const [createTemplate, setCreateTemplate] = useState("basic-grid");
-  const [createGridColumnsOverride, setCreateGridColumnsOverride] = useState("inherit");
-  const [createLightboxOverride, setCreateLightboxOverride] = useState("inherit");
-  const [createHoverZoomOverride, setCreateHoverZoomOverride] = useState("inherit");
-  const [createFullWidthOverride, setCreateFullWidthOverride] = useState("inherit");
-  const [createTransitionOverride, setCreateTransitionOverride] = useState("inherit");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
   const [isMutating, setIsMutating] = useState(false);
   const [activeAddGalleryId, setActiveAddGalleryId] = useState(null);
@@ -62,19 +49,6 @@ export function GalleriesLibraryCard({
   const [editShowTitle, setEditShowTitle] = useState("on");
   const [editShowDescription, setEditShowDescription] = useState("on");
   const [editTemplate, setEditTemplate] = useState("basic-grid");
-
-  const handleCreateTemplateChange = (nextTemplate) => {
-    setCreateTemplate(nextTemplate);
-
-    if (nextTemplate === "masonry") {
-      setCreateFullWidthOverride("on");
-      return;
-    }
-
-    if (nextTemplate === "basic-grid") {
-      setCreateFullWidthOverride("inherit");
-    }
-  };
 
   const availableTemplates = useMemo(() => {
     const map = new Map();
@@ -146,6 +120,24 @@ export function GalleriesLibraryCard({
     });
   }, [galleries, sortMode, templateFilter, searchQuery]);
 
+  const totalPages = Math.max(1, Math.ceil(visibleGalleries.length / pageSize));
+  const paginatedGalleries = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+
+    return visibleGalleries.slice(startIndex, startIndex + pageSize);
+  }, [visibleGalleries, currentPage, pageSize]);
+
+  useEffect(() => {
+    onPageChange(1);
+  }, [searchQuery, sortMode, templateFilter, viewMode, onPageChange]);
+
+  useEffect(() => {
+    onPaginationChange({
+      totalItems: visibleGalleries.length,
+      totalPages
+    });
+  }, [visibleGalleries.length, totalPages, onPaginationChange]);
+
   const activeDisplayGallery = useMemo(
     () => galleries.find((item) => item.id === activeDisplayGalleryId) ?? null,
     [galleries, activeDisplayGalleryId]
@@ -158,44 +150,6 @@ export function GalleriesLibraryCard({
       .map((id) => byId.get(id))
       .filter(Boolean);
   }, [trackedImages, selectedImageIds]);
-
-  const handleCreate = async () => {
-    const trimmedName = createName.trim();
-
-    if (trimmedName === "") {
-      setCreateMessage("Gallery name is required.");
-      return;
-    }
-
-    try {
-      setIsCreating(true);
-      setCreateMessage("");
-      await onCreateGallery({
-        name: trimmedName,
-        description: createDescription.trim(),
-        template: createTemplate,
-        grid_columns_override: toNullableInt(createGridColumnsOverride),
-        lightbox_override: toNullableBool(createLightboxOverride),
-        hover_zoom_override: toNullableBool(createHoverZoomOverride),
-        full_width_override: toNullableBool(createFullWidthOverride),
-        transition_override: createTransitionOverride === "inherit" ? null : createTransitionOverride
-      });
-      setCreateName("");
-      setCreateDescription("");
-      setCreateGridColumnsOverride("inherit");
-      setCreateLightboxOverride("inherit");
-      setCreateHoverZoomOverride("inherit");
-      setCreateFullWidthOverride("inherit");
-      setCreateTransitionOverride("inherit");
-      setIsCreateOpen(false);
-      setCreateMessage("Gallery created.");
-    } catch (createError) {
-      const message = createError instanceof Error ? createError.message : "Failed to create gallery.";
-      setCreateMessage(message);
-    } finally {
-      setIsCreating(false);
-    }
-  };
 
   const handleRename = async (gallery) => {
     const nextName = window.prompt("Rename gallery", gallery.name || "");
@@ -420,6 +374,7 @@ export function GalleriesLibraryCard({
   };
 
   return (
+    <>
     <Card>
       <CardHeader className="p-0">
         <SectionHeader
@@ -429,14 +384,6 @@ export function GalleriesLibraryCard({
           description="Placeholder workspace aligned with Media Manager layout."
           actions={
             <>
-              <button
-                type="button"
-                onClick={() => setIsCreateOpen((current) => !current)}
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-              >
-                <Plus className="h-4 w-4 text-sky-700" />
-                <span>New</span>
-              </button>
               <button
                 type="button"
                 onClick={() => setViewMode("grid")}
@@ -480,30 +427,6 @@ export function GalleriesLibraryCard({
         />
       </CardHeader>
       <CardContent>
-        <GalleryCreatePanel
-          isOpen={isCreateOpen}
-          createName={createName}
-          createDescription={createDescription}
-          createTemplate={createTemplate}
-          availableTemplates={availableTemplates}
-          createGridColumnsOverride={createGridColumnsOverride}
-          createLightboxOverride={createLightboxOverride}
-          createHoverZoomOverride={createHoverZoomOverride}
-          createFullWidthOverride={createFullWidthOverride}
-          createTransitionOverride={createTransitionOverride}
-          onNameChange={setCreateName}
-          onDescriptionChange={setCreateDescription}
-          onTemplateChange={handleCreateTemplateChange}
-          onGridColumnsOverrideChange={setCreateGridColumnsOverride}
-          onLightboxOverrideChange={setCreateLightboxOverride}
-          onHoverZoomOverrideChange={setCreateHoverZoomOverride}
-          onFullWidthOverrideChange={setCreateFullWidthOverride}
-          onTransitionOverrideChange={setCreateTransitionOverride}
-          onCreate={handleCreate}
-          isCreating={isCreating}
-          isMutating={isMutating}
-        />
-
         {isFilterOpen ? (
           <div className="mb-4 grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">
             <label className="space-y-1">
@@ -552,7 +475,7 @@ export function GalleriesLibraryCard({
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {visibleGalleries.map((gallery) => (
+            {paginatedGalleries.map((gallery) => (
               <article key={gallery.id} className="flex h-full flex-col rounded-lg border border-slate-200 bg-white">
                 <header className="flex items-start justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
                   <div className="min-w-0">
@@ -622,7 +545,7 @@ export function GalleriesLibraryCard({
           </div>
         ) : (
           <div className="space-y-2">
-            {visibleGalleries.map((gallery) => (
+            {paginatedGalleries.map((gallery) => (
               <article key={gallery.id} className="rounded-lg border border-slate-200 bg-white">
                 <header className="flex items-start justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
                   <div className="min-w-0">
@@ -934,6 +857,20 @@ export function GalleriesLibraryCard({
         {error !== "" ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
         {createMessage !== "" ? <p className="mt-3 text-sm text-slate-700">{createMessage}</p> : null}
       </CardContent>
-    </Card>
+      </Card>
+
+      <GalleryCreationWizard
+        isOpen={wizard.isOpen}
+        stepIndex={wizard.stepIndex}
+        value={wizard.value}
+        availableTemplates={availableTemplates}
+        isSubmitting={wizard.isSubmitting}
+        message={wizard.message}
+        onClose={wizard.closeWizard}
+        onStepChange={wizard.setStepIndex}
+        onValueChange={wizard.updateValue}
+        onSubmit={wizard.submitWizard}
+      />
+    </>
   );
 }

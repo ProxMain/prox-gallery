@@ -19,6 +19,7 @@ use Prox\ProxGallery\Modules\Admin\Controllers\TrackingActionController;
 use Prox\ProxGallery\Modules\AdminModule;
 use Prox\ProxGallery\Modules\CoreModule;
 use Prox\ProxGallery\Modules\DevelopmentSeed\Controllers\DevelopmentSeedCliController;
+use Prox\ProxGallery\Modules\Frontend\Controllers\FrontendGalleryBlockController;
 use Prox\ProxGallery\Modules\DevelopmentSeed\DevelopmentSeedModule;
 use Prox\ProxGallery\Modules\Frontend\Controllers\FrontendGalleryController;
 use Prox\ProxGallery\Modules\FrontendModule;
@@ -93,6 +94,7 @@ final class AppManagerRegistrar
         $controllers = [
             $container->get(AdminGalleryController::class),
             $container->get(FrontendGalleryController::class),
+            $container->get(FrontendGalleryBlockController::class),
             $container->get(MediaUploadController::class),
             $container->get(GalleryActionController::class),
             $container->get(MediaManagerActionController::class),

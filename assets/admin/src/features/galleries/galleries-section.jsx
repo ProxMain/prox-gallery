@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { GalleriesHeader } from "@/features/galleries/components/galleries-header";
 import { GalleriesLibraryCard } from "@/features/galleries/components/galleries-library-card";
+import { useGalleryCreationWizard } from "@/features/galleries/hooks/use-gallery-creation-wizard";
 import { useGalleriesState } from "@/features/galleries/use-galleries-state";
 import { useGalleryActionController, useMediaManagerActionController } from "@/lib/action-controller-hooks";
 
@@ -12,6 +14,10 @@ export function GalleriesSection({
   const galleryController = useGalleryActionController(config);
   const mediaManagerController = useMediaManagerActionController(config);
   const templateOptions = config.action_controllers?.galleries?.templates ?? [];
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(24);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const {
     galleries,
     isLoading,
@@ -23,6 +29,9 @@ export function GalleriesSection({
     deleteGallery,
     createGalleryPage
   } = useGalleriesState(galleryController);
+  const galleryWizard = useGalleryCreationWizard({
+    onCreateGallery: createGallery
+  });
 
   useEffect(() => {
     if (!isActive) {
@@ -59,9 +68,41 @@ export function GalleriesSection({
     await reloadGalleries();
   };
 
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  const pagination = useMemo(() => {
+    if (totalItems <= 0) {
+      return null;
+    }
+
+    return (
+      <CollectionPagination
+        className="border-white/70 bg-white/80"
+        itemLabel="galleries"
+        totalItems={totalItems}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageSizeChange={(nextPageSize) => {
+          setPageSize(nextPageSize);
+          setCurrentPage(1);
+        }}
+        onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
+        onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+        totalPages={totalPages}
+      />
+    );
+  }, [currentPage, pageSize, totalItems, totalPages]);
+
   return (
     <section className={isActive ? "space-y-6" : "hidden space-y-6"}>
-      <GalleriesHeader config={config} templateCount={templateOptions.length} />
+      <GalleriesHeader
+        config={config}
+        templateCount={templateOptions.length}
+        pagination={pagination}
+        onOpenWizard={galleryWizard.openWizard}
+      />
       <GalleriesLibraryCard
         galleries={galleries}
         templateOptions={templateOptions}
@@ -75,6 +116,14 @@ export function GalleriesSection({
         onLoadTrackedImages={handleLoadTrackedImages}
         onAddImagesToGallery={handleAddImagesToGallery}
         onSetGalleryImages={handleSetGalleryImages}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        onPaginationChange={({ totalItems: nextTotalItems, totalPages: nextTotalPages }) => {
+          setTotalItems(nextTotalItems);
+          setTotalPages(nextTotalPages);
+        }}
+        wizard={galleryWizard}
       />
     </section>
   );

@@ -9,7 +9,8 @@ export function MediaManagerHeader({
   isOpeningPicker,
   onOpenPicker,
   pickerError,
-  lastSelectionSummary
+  lastSelectionSummary,
+  pagination
 }) {
   return (
     <div className="space-y-2">
@@ -18,6 +19,7 @@ export function MediaManagerHeader({
         icon={Images}
         title="Prox Gallery - Media Manager"
         description="Manage tracked media and add existing or new images without leaving this screen."
+        footer={pagination}
         actions={
           <>
             <Button
