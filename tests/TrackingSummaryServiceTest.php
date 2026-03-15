@@ -79,6 +79,92 @@ final class TrackingSummaryServiceTest extends WP_UnitTestCase
         self::assertSame(0, $summary['portfolio_gaps']['uncategorized_images']);
     }
 
+    public function test_it_builds_phase_two_trend_and_comparison_fields(): void
+    {
+        $queue = new UploadedImageQueueModel();
+        $galleryService = new GalleryService(new GalleryCollectionModel(), $this->pageProvisioner());
+        $gallery = $galleryService->create('Trend Gallery', 'Has recent movement', 'masonry');
+
+        \update_option(
+            'prox_gallery_tracking_stats',
+            [
+                'galleries' => [
+                    (string) $gallery['id'] => [
+                        'total' => 12,
+                        'countries' => ['NL' => 12],
+                        'images' => [],
+                        'daily' => $this->seriesForOffsets(
+                            [
+                                0 => 3,
+                                1 => 2,
+                                2 => 2,
+                                7 => 1,
+                                8 => 1,
+                            ]
+                        ),
+                    ],
+                ],
+                'images' => [
+                    '301' => [
+                        'total' => 9,
+                        'countries' => ['NL' => 9],
+                        'daily' => $this->seriesForOffsets(
+                            [
+                                0 => 2,
+                                1 => 2,
+                                2 => 1,
+                                7 => 1,
+                            ]
+                        ),
+                    ],
+                ],
+                'daily' => [
+                    'gallery_views' => $this->seriesForOffsets(
+                        [
+                            0 => 3,
+                            1 => 2,
+                            2 => 2,
+                            7 => 1,
+                            8 => 1,
+                        ]
+                    ),
+                    'image_views' => $this->seriesForOffsets(
+                        [
+                            0 => 2,
+                            1 => 2,
+                            2 => 1,
+                            7 => 1,
+                        ]
+                    ),
+                ],
+                'updated_at' => \gmdate('c'),
+            ],
+            false
+        );
+
+        $summaryService = new TrackingSummaryService(new FrontendTrackingService(), $galleryService, $queue);
+        $summary = $summaryService->summary();
+
+        self::assertArrayHasKey('trends', $summary);
+        self::assertCount(14, $summary['trends']['gallery_views']);
+        self::assertCount(14, $summary['trends']['image_views']);
+
+        self::assertSame(7, $summary['comparison']['gallery_views']['current']);
+        self::assertSame(2, $summary['comparison']['gallery_views']['previous']);
+        self::assertSame(5, $summary['comparison']['gallery_views']['delta']);
+
+        self::assertSame(5, $summary['comparison']['image_views']['current']);
+        self::assertSame(1, $summary['comparison']['image_views']['previous']);
+        self::assertSame(4, $summary['comparison']['image_views']['delta']);
+
+        self::assertNotEmpty($summary['momentum']['galleries']);
+        self::assertSame('Trend Gallery', $summary['momentum']['galleries'][0]['name']);
+        self::assertArrayHasKey('template_performance', $summary);
+        self::assertArrayHasKey('layout_performance', $summary);
+        self::assertArrayHasKey('underperforming_galleries', $summary);
+        self::assertArrayHasKey('fresh_uploads', $summary);
+    }
+
     private function createAttachment(string $title): int
     {
         $attachmentId = \wp_insert_attachment(
@@ -111,5 +197,21 @@ final class TrackingSummaryServiceTest extends WP_UnitTestCase
                 ];
             }
         };
+    }
+
+    /**
+     * @param array<int, int> $offsetMap
+     *
+     * @return array<string, int>
+     */
+    private function seriesForOffsets(array $offsetMap): array
+    {
+        $series = [];
+
+        foreach ($offsetMap as $offset => $count) {
+            $series[\gmdate('Y-m-d', strtotime('-' . $offset . ' days'))] = $count;
+        }
+
+        return $series;
     }
 }
