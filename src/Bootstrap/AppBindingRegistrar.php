@@ -276,7 +276,8 @@ final class AppBindingRegistrar
             TrackingSummaryService::class,
             static fn (Container $container) => new TrackingSummaryService(
                 $container->get(FrontendTrackingService::class),
-                $container->get(GalleryService::class)
+                $container->get(GalleryService::class),
+                $container->get(UploadedImageQueueModel::class)
             )
         );
         $container->set(
