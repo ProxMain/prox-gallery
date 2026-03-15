@@ -71,6 +71,29 @@ final class DevelopmentSeedCliController extends AbstractCliController
                 ],
             ]
         );
+
+        $this->registerSubcommand(
+            'demo',
+            [$this, 'demo'],
+            [
+                'shortdesc' => 'Seeds a year of dashboard demo analytics with low, medium, or high traffic profiles.',
+                'synopsis' => [
+                    [
+                        'type' => 'assoc',
+                        'name' => 'traffic',
+                        'description' => 'Traffic profile to seed: low, medium, or high.',
+                        'optional' => true,
+                        'default' => 'medium',
+                    ],
+                    [
+                        'type' => 'flag',
+                        'name' => 'clear-existing',
+                        'description' => 'Clears existing galleries, tracked queue, and analytics before seeding.',
+                        'optional' => true,
+                    ],
+                ],
+            ]
+        );
     }
 
     /**
@@ -103,6 +126,38 @@ final class DevelopmentSeedCliController extends AbstractCliController
                 $result['gallery_assignments'],
                 $result['category_assignments'],
                 $result['failed_images']
+            )
+        );
+
+        if ($result['galleries'] !== []) {
+            \WP_CLI\Utils\format_items('table', $result['galleries'], ['id', 'name', 'template']);
+        }
+    }
+
+    /**
+     * @param list<string>         $args
+     * @param array<string, mixed> $assocArgs
+     */
+    public function demo(array $args = [], array $assocArgs = []): void
+    {
+        $traffic = strtolower(trim((string) ($assocArgs['traffic'] ?? 'medium')));
+        $clearExisting = \WP_CLI\Utils\get_flag_value($assocArgs, 'clear-existing', false);
+
+        if (! in_array($traffic, ['low', 'medium', 'high'], true)) {
+            \WP_CLI::error('Please provide --traffic=low, --traffic=medium, or --traffic=high.');
+        }
+
+        $result = $this->service->seedDashboardDemo($traffic, (bool) $clearExisting);
+
+        \WP_CLI::success(
+            sprintf(
+                'Demo seed complete. Traffic=%s, images created %d/%d, galleries created %d, annual gallery views %d, annual image views %d.',
+                $result['traffic'],
+                $result['created_images'],
+                $result['requested_images'],
+                $result['created_galleries'],
+                $result['annual_gallery_views'],
+                $result['annual_image_views']
             )
         );
 

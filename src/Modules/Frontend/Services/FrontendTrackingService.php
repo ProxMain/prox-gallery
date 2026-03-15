@@ -150,6 +150,28 @@ final class FrontendTrackingService implements ServiceInterface
     }
 
     /**
+     * @param array<string, mixed> $stats
+     */
+    public function replaceStats(array $stats): void
+    {
+        \update_option(
+            self::OPTION_KEY,
+            [
+                'galleries' => isset($stats['galleries']) && is_array($stats['galleries']) ? $stats['galleries'] : [],
+                'images' => isset($stats['images']) && is_array($stats['images']) ? $stats['images'] : [],
+                'daily' => isset($stats['daily']) && is_array($stats['daily']) ? $stats['daily'] : [
+                    'gallery_views' => [],
+                    'image_views' => [],
+                ],
+                'updated_at' => isset($stats['updated_at']) && is_string($stats['updated_at'])
+                    ? $stats['updated_at']
+                    : \gmdate('c'),
+            ],
+            false
+        );
+    }
+
+    /**
      * @param array{total?:mixed,countries?:mixed,daily?:mixed} $bucket
      *
      * @return array{total:int,countries:array<string,int>,daily:array<string,int>}

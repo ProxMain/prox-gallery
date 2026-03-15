@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\DevelopmentSeed\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
@@ -17,6 +18,7 @@ use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 final class DevelopmentSeedService implements ServiceInterface
 {
     private const ONE_PIXEL_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7ZlYQAAAAASUVORK5CYII=';
+    private const DEMO_TRACKING_DAYS = 365;
 
     /**
      * @var list<string>
@@ -79,6 +81,7 @@ final class DevelopmentSeedService implements ServiceInterface
     public function __construct(
         private GalleryService $galleryService,
         private FrontendGalleryService $frontendGalleryService,
+        private FrontendTrackingService $trackingService,
         private MediaCategoryService $mediaCategoryService,
         private TrackUploadedImageService $trackService,
         private UploadedImageQueueModel $queue
@@ -200,6 +203,165 @@ final class DevelopmentSeedService implements ServiceInterface
             'gallery_assignments' => $galleryAssignments,
             'category_assignments' => $categoryAssignments,
             'galleries' => $galleryRows,
+        ];
+    }
+
+    /**
+     * @return array{
+     *     traffic:string,
+     *     requested_images:int,
+     *     created_images:int,
+     *     failed_images:int,
+     *     requested_galleries:int,
+     *     created_galleries:int,
+     *     tracked_images:int,
+     *     gallery_assignments:int,
+     *     category_assignments:int,
+     *     annual_gallery_views:int,
+     *     annual_image_views:int,
+     *     galleries:list<array{id:int, name:string, template:string}>
+     * }
+     */
+    public function seedDashboardDemo(string $trafficProfile = 'medium', bool $clearExisting = false): array
+    {
+        $profile = $this->profileConfig($trafficProfile);
+        $seed = $this->importRandomData(
+            $profile['images'],
+            $profile['galleries'],
+            $profile['max_categories'],
+            $profile['max_galleries'],
+            $clearExisting
+        );
+
+        $galleryRows = $this->galleryService->list();
+        $trackedImages = $this->queue->all();
+        $stats = [
+            'galleries' => [],
+            'images' => [],
+            'daily' => [
+                'gallery_views' => [],
+                'image_views' => [],
+            ],
+            'updated_at' => \gmdate('c'),
+        ];
+
+        $galleryPopularity = [];
+        foreach ($galleryRows as $gallery) {
+            $galleryId = (int) ($gallery['id'] ?? 0);
+
+            if ($galleryId <= 0) {
+                continue;
+            }
+
+            $galleryPopularity[$galleryId] = random_int(70, 140) / 100;
+            $stats['galleries'][(string) $galleryId] = [
+                'total' => 0,
+                'countries' => [],
+                'images' => [],
+                'daily' => [],
+            ];
+
+            $imageIds = isset($gallery['image_ids']) && is_array($gallery['image_ids']) ? $gallery['image_ids'] : [];
+        }
+
+        foreach ($trackedImages as $image) {
+            $stats['images'][(string) $image->id] = [
+                'total' => 0,
+                'countries' => [],
+                'daily' => [],
+            ];
+        }
+
+        $countryWeights = $profile['countries'];
+        $annualGalleryViews = 0;
+        $annualImageViews = 0;
+
+        for ($offset = self::DEMO_TRACKING_DAYS - 1; $offset >= 0; $offset--) {
+            $dayKey = \gmdate('Y-m-d', strtotime('-' . $offset . ' days'));
+            $seasonality = $this->seasonalityMultiplier($offset);
+            $weekly = $this->weekdayMultiplier($dayKey);
+
+            foreach ($galleryRows as $gallery) {
+                $galleryId = (int) ($gallery['id'] ?? 0);
+
+                if ($galleryId <= 0) {
+                    continue;
+                }
+
+                $imageIds = isset($gallery['image_ids']) && is_array($gallery['image_ids']) ? array_values(array_filter(array_map('intval', $gallery['image_ids']))) : [];
+                $galleryBase = $profile['gallery_day_base'] * ($galleryPopularity[$galleryId] ?? 1.0);
+                $galleryCount = (int) round($galleryBase * $seasonality * $weekly * ($this->randomFloat(0.82, 1.22)));
+
+                if ($galleryCount <= 0) {
+                    continue;
+                }
+
+                $stats['galleries'][(string) $galleryId]['total'] += $galleryCount;
+                $stats['galleries'][(string) $galleryId]['daily'][$dayKey] = $galleryCount;
+                $stats['daily']['gallery_views'][$dayKey] = ($stats['daily']['gallery_views'][$dayKey] ?? 0) + $galleryCount;
+                $annualGalleryViews += $galleryCount;
+
+                foreach ($this->distributeCountByCountry($galleryCount, $countryWeights) as $country => $count) {
+                    $stats['galleries'][(string) $galleryId]['countries'][$country] = ($stats['galleries'][(string) $galleryId]['countries'][$country] ?? 0) + $count;
+                }
+
+                if ($imageIds === []) {
+                    continue;
+                }
+
+                $viewsPerVisit = $profile['image_multiplier_min'] + $this->randomFloat(0, $profile['image_multiplier_max'] - $profile['image_multiplier_min']);
+                $imageViewCount = (int) round($galleryCount * $viewsPerVisit);
+
+                if ($imageViewCount <= 0) {
+                    continue;
+                }
+
+                $weights = [];
+
+                foreach ($imageIds as $imageId) {
+                    $weights[$imageId] = random_int(1, 100);
+
+                    if (
+                        ! isset($stats['galleries'][(string) $galleryId]['images'][(string) $imageId]) ||
+                        ! is_array($stats['galleries'][(string) $galleryId]['images'][(string) $imageId])
+                    ) {
+                        $stats['galleries'][(string) $galleryId]['images'][(string) $imageId] = [
+                            'total' => 0,
+                            'countries' => [],
+                            'daily' => [],
+                        ];
+                    }
+                }
+
+                foreach ($this->distributeWeightedCounts($imageViewCount, $weights) as $imageId => $count) {
+                    if ($count <= 0) {
+                        continue;
+                    }
+
+                    $stats['images'][(string) $imageId]['total'] += $count;
+                    $stats['images'][(string) $imageId]['daily'][$dayKey] = ($stats['images'][(string) $imageId]['daily'][$dayKey] ?? 0) + $count;
+                    $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['total'] += $count;
+                    $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['daily'][$dayKey] = ($stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['daily'][$dayKey] ?? 0) + $count;
+                    $stats['daily']['image_views'][$dayKey] = ($stats['daily']['image_views'][$dayKey] ?? 0) + $count;
+                    $annualImageViews += $count;
+
+                    foreach ($this->distributeCountByCountry($count, $countryWeights) as $country => $countryCount) {
+                        $stats['images'][(string) $imageId]['countries'][$country] = ($stats['images'][(string) $imageId]['countries'][$country] ?? 0) + $countryCount;
+                        $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['countries'][$country] =
+                            ($stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['countries'][$country] ?? 0) + $countryCount;
+                    }
+                }
+            }
+        }
+
+        $stats['updated_at'] = \gmdate('c');
+        $this->trackingService->replaceStats($stats);
+
+        return [
+            ...$seed,
+            'traffic' => $profile['name'],
+            'annual_gallery_views' => $annualGalleryViews,
+            'annual_image_views' => $annualImageViews,
         ];
     }
 
@@ -356,6 +518,145 @@ final class DevelopmentSeedService implements ServiceInterface
     private function randomTitleSuffix(): string
     {
         return $this->pickRandomString(self::TITLE_SUFFIXES, 'Image');
+    }
+
+    /**
+     * @return array{
+     *   name:string,
+     *   images:int,
+     *   galleries:int,
+     *   max_categories:int,
+     *   max_galleries:int,
+     *   gallery_day_base:float,
+     *   image_multiplier_min:float,
+     *   image_multiplier_max:float,
+     *   countries:array<string,int>
+     * }
+     */
+    private function profileConfig(string $trafficProfile): array
+    {
+        $normalized = strtolower(trim($trafficProfile));
+
+        return match ($normalized) {
+            'low' => [
+                'name' => 'low',
+                'images' => 48,
+                'galleries' => 6,
+                'max_categories' => 2,
+                'max_galleries' => 2,
+                'gallery_day_base' => 3.4,
+                'image_multiplier_min' => 1.4,
+                'image_multiplier_max' => 2.2,
+                'countries' => ['NL' => 40, 'DE' => 18, 'BE' => 14, 'FR' => 10, 'GB' => 8, 'US' => 10],
+            ],
+            'high' => [
+                'name' => 'high',
+                'images' => 260,
+                'galleries' => 18,
+                'max_categories' => 4,
+                'max_galleries' => 5,
+                'gallery_day_base' => 24.0,
+                'image_multiplier_min' => 2.8,
+                'image_multiplier_max' => 4.6,
+                'countries' => ['NL' => 18, 'DE' => 12, 'BE' => 9, 'FR' => 7, 'GB' => 10, 'US' => 18, 'IT' => 6, 'ES' => 6, 'AU' => 5, 'CA' => 9],
+            ],
+            default => [
+                'name' => 'medium',
+                'images' => 120,
+                'galleries' => 10,
+                'max_categories' => 3,
+                'max_galleries' => 3,
+                'gallery_day_base' => 10.0,
+                'image_multiplier_min' => 2.0,
+                'image_multiplier_max' => 3.2,
+                'countries' => ['NL' => 28, 'DE' => 14, 'BE' => 10, 'FR' => 8, 'GB' => 9, 'US' => 16, 'IT' => 5, 'CA' => 6, 'ES' => 4],
+            ],
+        };
+    }
+
+    private function seasonalityMultiplier(int $daysAgo): float
+    {
+        $position = self::DEMO_TRACKING_DAYS - $daysAgo;
+        $yearWave = 1 + (sin(($position / 365) * 2 * M_PI) * 0.22);
+        $quarterWave = 1 + (sin(($position / 90) * 2 * M_PI) * 0.12);
+
+        return max(0.45, $yearWave + $quarterWave);
+    }
+
+    private function weekdayMultiplier(string $dayKey): float
+    {
+        $weekday = (int) \gmdate('N', strtotime($dayKey . ' 00:00:00 UTC'));
+
+        return match ($weekday) {
+            6 => 1.18,
+            7 => 1.12,
+            5 => 1.08,
+            default => 0.94,
+        };
+    }
+
+    private function randomFloat(float $min, float $max): float
+    {
+        $random = random_int(0, 10000) / 10000;
+
+        return $min + (($max - $min) * $random);
+    }
+
+    /**
+     * @param array<string, int> $weights
+     *
+     * @return array<string, int>
+     */
+    private function distributeCountByCountry(int $count, array $weights): array
+    {
+        return $this->distributeWeightedCounts($count, $weights);
+    }
+
+    /**
+     * @param array<int|string, int> $weights
+     *
+     * @return array<int|string, int>
+     */
+    private function distributeWeightedCounts(int $count, array $weights): array
+    {
+        if ($count <= 0 || $weights === []) {
+            return [];
+        }
+
+        $totalWeight = array_sum($weights);
+
+        if ($totalWeight <= 0) {
+            return [];
+        }
+
+        $assigned = [];
+        $remainders = [];
+        $allocated = 0;
+
+        foreach ($weights as $key => $weight) {
+            $share = ($count * max(0, (int) $weight)) / $totalWeight;
+            $base = (int) floor($share);
+            $assigned[$key] = $base;
+            $allocated += $base;
+            $remainders[$key] = $share - $base;
+        }
+
+        $remaining = $count - $allocated;
+
+        if ($remaining > 0) {
+            arsort($remainders);
+
+            foreach (array_keys($remainders) as $key) {
+                if ($remaining <= 0) {
+                    break;
+                }
+
+                $assigned[$key] = ($assigned[$key] ?? 0) + 1;
+                $remaining--;
+            }
+        }
+
+        return $assigned;
     }
 
     /**

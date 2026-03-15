@@ -353,6 +353,7 @@ final class AppBindingRegistrar
                 static fn (Container $container) => new DevelopmentSeedService(
                     $container->get(GalleryService::class),
                     $container->get(FrontendGalleryService::class),
+                    $container->get(FrontendTrackingService::class),
                     $container->get(MediaCategoryService::class),
                     $container->get(TrackUploadedImageService::class),
                     $container->get(UploadedImageQueueModel::class)

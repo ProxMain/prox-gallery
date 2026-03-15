@@ -110,6 +110,7 @@ Then use:
 
 ```bash
 wp prox seed import-random [--images=<n>] [--galleries=<n>] [--max-categories=<n>] [--max-galleries=<n>] [--clear-existing]
+wp prox seed demo [--traffic=<low|medium|high>] [--clear-existing]
 ```
 
 ### Import random demo data
@@ -146,6 +147,41 @@ Success output:
 - Summary line with counts for created/tracked/failed images, galleries, and assignments.
 - If galleries were created, an additional table is printed with columns: `id`, `name`, `template`.
 
+### Dashboard demo seed
+
+```bash
+wp prox seed demo --traffic=medium --clear-existing
+```
+
+What it does:
+
+- Creates a realistic set of galleries, tracked images, gallery assignments, and categories.
+- Fills one year of dashboard analytics data.
+- Seeds daily gallery visits and image views so dashboard trends and comparisons look populated.
+- Supports three traffic profiles:
+  - `low`
+  - `medium`
+  - `high`
+
+Options:
+
+- `--traffic=<profile>`: traffic level to simulate.
+  - Default: `medium`
+- `--clear-existing`: clears existing galleries, tracked queue, and analytics before seeding.
+
+Examples:
+
+```bash
+wp prox seed demo --traffic=low --clear-existing
+wp prox seed demo --traffic=medium --clear-existing
+wp prox seed demo --traffic=high --clear-existing
+```
+
+Success output:
+
+- Summary line with traffic profile, created image/gallery counts, annual gallery views, and annual image views.
+- Table of created galleries with columns: `id`, `name`, `template`.
+
 ## Troubleshooting
 
 ### `Error: 'prox' is not a registered wp command`
@@ -179,4 +215,5 @@ wp prox media validate
 # Seed (dev module only)
 wp prox seed import-random
 wp prox seed import-random --images=100 --galleries=6 --max-categories=3 --max-galleries=3 --clear-existing
+wp prox seed demo --traffic=medium --clear-existing
 ```
