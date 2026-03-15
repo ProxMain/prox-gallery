@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectionHeader } from "@/core/section-header";
 import { useTrackingActionController } from "@/lib/action-controller-hooks";
 
@@ -346,481 +347,500 @@ export function DashboardSection({ config, isActive }) {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 xl:grid-cols-2">
-        <SectionCard
-          title="Gallery Visits Trend"
-          description={`Last ${Array.isArray(trends.gallery_views) ? trends.gallery_views.length : 14} days, compared against the previous ${comparison.gallery_views.previous > 0 ? "period" : "window"}.`}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-3xl font-semibold text-slate-950">{formatCount(comparison.gallery_views.current)}</p>
-              <p className="text-sm text-slate-600">Current 7-day gallery visits</p>
-            </div>
-            <DeltaBadge delta={comparison.gallery_views.delta} deltaPercentage={comparison.gallery_views.delta_percentage} />
-          </div>
-          <TrendBars rows={Array.isArray(trends.gallery_views) ? trends.gallery_views : []} tone="sky" />
-        </SectionCard>
+      <Tabs defaultValue="overview" className="mt-6">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl border border-slate-200 bg-white/80 p-2">
+          <TabsTrigger value="overview" className="rounded-xl px-4 py-2">Overview</TabsTrigger>
+          <TabsTrigger value="performance" className="rounded-xl px-4 py-2">Performance</TabsTrigger>
+          <TabsTrigger value="audience" className="rounded-xl px-4 py-2">Audience</TabsTrigger>
+          <TabsTrigger value="actions" className="rounded-xl px-4 py-2">Actions</TabsTrigger>
+        </TabsList>
 
-        <SectionCard
-          title="Image Views Trend"
-          description="Track whether traffic is turning into deeper image engagement."
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-3xl font-semibold text-slate-950">{formatCount(comparison.image_views.current)}</p>
-              <p className="text-sm text-slate-600">Current 7-day image views</p>
-            </div>
-            <DeltaBadge delta={comparison.image_views.delta} deltaPercentage={comparison.image_views.delta_percentage} />
-          </div>
-          <TrendBars rows={Array.isArray(trends.image_views) ? trends.image_views : []} tone="amber" />
-        </SectionCard>
-      </section>
-
-      <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <SectionCard
-          title="Top Galleries"
-          description="Your most visited galleries, now enriched with period comparison and health."
-        >
-          <InsightList
-            rows={galleries}
-            emptyText="No gallery visits yet."
-            renderRow={(gallery, index) => (
-              <div
-                key={gallery.gallery_id}
-                className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 md:grid-cols-[auto_1fr_auto]"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">
-                  {index + 1}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-950">{gallery.name}</p>
-                  <p className="mt-1 text-xs text-slate-600">
-                    {gallery.template} · {formatCount(gallery.image_count)} images · health {formatCount(gallery.health_score)}/100
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-semibold text-slate-950">{formatCount(gallery.total)}</p>
-                  <p className="text-xs text-slate-500">visits</p>
-                  <div className="mt-2">
-                    <DeltaBadge delta={gallery.delta} deltaPercentage={gallery.delta_percentage} />
-                  </div>
-                </div>
-              </div>
-            )}
-          />
-        </SectionCard>
-
-        <SectionCard
-          title="Country Reach"
-          description="Where your audience is concentrated right now."
-        >
-          <InsightList
-            rows={countries}
-            emptyText="No country data yet."
-            renderRow={(row) => (
-              <div key={row.code} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
-                    <MapPinned className="h-4 w-4 text-emerald-600" />
-                    {row.code}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-slate-950">{formatCount(row.count)}</p>
-                    <p className="text-xs text-slate-500">{percentage(row.count, totals.gallery_views)}%</p>
-                  </div>
-                </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-sky-500" style={{ width: `${Math.max(8, percentage(row.count, totals.gallery_views))}%` }} />
-                </div>
-              </div>
-            )}
-          />
-        </SectionCard>
-      </section>
-
-      <section className="mt-4 grid gap-4 xl:grid-cols-3">
-        <SectionCard title="Momentum" description="Galleries and images accelerating in the current 7-day window.">
-          <div className="space-y-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Galleries</p>
+        <TabsContent value="overview" className="mt-4 space-y-4">
+          <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <SectionCard
+              title="Top Galleries"
+              description="Your most visited galleries, now enriched with period comparison and health."
+            >
               <InsightList
-                rows={momentum.galleries}
-                emptyText="No gallery momentum yet."
-                renderRow={(item) => (
-                  <div key={`momentum-gallery-${item.id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
-                      <DeltaBadge delta={item.delta} />
+                rows={galleries}
+                emptyText="No gallery visits yet."
+                renderRow={(gallery, index) => (
+                  <div
+                    key={gallery.gallery_id}
+                    className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 md:grid-cols-[auto_1fr_auto]"
+                  >
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">
+                      {index + 1}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">{gallery.name}</p>
+                      <p className="mt-1 text-xs text-slate-600">
+                        {gallery.template} · {formatCount(gallery.image_count)} images · health {formatCount(gallery.health_score)}/100
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-semibold text-slate-950">{formatCount(gallery.total)}</p>
+                      <p className="text-xs text-slate-500">visits</p>
+                      <div className="mt-2">
+                        <DeltaBadge delta={gallery.delta} deltaPercentage={gallery.delta_percentage} />
+                      </div>
                     </div>
                   </div>
                 )}
               />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Images</p>
+            </SectionCard>
+
+            <SectionCard title="Recent Activity" description="New galleries and tracked images that keep the dashboard alive.">
               <InsightList
-                rows={momentum.images}
-                emptyText="No image momentum yet."
-                renderRow={(item) => (
-                  <div key={`momentum-image-${item.id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
-                      <DeltaBadge delta={item.delta} />
+                rows={recentActivity}
+                emptyText="No recent activity yet."
+                renderRow={(item, index) => (
+                  <div key={`${item.type}-${item.title}-${index}`} className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 md:grid-cols-[auto_1fr]">
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.type === "gallery" ? "bg-sky-100 text-sky-700" : "bg-violet-100 text-violet-700"}`}>
+                      {item.type === "gallery" ? <FolderOpen className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
+                      <p className="mt-1 text-xs text-slate-600">{item.subtitle}</p>
+                      <p className="mt-1 text-xs text-slate-500">{formatDateTime(item.timestamp)}</p>
                     </div>
                   </div>
                 )}
               />
-            </div>
-          </div>
-        </SectionCard>
+            </SectionCard>
+          </section>
 
-        <SectionCard title="Underperforming Galleries" description="Galleries losing momentum or drawing weak current-period traffic.">
-          <InsightList
-            rows={underperforming}
-            emptyText="No underperforming galleries yet."
-            renderRow={(gallery) => (
-              <div key={gallery.gallery_id} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-sm font-semibold text-slate-950">{gallery.name}</p>
-                  <DeltaBadge delta={gallery.delta} deltaPercentage={gallery.delta_percentage} />
-                </div>
-                <p className="mt-2 text-xs text-slate-600">
-                  Current 7-day visits: {formatCount(gallery.current_period)} · Health {formatCount(gallery.health_score)}/100
-                </p>
-              </div>
-            )}
-          />
-        </SectionCard>
-
-        <SectionCard title="Portfolio Gaps" description="Structural issues worth fixing before promotion.">
-          <div className="space-y-3">
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-amber-950">
-                <AlertTriangle className="h-4 w-4" />
-                Galleries missing descriptions
-              </div>
-              <p className="mt-2 text-2xl font-semibold text-amber-950">{formatCount(gaps.galleries_without_description)}</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm font-semibold text-slate-950">Thin galleries</p>
-              <p className="mt-1 text-sm text-slate-600">Galleries with fewer than three images.</p>
-              <p className="mt-2 text-xl font-semibold text-slate-950">{formatCount(gaps.galleries_with_few_images)}</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm font-semibold text-slate-950">Uncategorized tracked images</p>
-              <p className="mt-1 text-sm text-slate-600">Tracked images that still need categorization.</p>
-              <p className="mt-2 text-xl font-semibold text-slate-950">{formatCount(gaps.uncategorized_images)}</p>
-            </div>
-          </div>
-        </SectionCard>
-      </section>
-
-      <section className="mt-4 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <SectionCard title="Fresh Upload Performance" description="New uploads and galleries gaining traction soon after creation.">
-          <div className="space-y-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recent images</p>
+          <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+            <SectionCard title="Top Images" description="Tracked images with the strongest overall pull.">
               <InsightList
-                rows={freshUploads.images}
-                emptyText="No recent tracked images yet."
-                renderRow={(item) => (
-                  <div key={`fresh-image-${item.image_id}`} className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3">
-                    {item.thumbnail_url ? (
-                      <img src={item.thumbnail_url} alt={item.title} className="h-14 w-14 rounded-xl object-cover" />
+                rows={images}
+                emptyText="No image views yet."
+                renderRow={(image) => (
+                  <div key={image.image_id} className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3">
+                    {image.thumbnail_url ? (
+                      <img src={image.thumbnail_url} alt={image.title} className="h-14 w-14 rounded-xl object-cover" />
                     ) : (
                       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-200">
                         <ImageIcon className="h-5 w-5 text-slate-500" />
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
-                      <p className="text-xs text-slate-600">
-                        {formatCount(item.current_period)} recent views · {formatCount(item.total)} total
+                      <p className="truncate text-sm font-semibold text-slate-950">{image.title || `#${image.image_id}`}</p>
+                      <p className="mt-1 text-xs text-slate-600">
+                        {Array.isArray(image.categories) && image.categories.length > 0
+                          ? image.categories.map((category) => category.name).join(", ")
+                          : "No categories"}
                       </p>
                     </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-slate-950">{formatCount(image.total)}</p>
+                      <p className="text-xs text-slate-500">views</p>
+                    </div>
                   </div>
                 )}
               />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recent galleries</p>
-              <InsightList
-                rows={freshUploads.galleries}
-                emptyText="No recent galleries yet."
-                renderRow={(item) => (
-                  <div key={`fresh-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
-                    <p className="mt-1 text-xs text-slate-600">
-                      {item.template} · {formatCount(item.image_count)} images · {formatCount(item.current_period)} recent visits
-                    </p>
-                  </div>
-                )}
-              />
-            </div>
-          </div>
-        </SectionCard>
+            </SectionCard>
 
-        <SectionCard title="Template And Layout Performance" description="Compare which presentation styles are pulling stronger traffic.">
-          <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Templates</p>
+            <SectionCard title="Category Inventory" description="How your tracked media is distributed across categories.">
               <InsightList
-                rows={templatePerformance}
-                emptyText="No template performance data yet."
-                renderRow={(item) => (
-                  <div key={`template-${item.template}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                rows={categories}
+                emptyText="No categories assigned yet."
+                renderRow={(category) => (
+                  <div key={category.name} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-slate-950">{item.template}</p>
-                      <DeltaBadge delta={item.delta} />
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
+                        <Tags className="h-4 w-4 text-violet-600" />
+                        {category.name}
+                      </div>
+                      <span className="text-sm font-semibold text-slate-950">{formatCount(category.count)}</span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+                      <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-400" style={{ width: `${Math.max(10, percentage(category.count, totals.tracked_images))}%` }} />
+                    </div>
+                  </div>
+                )}
+              />
+            </SectionCard>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="performance" className="mt-4 space-y-4">
+          <section className="grid gap-4 xl:grid-cols-2">
+            <SectionCard
+              title="Gallery Visits Trend"
+              description={`Last ${Array.isArray(trends.gallery_views) ? trends.gallery_views.length : 14} days, compared against the previous ${comparison.gallery_views.previous > 0 ? "period" : "window"}.`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-3xl font-semibold text-slate-950">{formatCount(comparison.gallery_views.current)}</p>
+                  <p className="text-sm text-slate-600">Current 7-day gallery visits</p>
+                </div>
+                <DeltaBadge delta={comparison.gallery_views.delta} deltaPercentage={comparison.gallery_views.delta_percentage} />
+              </div>
+              <TrendBars rows={Array.isArray(trends.gallery_views) ? trends.gallery_views : []} tone="sky" />
+            </SectionCard>
+
+            <SectionCard
+              title="Image Views Trend"
+              description="Track whether traffic is turning into deeper image engagement."
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-3xl font-semibold text-slate-950">{formatCount(comparison.image_views.current)}</p>
+                  <p className="text-sm text-slate-600">Current 7-day image views</p>
+                </div>
+                <DeltaBadge delta={comparison.image_views.delta} deltaPercentage={comparison.image_views.delta_percentage} />
+              </div>
+              <TrendBars rows={Array.isArray(trends.image_views) ? trends.image_views : []} tone="amber" />
+            </SectionCard>
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-3">
+            <SectionCard title="Momentum" description="Galleries and images accelerating in the current 7-day window.">
+              <div className="space-y-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Galleries</p>
+                  <InsightList
+                    rows={momentum.galleries}
+                    emptyText="No gallery momentum yet."
+                    renderRow={(item) => (
+                      <div key={`momentum-gallery-${item.id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                          <DeltaBadge delta={item.delta} />
+                        </div>
+                      </div>
+                    )}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Images</p>
+                  <InsightList
+                    rows={momentum.images}
+                    emptyText="No image momentum yet."
+                    renderRow={(item) => (
+                      <div key={`momentum-image-${item.id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                          <DeltaBadge delta={item.delta} />
+                        </div>
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Underperforming Galleries" description="Galleries losing momentum or drawing weak current-period traffic.">
+              <InsightList
+                rows={underperforming}
+                emptyText="No underperforming galleries yet."
+                renderRow={(gallery) => (
+                  <div key={gallery.gallery_id} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="truncate text-sm font-semibold text-slate-950">{gallery.name}</p>
+                      <DeltaBadge delta={gallery.delta} deltaPercentage={gallery.delta_percentage} />
                     </div>
                     <p className="mt-2 text-xs text-slate-600">
-                      {formatCount(item.visits)} visits · {formatCount(item.avg_visits)} avg per gallery
+                      Current 7-day visits: {formatCount(gallery.current_period)} · Health {formatCount(gallery.health_score)}/100
                     </p>
                   </div>
                 )}
               />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Layouts</p>
+            </SectionCard>
+
+            <SectionCard title="Fresh Upload Performance" description="New uploads and galleries gaining traction soon after creation.">
+              <div className="space-y-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recent images</p>
+                  <InsightList
+                    rows={freshUploads.images}
+                    emptyText="No recent tracked images yet."
+                    renderRow={(item) => (
+                      <div key={`fresh-image-${item.image_id}`} className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3">
+                        {item.thumbnail_url ? (
+                          <img src={item.thumbnail_url} alt={item.title} className="h-14 w-14 rounded-xl object-cover" />
+                        ) : (
+                          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-200">
+                            <ImageIcon className="h-5 w-5 text-slate-500" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
+                          <p className="text-xs text-slate-600">
+                            {formatCount(item.current_period)} recent views · {formatCount(item.total)} total
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recent galleries</p>
+                  <InsightList
+                    rows={freshUploads.galleries}
+                    emptyText="No recent galleries yet."
+                    renderRow={(item) => (
+                      <div key={`fresh-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                        <p className="mt-1 text-xs text-slate-600">
+                          {item.template} · {formatCount(item.image_count)} images · {formatCount(item.current_period)} recent visits
+                        </p>
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </SectionCard>
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+            <SectionCard title="Template And Layout Performance" description="Compare which presentation styles are pulling stronger traffic.">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Templates</p>
+                  <InsightList
+                    rows={templatePerformance}
+                    emptyText="No template performance data yet."
+                    renderRow={(item) => (
+                      <div key={`template-${item.template}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-slate-950">{item.template}</p>
+                          <DeltaBadge delta={item.delta} />
+                        </div>
+                        <p className="mt-2 text-xs text-slate-600">
+                          {formatCount(item.visits)} visits · {formatCount(item.avg_visits)} avg per gallery
+                        </p>
+                      </div>
+                    )}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Layouts</p>
+                  <InsightList
+                    rows={layoutPerformance}
+                    emptyText="No layout performance data yet."
+                    renderRow={(item) => (
+                      <div key={`layout-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                          <DeltaBadge delta={item.delta} />
+                        </div>
+                        <p className="mt-2 text-xs text-slate-600">
+                          {formatCount(item.visits)} visits · {formatCount(item.avg_visits)} avg per gallery
+                        </p>
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Seasonal Comparison" description="A 12-month view of gallery traffic and image engagement.">
+              <div className="grid gap-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Gallery views by month</p>
+                  <TrendBars rows={Array.isArray(seasonal.gallery_views) ? seasonal.gallery_views : []} tone="sky" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Image views by month</p>
+                  <TrendBars rows={Array.isArray(seasonal.image_views) ? seasonal.image_views : []} tone="amber" />
+                </div>
+              </div>
+            </SectionCard>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="audience" className="mt-4 space-y-4">
+          <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+            <SectionCard
+              title="Country Reach"
+              description="Where your audience is concentrated right now."
+            >
               <InsightList
-                rows={layoutPerformance}
-                emptyText="No layout performance data yet."
-                renderRow={(item) => (
-                  <div key={`layout-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                rows={countries}
+                emptyText="No country data yet."
+                renderRow={(row) => (
+                  <div key={row.code} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
-                      <DeltaBadge delta={item.delta} />
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
+                        <MapPinned className="h-4 w-4 text-emerald-600" />
+                        {row.code}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-slate-950">{formatCount(row.count)}</p>
+                        <p className="text-xs text-slate-500">{percentage(row.count, totals.gallery_views)}%</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-xs text-slate-600">
-                      {formatCount(item.visits)} visits · {formatCount(item.avg_visits)} avg per gallery
-                    </p>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+                      <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-sky-500" style={{ width: `${Math.max(8, percentage(row.count, totals.gallery_views))}%` }} />
+                    </div>
                   </div>
                 )}
               />
-            </div>
-          </div>
-        </SectionCard>
-      </section>
+            </SectionCard>
 
-      <section className="mt-4 grid gap-4 xl:grid-cols-[1fr_1fr_1fr]">
-        <SectionCard title="Top Images" description="Tracked images with the strongest overall pull.">
-          <InsightList
-            rows={images}
-            emptyText="No image views yet."
-            renderRow={(image) => (
-              <div key={image.image_id} className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3">
-                {image.thumbnail_url ? (
-                  <img src={image.thumbnail_url} alt={image.title} className="h-14 w-14 rounded-xl object-cover" />
-                ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-200">
-                    <ImageIcon className="h-5 w-5 text-slate-500" />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-slate-950">{image.title || `#${image.image_id}`}</p>
-                  <p className="mt-1 text-xs text-slate-600">
-                    {Array.isArray(image.categories) && image.categories.length > 0
-                      ? image.categories.map((category) => category.name).join(", ")
-                      : "No categories"}
+            <SectionCard title="Traffic Sources And Devices" description="See how visitors are arriving and which devices dominate the experience.">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sources</p>
+                  <InsightList
+                    rows={sources}
+                    emptyText="No source tracking yet."
+                    renderRow={(item) => (
+                      <div key={`source-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                        </div>
+                      </div>
+                    )}
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Devices</p>
+                  <InsightList
+                    rows={devices}
+                    emptyText="No device tracking yet."
+                    renderRow={(item) => (
+                      <div key={`device-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                        </div>
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </SectionCard>
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+            <SectionCard title="Lightbox Engagement" description="Measure deeper image curiosity beyond basic visits and views.">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Totals</p>
+                  <p className="mt-3 text-2xl font-semibold text-slate-950">{formatCount(lightboxEngagement.totals.lightbox_opens)}</p>
+                  <p className="mt-1 text-sm text-slate-600">Lightbox opens</p>
+                  <p className="mt-3 text-sm text-slate-700">
+                    {lightboxEngagement.totals.lightbox_rate_per_gallery_visit}% per gallery visit
+                  </p>
+                  <p className="mt-1 text-sm text-slate-700">
+                    {formatCount(lightboxEngagement.totals.info_panel_opens)} info opens
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-slate-950">{formatCount(image.total)}</p>
-                  <p className="text-xs text-slate-500">views</p>
+                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top image by curiosity</p>
+                  {Array.isArray(lightboxEngagement.top_images) && lightboxEngagement.top_images.length > 0 ? (
+                    <>
+                      <p className="mt-3 text-lg font-semibold text-slate-950">{lightboxEngagement.top_images[0].title}</p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        {formatCount(lightboxEngagement.top_images[0].lightbox_opens)} lightbox opens · {lightboxEngagement.top_images[0].lightbox_rate}% of image views
+                      </p>
+                    </>
+                  ) : (
+                    <p className="mt-3 text-sm text-slate-600">No lightbox interaction yet.</p>
+                  )}
                 </div>
               </div>
-            )}
-          />
-        </SectionCard>
-
-        <SectionCard title="Category Inventory" description="How your tracked media is distributed across categories.">
-          <InsightList
-            rows={categories}
-            emptyText="No categories assigned yet."
-            renderRow={(category) => (
-              <div key={category.name} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
-                    <Tags className="h-4 w-4 text-violet-600" />
-                    {category.name}
-                  </div>
-                  <span className="text-sm font-semibold text-slate-950">{formatCount(category.count)}</span>
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top galleries</p>
+                  <InsightList
+                    rows={lightboxEngagement.top_galleries}
+                    emptyText="No gallery lightbox data yet."
+                    renderRow={(item) => (
+                      <div key={`lightbox-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
+                        </div>
+                      </div>
+                    )}
+                  />
                 </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                  <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-400" style={{ width: `${Math.max(10, percentage(category.count, totals.tracked_images))}%` }} />
-                </div>
-              </div>
-            )}
-          />
-        </SectionCard>
-
-        <SectionCard title="Recent Activity" description="New galleries and tracked images that keep the dashboard alive.">
-          <InsightList
-            rows={recentActivity}
-            emptyText="No recent activity yet."
-            renderRow={(item, index) => (
-              <div key={`${item.type}-${item.title}-${index}`} className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 md:grid-cols-[auto_1fr]">
-                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.type === "gallery" ? "bg-sky-100 text-sky-700" : "bg-violet-100 text-violet-700"}`}>
-                  {item.type === "gallery" ? <FolderOpen className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
-                  <p className="mt-1 text-xs text-slate-600">{item.subtitle}</p>
-                  <p className="mt-1 text-xs text-slate-500">{formatDateTime(item.timestamp)}</p>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top images</p>
+                  <InsightList
+                    rows={lightboxEngagement.top_images}
+                    emptyText="No image lightbox data yet."
+                    renderRow={(item) => (
+                      <div key={`lightbox-image-${item.image_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
+                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
+                        </div>
+                      </div>
+                    )}
+                  />
                 </div>
               </div>
-            )}
-          />
-        </SectionCard>
-      </section>
+            </SectionCard>
+          </section>
+        </TabsContent>
 
-      <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <SectionCard title="Smart Recommendations" description="Action-oriented prompts derived from momentum, gaps, sources, and interaction behavior.">
-          <InsightList
-            rows={recommendations}
-            emptyText="No recommendations yet."
-            renderRow={(item, index) => (
-              <div
-                key={`${item.title}-${index}`}
-                className={`rounded-2xl border p-4 ${
-                  item.tone === "positive"
-                    ? "border-emerald-200 bg-emerald-50/80"
-                    : item.tone === "warning"
-                      ? "border-amber-200 bg-amber-50/80"
-                      : "border-slate-200 bg-slate-50/80"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ${
-                    item.tone === "positive"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : item.tone === "warning"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-slate-200 text-slate-700"
-                  }`}>
-                    <Zap className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-950">{item.title}</p>
-                    <p className="mt-1 text-sm text-slate-600">{item.detail}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          />
-        </SectionCard>
-
-        <SectionCard title="Traffic Sources And Devices" description="See how visitors are arriving and which devices dominate the experience.">
-          <div className="grid gap-5 md:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sources</p>
+        <TabsContent value="actions" className="mt-4 space-y-4">
+          <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+            <SectionCard title="Smart Recommendations" description="Action-oriented prompts derived from momentum, gaps, sources, and interaction behavior.">
               <InsightList
-                rows={sources}
-                emptyText="No source tracking yet."
-                renderRow={(item) => (
-                  <div key={`source-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
-                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                rows={recommendations}
+                emptyText="No recommendations yet."
+                renderRow={(item, index) => (
+                  <div
+                    key={`${item.title}-${index}`}
+                    className={`rounded-2xl border p-4 ${
+                      item.tone === "positive"
+                        ? "border-emerald-200 bg-emerald-50/80"
+                        : item.tone === "warning"
+                          ? "border-amber-200 bg-amber-50/80"
+                          : "border-slate-200 bg-slate-50/80"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ${
+                        item.tone === "positive"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : item.tone === "warning"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-slate-200 text-slate-700"
+                      }`}>
+                        <Zap className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-950">{item.title}</p>
+                        <p className="mt-1 text-sm text-slate-600">{item.detail}</p>
+                      </div>
                     </div>
                   </div>
                 )}
               />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Devices</p>
-              <InsightList
-                rows={devices}
-                emptyText="No device tracking yet."
-                renderRow={(item) => (
-                  <div key={`device-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
-                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
-                    </div>
-                  </div>
-                )}
-              />
-            </div>
-          </div>
-        </SectionCard>
-      </section>
+            </SectionCard>
 
-      <section className="mt-4 grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <SectionCard title="Lightbox Engagement" description="Measure deeper image curiosity beyond basic visits and views.">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Totals</p>
-              <p className="mt-3 text-2xl font-semibold text-slate-950">{formatCount(lightboxEngagement.totals.lightbox_opens)}</p>
-              <p className="mt-1 text-sm text-slate-600">Lightbox opens</p>
-              <p className="mt-3 text-sm text-slate-700">
-                {lightboxEngagement.totals.lightbox_rate_per_gallery_visit}% per gallery visit
-              </p>
-              <p className="mt-1 text-sm text-slate-700">
-                {formatCount(lightboxEngagement.totals.info_panel_opens)} info opens
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top image by curiosity</p>
-              {Array.isArray(lightboxEngagement.top_images) && lightboxEngagement.top_images.length > 0 ? (
-                <>
-                  <p className="mt-3 text-lg font-semibold text-slate-950">{lightboxEngagement.top_images[0].title}</p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {formatCount(lightboxEngagement.top_images[0].lightbox_opens)} lightbox opens · {lightboxEngagement.top_images[0].lightbox_rate}% of image views
-                  </p>
-                </>
-              ) : (
-                <p className="mt-3 text-sm text-slate-600">No lightbox interaction yet.</p>
-              )}
-            </div>
-          </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top galleries</p>
-              <InsightList
-                rows={lightboxEngagement.top_galleries}
-                emptyText="No gallery lightbox data yet."
-                renderRow={(item) => (
-                  <div key={`lightbox-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
-                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
-                    </div>
+            <SectionCard title="Portfolio Gaps" description="Structural issues worth fixing before promotion.">
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-950">
+                    <AlertTriangle className="h-4 w-4" />
+                    Galleries missing descriptions
                   </div>
-                )}
-              />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top images</p>
-              <InsightList
-                rows={lightboxEngagement.top_images}
-                emptyText="No image lightbox data yet."
-                renderRow={(item) => (
-                  <div key={`lightbox-image-${item.image_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
-                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
-                    </div>
-                  </div>
-                )}
-              />
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Seasonal Comparison" description="A 12-month view of gallery traffic and image engagement.">
-          <div className="grid gap-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Gallery views by month</p>
-              <TrendBars rows={Array.isArray(seasonal.gallery_views) ? seasonal.gallery_views : []} tone="sky" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Image views by month</p>
-              <TrendBars rows={Array.isArray(seasonal.image_views) ? seasonal.image_views : []} tone="amber" />
-            </div>
-          </div>
-        </SectionCard>
-      </section>
+                  <p className="mt-2 text-2xl font-semibold text-amber-950">{formatCount(gaps.galleries_without_description)}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-950">Thin galleries</p>
+                  <p className="mt-1 text-sm text-slate-600">Galleries with fewer than three images.</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-950">{formatCount(gaps.galleries_with_few_images)}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-950">Uncategorized tracked images</p>
+                  <p className="mt-1 text-sm text-slate-600">Tracked images that still need categorization.</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-950">{formatCount(gaps.uncategorized_images)}</p>
+                </div>
+              </div>
+            </SectionCard>
+          </section>
+        </TabsContent>
+      </Tabs>
 
       {isLoading ? <p className="mt-4 text-sm text-slate-600">Loading analytics...</p> : null}
       {error !== "" ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
