@@ -241,7 +241,11 @@ final class DevelopmentSeedService implements ServiceInterface
             'daily' => [
                 'gallery_views' => [],
                 'image_views' => [],
+                'lightbox_opens' => [],
+                'info_panel_opens' => [],
             ],
+            'sources' => [],
+            'devices' => [],
             'updated_at' => \gmdate('c'),
         ];
 
@@ -259,6 +263,8 @@ final class DevelopmentSeedService implements ServiceInterface
                 'countries' => [],
                 'images' => [],
                 'daily' => [],
+                'lightbox_opens' => 0,
+                'lightbox_daily' => [],
             ];
 
             $imageIds = isset($gallery['image_ids']) && is_array($gallery['image_ids']) ? $gallery['image_ids'] : [];
@@ -269,10 +275,16 @@ final class DevelopmentSeedService implements ServiceInterface
                 'total' => 0,
                 'countries' => [],
                 'daily' => [],
+                'lightbox_opens' => 0,
+                'lightbox_daily' => [],
+                'info_opens' => 0,
+                'info_daily' => [],
             ];
         }
 
         $countryWeights = $profile['countries'];
+        $sourceWeights = $profile['sources'];
+        $deviceWeights = $profile['devices'];
         $annualGalleryViews = 0;
         $annualImageViews = 0;
 
@@ -301,6 +313,14 @@ final class DevelopmentSeedService implements ServiceInterface
                 $stats['daily']['gallery_views'][$dayKey] = ($stats['daily']['gallery_views'][$dayKey] ?? 0) + $galleryCount;
                 $annualGalleryViews += $galleryCount;
 
+                foreach ($this->distributeCountByCountry($galleryCount, $sourceWeights) as $source => $count) {
+                    $stats['sources'][$source] = ($stats['sources'][$source] ?? 0) + $count;
+                }
+
+                foreach ($this->distributeCountByCountry($galleryCount, $deviceWeights) as $device => $count) {
+                    $stats['devices'][$device] = ($stats['devices'][$device] ?? 0) + $count;
+                }
+
                 foreach ($this->distributeCountByCountry($galleryCount, $countryWeights) as $country => $count) {
                     $stats['galleries'][(string) $galleryId]['countries'][$country] = ($stats['galleries'][(string) $galleryId]['countries'][$country] ?? 0) + $count;
                 }
@@ -311,6 +331,8 @@ final class DevelopmentSeedService implements ServiceInterface
 
                 $viewsPerVisit = $profile['image_multiplier_min'] + $this->randomFloat(0, $profile['image_multiplier_max'] - $profile['image_multiplier_min']);
                 $imageViewCount = (int) round($galleryCount * $viewsPerVisit);
+                $lightboxOpenCount = (int) round($galleryCount * $this->randomFloat($profile['lightbox_rate_min'], $profile['lightbox_rate_max']));
+                $infoOpenCount = (int) round($lightboxOpenCount * $this->randomFloat($profile['info_rate_min'], $profile['info_rate_max']));
 
                 if ($imageViewCount <= 0) {
                     continue;
@@ -329,6 +351,10 @@ final class DevelopmentSeedService implements ServiceInterface
                             'total' => 0,
                             'countries' => [],
                             'daily' => [],
+                            'lightbox_opens' => 0,
+                            'lightbox_daily' => [],
+                            'info_opens' => 0,
+                            'info_daily' => [],
                         ];
                     }
                 }
@@ -349,6 +375,43 @@ final class DevelopmentSeedService implements ServiceInterface
                         $stats['images'][(string) $imageId]['countries'][$country] = ($stats['images'][(string) $imageId]['countries'][$country] ?? 0) + $countryCount;
                         $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['countries'][$country] =
                             ($stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['countries'][$country] ?? 0) + $countryCount;
+                    }
+                }
+
+                if ($lightboxOpenCount > 0) {
+                    $stats['galleries'][(string) $galleryId]['lightbox_opens'] += $lightboxOpenCount;
+                    $stats['galleries'][(string) $galleryId]['lightbox_daily'][$dayKey] =
+                        ($stats['galleries'][(string) $galleryId]['lightbox_daily'][$dayKey] ?? 0) + $lightboxOpenCount;
+                    $stats['daily']['lightbox_opens'][$dayKey] = ($stats['daily']['lightbox_opens'][$dayKey] ?? 0) + $lightboxOpenCount;
+
+                    foreach ($this->distributeWeightedCounts($lightboxOpenCount, $weights) as $imageId => $count) {
+                        if ($count <= 0) {
+                            continue;
+                        }
+
+                        $stats['images'][(string) $imageId]['lightbox_opens'] += $count;
+                        $stats['images'][(string) $imageId]['lightbox_daily'][$dayKey] =
+                            ($stats['images'][(string) $imageId]['lightbox_daily'][$dayKey] ?? 0) + $count;
+                        $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['lightbox_opens'] += $count;
+                        $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['lightbox_daily'][$dayKey] =
+                            ($stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['lightbox_daily'][$dayKey] ?? 0) + $count;
+                    }
+                }
+
+                if ($infoOpenCount > 0) {
+                    $stats['daily']['info_panel_opens'][$dayKey] = ($stats['daily']['info_panel_opens'][$dayKey] ?? 0) + $infoOpenCount;
+
+                    foreach ($this->distributeWeightedCounts($infoOpenCount, $weights) as $imageId => $count) {
+                        if ($count <= 0) {
+                            continue;
+                        }
+
+                        $stats['images'][(string) $imageId]['info_opens'] += $count;
+                        $stats['images'][(string) $imageId]['info_daily'][$dayKey] =
+                            ($stats['images'][(string) $imageId]['info_daily'][$dayKey] ?? 0) + $count;
+                        $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['info_opens'] += $count;
+                        $stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['info_daily'][$dayKey] =
+                            ($stats['galleries'][(string) $galleryId]['images'][(string) $imageId]['info_daily'][$dayKey] ?? 0) + $count;
                     }
                 }
             }
@@ -547,7 +610,13 @@ final class DevelopmentSeedService implements ServiceInterface
                 'gallery_day_base' => 3.4,
                 'image_multiplier_min' => 1.4,
                 'image_multiplier_max' => 2.2,
+                'lightbox_rate_min' => 0.18,
+                'lightbox_rate_max' => 0.34,
+                'info_rate_min' => 0.18,
+                'info_rate_max' => 0.42,
                 'countries' => ['NL' => 40, 'DE' => 18, 'BE' => 14, 'FR' => 10, 'GB' => 8, 'US' => 10],
+                'sources' => ['direct' => 30, 'internal' => 22, 'instagram' => 18, 'google' => 12, 'facebook' => 8, 'pinterest' => 10],
+                'devices' => ['desktop' => 56, 'mobile' => 32, 'tablet' => 12],
             ],
             'high' => [
                 'name' => 'high',
@@ -558,7 +627,13 @@ final class DevelopmentSeedService implements ServiceInterface
                 'gallery_day_base' => 24.0,
                 'image_multiplier_min' => 2.8,
                 'image_multiplier_max' => 4.6,
+                'lightbox_rate_min' => 0.28,
+                'lightbox_rate_max' => 0.46,
+                'info_rate_min' => 0.22,
+                'info_rate_max' => 0.48,
                 'countries' => ['NL' => 18, 'DE' => 12, 'BE' => 9, 'FR' => 7, 'GB' => 10, 'US' => 18, 'IT' => 6, 'ES' => 6, 'AU' => 5, 'CA' => 9],
+                'sources' => ['direct' => 16, 'internal' => 18, 'instagram' => 22, 'google' => 16, 'facebook' => 8, 'pinterest' => 10, 'linkedin' => 10],
+                'devices' => ['desktop' => 41, 'mobile' => 46, 'tablet' => 13],
             ],
             default => [
                 'name' => 'medium',
@@ -569,7 +644,13 @@ final class DevelopmentSeedService implements ServiceInterface
                 'gallery_day_base' => 10.0,
                 'image_multiplier_min' => 2.0,
                 'image_multiplier_max' => 3.2,
+                'lightbox_rate_min' => 0.22,
+                'lightbox_rate_max' => 0.4,
+                'info_rate_min' => 0.2,
+                'info_rate_max' => 0.45,
                 'countries' => ['NL' => 28, 'DE' => 14, 'BE' => 10, 'FR' => 8, 'GB' => 9, 'US' => 16, 'IT' => 5, 'CA' => 6, 'ES' => 4],
+                'sources' => ['direct' => 20, 'internal' => 20, 'instagram' => 20, 'google' => 14, 'facebook' => 8, 'pinterest' => 8, 'linkedin' => 10],
+                'devices' => ['desktop' => 48, 'mobile' => 40, 'tablet' => 12],
             ],
         };
     }

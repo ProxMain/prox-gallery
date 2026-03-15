@@ -116,6 +116,10 @@ final class TrackingSummaryServiceTest extends WP_UnitTestCase
                                 7 => 1,
                             ]
                         ),
+                        'lightbox_opens' => 5,
+                        'lightbox_daily' => $this->seriesForOffsets([0 => 2, 1 => 2, 2 => 1]),
+                        'info_opens' => 2,
+                        'info_daily' => $this->seriesForOffsets([0 => 1, 1 => 1]),
                     ],
                 ],
                 'daily' => [
@@ -136,7 +140,11 @@ final class TrackingSummaryServiceTest extends WP_UnitTestCase
                             7 => 1,
                         ]
                     ),
+                    'lightbox_opens' => $this->seriesForOffsets([0 => 2, 1 => 2, 2 => 1]),
+                    'info_panel_opens' => $this->seriesForOffsets([0 => 1, 1 => 1]),
                 ],
+                'sources' => ['instagram' => 9, 'direct' => 4, 'google' => 3],
+                'devices' => ['mobile' => 8, 'desktop' => 6, 'tablet' => 2],
                 'updated_at' => \gmdate('c'),
             ],
             false
@@ -163,6 +171,13 @@ final class TrackingSummaryServiceTest extends WP_UnitTestCase
         self::assertArrayHasKey('layout_performance', $summary);
         self::assertArrayHasKey('underperforming_galleries', $summary);
         self::assertArrayHasKey('fresh_uploads', $summary);
+        self::assertSame('instagram', $summary['sources'][0]['label']);
+        self::assertSame('mobile', $summary['devices'][0]['label']);
+        self::assertSame(5, $summary['lightbox_engagement']['totals']['lightbox_opens']);
+        self::assertSame(2, $summary['lightbox_engagement']['totals']['info_panel_opens']);
+        self::assertArrayHasKey('seasonal', $summary);
+        self::assertArrayHasKey('recommendations', $summary);
+        self::assertNotEmpty($summary['recommendations']);
     }
 
     private function createAttachment(string $title): int

@@ -131,7 +131,7 @@ function TrendBars({ rows, tone = "sky" }) {
     <div className="mt-4">
       <div className="flex h-40 items-end gap-2">
         {rows.map((row) => (
-          <div key={row.date} className="flex flex-1 flex-col items-center gap-2">
+          <div key={row.date || row.label} className="flex flex-1 flex-col items-center gap-2">
             <div className="flex h-32 w-full items-end">
               <div
                 title={`${row.label}: ${row.count}`}
@@ -225,6 +225,15 @@ export function DashboardSection({ config, isActive }) {
   const freshUploads = summary?.fresh_uploads ?? { images: [], galleries: [] };
   const templatePerformance = Array.isArray(summary?.template_performance) ? summary.template_performance : [];
   const layoutPerformance = Array.isArray(summary?.layout_performance) ? summary.layout_performance : [];
+  const sources = Array.isArray(summary?.sources) ? summary.sources.slice(0, 6) : [];
+  const devices = Array.isArray(summary?.devices) ? summary.devices : [];
+  const lightboxEngagement = summary?.lightbox_engagement ?? {
+    totals: { lightbox_opens: 0, info_panel_opens: 0, lightbox_rate_per_gallery_visit: 0, info_rate_per_image_view: 0 },
+    top_galleries: [],
+    top_images: []
+  };
+  const seasonal = summary?.seasonal ?? { gallery_views: [], image_views: [] };
+  const recommendations = Array.isArray(summary?.recommendations) ? summary.recommendations : [];
   const gaps = summary?.portfolio_gaps ?? {
     galleries_without_description: 0,
     galleries_with_few_images: 0,
@@ -662,6 +671,154 @@ export function DashboardSection({ config, isActive }) {
               </div>
             )}
           />
+        </SectionCard>
+      </section>
+
+      <section className="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <SectionCard title="Smart Recommendations" description="Action-oriented prompts derived from momentum, gaps, sources, and interaction behavior.">
+          <InsightList
+            rows={recommendations}
+            emptyText="No recommendations yet."
+            renderRow={(item, index) => (
+              <div
+                key={`${item.title}-${index}`}
+                className={`rounded-2xl border p-4 ${
+                  item.tone === "positive"
+                    ? "border-emerald-200 bg-emerald-50/80"
+                    : item.tone === "warning"
+                      ? "border-amber-200 bg-amber-50/80"
+                      : "border-slate-200 bg-slate-50/80"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ${
+                    item.tone === "positive"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : item.tone === "warning"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-slate-200 text-slate-700"
+                  }`}>
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-950">{item.title}</p>
+                    <p className="mt-1 text-sm text-slate-600">{item.detail}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+        </SectionCard>
+
+        <SectionCard title="Traffic Sources And Devices" description="See how visitors are arriving and which devices dominate the experience.">
+          <div className="grid gap-5 md:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sources</p>
+              <InsightList
+                rows={sources}
+                emptyText="No source tracking yet."
+                renderRow={(item) => (
+                  <div key={`source-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Devices</p>
+              <InsightList
+                rows={devices}
+                emptyText="No device tracking yet."
+                renderRow={(item) => (
+                  <div key={`device-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+        </SectionCard>
+      </section>
+
+      <section className="mt-4 grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <SectionCard title="Lightbox Engagement" description="Measure deeper image curiosity beyond basic visits and views.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Totals</p>
+              <p className="mt-3 text-2xl font-semibold text-slate-950">{formatCount(lightboxEngagement.totals.lightbox_opens)}</p>
+              <p className="mt-1 text-sm text-slate-600">Lightbox opens</p>
+              <p className="mt-3 text-sm text-slate-700">
+                {lightboxEngagement.totals.lightbox_rate_per_gallery_visit}% per gallery visit
+              </p>
+              <p className="mt-1 text-sm text-slate-700">
+                {formatCount(lightboxEngagement.totals.info_panel_opens)} info opens
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top image by curiosity</p>
+              {Array.isArray(lightboxEngagement.top_images) && lightboxEngagement.top_images.length > 0 ? (
+                <>
+                  <p className="mt-3 text-lg font-semibold text-slate-950">{lightboxEngagement.top_images[0].title}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {formatCount(lightboxEngagement.top_images[0].lightbox_opens)} lightbox opens · {lightboxEngagement.top_images[0].lightbox_rate}% of image views
+                  </p>
+                </>
+              ) : (
+                <p className="mt-3 text-sm text-slate-600">No lightbox interaction yet.</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top galleries</p>
+              <InsightList
+                rows={lightboxEngagement.top_galleries}
+                emptyText="No gallery lightbox data yet."
+                renderRow={(item) => (
+                  <div key={`lightbox-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top images</p>
+              <InsightList
+                rows={lightboxEngagement.top_images}
+                emptyText="No image lightbox data yet."
+                renderRow={(item) => (
+                  <div key={`lightbox-image-${item.image_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
+                      <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
+                    </div>
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Seasonal Comparison" description="A 12-month view of gallery traffic and image engagement.">
+          <div className="grid gap-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Gallery views by month</p>
+              <TrendBars rows={Array.isArray(seasonal.gallery_views) ? seasonal.gallery_views : []} tone="sky" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Image views by month</p>
+              <TrendBars rows={Array.isArray(seasonal.image_views) ? seasonal.image_views : []} tone="amber" />
+            </div>
+          </div>
         </SectionCard>
       </section>
 

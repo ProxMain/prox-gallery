@@ -75,6 +75,11 @@ final class FrontendGalleryController implements ControllerInterface
             : '';
         $galleryId = isset($_POST['gallery_id']) ? (int) \wp_unslash($_POST['gallery_id']) : 0;
         $imageId = isset($_POST['image_id']) ? (int) \wp_unslash($_POST['image_id']) : 0;
+        $context = [
+            'referrer' => isset($_POST['referrer']) ? (string) \wp_unslash($_POST['referrer']) : '',
+            'current_url' => isset($_POST['current_url']) ? (string) \wp_unslash($_POST['current_url']) : '',
+            'device_type' => isset($_POST['device_type']) ? (string) \wp_unslash($_POST['device_type']) : '',
+        ];
 
         if ($this->isRateLimited()) {
             \wp_send_json_error(['message' => 'Rate limit exceeded.'], 429);
@@ -85,7 +90,7 @@ final class FrontendGalleryController implements ControllerInterface
                 \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
             }
 
-            $this->tracking->recordGalleryVisit($galleryId);
+            $this->tracking->recordGalleryVisitWithContext($galleryId, $context);
             \wp_send_json_success(['tracked' => true]);
         }
 
@@ -98,7 +103,33 @@ final class FrontendGalleryController implements ControllerInterface
                 \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
             }
 
-            $this->tracking->recordImageView($galleryId, $imageId);
+            $this->tracking->recordImageViewWithContext($galleryId, $imageId, $context);
+            \wp_send_json_success(['tracked' => true]);
+        }
+
+        if ($eventType === 'lightbox_open') {
+            if (! $this->imageExists($imageId)) {
+                \wp_send_json_error(['message' => 'Invalid image.'], 400);
+            }
+
+            if ($galleryId > 0 && ! $this->service->galleryContainsImage($galleryId, $imageId)) {
+                \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
+            }
+
+            $this->tracking->recordLightboxOpen($galleryId, $imageId, $context);
+            \wp_send_json_success(['tracked' => true]);
+        }
+
+        if ($eventType === 'info_panel_open') {
+            if (! $this->imageExists($imageId)) {
+                \wp_send_json_error(['message' => 'Invalid image.'], 400);
+            }
+
+            if ($galleryId > 0 && ! $this->service->galleryContainsImage($galleryId, $imageId)) {
+                \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
+            }
+
+            $this->tracking->recordInfoPanelOpen($galleryId, $imageId, $context);
             \wp_send_json_success(['tracked' => true]);
         }
 

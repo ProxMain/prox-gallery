@@ -63,6 +63,7 @@ final class TrackingSummaryService
             $total = isset($item['total']) ? max(0, (int) $item['total']) : 0;
             $countries = isset($item['countries']) && is_array($item['countries']) ? $item['countries'] : [];
             $daily = isset($item['daily']) && is_array($item['daily']) ? $this->normalizeSeries($item['daily']) : [];
+            $lightboxOpens = isset($item['lightbox_opens']) ? max(0, (int) $item['lightbox_opens']) : 0;
             $galleryViewsTotal += $total;
 
             foreach ($countries as $code => $count) {
@@ -86,6 +87,8 @@ final class TrackingSummaryService
                 'created_at' => is_array($galleryRow) ? (string) ($galleryRow['created_at'] ?? '') : '',
                 'has_description' => is_array($galleryRow) && trim((string) ($galleryRow['description'] ?? '')) !== '',
                 'full_width_enabled' => is_array($galleryRow) && (bool) ($galleryRow['full_width_override'] ?? false),
+                'lightbox_opens' => $lightboxOpens,
+                'lightbox_rate' => $total > 0 ? round(($lightboxOpens / $total) * 100, 1) : 0.0,
                 'current_period' => $comparison['current'],
                 'previous_period' => $comparison['previous'],
                 'delta' => $comparison['delta'],
@@ -118,6 +121,8 @@ final class TrackingSummaryService
             $total = isset($item['total']) ? max(0, (int) $item['total']) : 0;
             $countries = isset($item['countries']) && is_array($item['countries']) ? $item['countries'] : [];
             $daily = isset($item['daily']) && is_array($item['daily']) ? $this->normalizeSeries($item['daily']) : [];
+            $lightboxOpens = isset($item['lightbox_opens']) ? max(0, (int) $item['lightbox_opens']) : 0;
+            $infoOpens = isset($item['info_opens']) ? max(0, (int) $item['info_opens']) : 0;
             $imageViewsTotal += $total;
             $trackedImage = $trackedImagesById[$id] ?? null;
             $comparison = $this->comparisonFromSeries($daily);
@@ -131,6 +136,9 @@ final class TrackingSummaryService
                 'uploaded_at' => $trackedImage?->uploadedAt ?? '',
                 'thumbnail_url' => $this->imageThumbnailUrl($id),
                 'categories' => $this->categoriesForAttachment($id),
+                'lightbox_opens' => $lightboxOpens,
+                'lightbox_rate' => $total > 0 ? round(($lightboxOpens / $total) * 100, 1) : 0.0,
+                'info_opens' => $infoOpens,
                 'current_period' => $comparison['current'],
                 'previous_period' => $comparison['previous'],
                 'delta' => $comparison['delta'],
@@ -183,6 +191,24 @@ final class TrackingSummaryService
             ],
             'template_performance' => $this->templatePerformance($galleryItems),
             'layout_performance' => $this->layoutPerformance($galleryItems),
+            'sources' => $this->aggregateRows($stats['sources'] ?? []),
+            'devices' => $this->aggregateRows($stats['devices'] ?? []),
+            'lightbox_engagement' => [
+                'totals' => $this->lightboxTotals($stats, $galleryViewsTotal, $imageViewsTotal),
+                'top_galleries' => $this->topLightboxGalleries($galleryItems),
+                'top_images' => $this->topLightboxImages($imageItems),
+            ],
+            'seasonal' => [
+                'gallery_views' => $this->monthlyRows($stats['daily']['gallery_views'] ?? []),
+                'image_views' => $this->monthlyRows($stats['daily']['image_views'] ?? []),
+            ],
+            'recommendations' => $this->recommendations(
+                $galleryItems,
+                $imageItems,
+                $portfolioGaps,
+                $stats['sources'] ?? [],
+                $stats['devices'] ?? []
+            ),
             'recent_activity' => $recentActivity,
             'spotlight' => [
                 'gallery' => $galleryItems[0] ?? null,
@@ -694,5 +720,208 @@ final class TrackingSummaryService
         unset($row);
 
         return array_values($rows);
+    }
+
+    /**
+     * @param array<string, int|numeric-string> $map
+     *
+     * @return list<array{label:string,count:int}>
+     */
+    private function aggregateRows(array $map): array
+    {
+        $rows = [];
+
+        foreach ($map as $label => $count) {
+            $rows[] = [
+                'label' => (string) $label,
+                'count' => max(0, (int) $count),
+            ];
+        }
+
+        usort(
+            $rows,
+            static fn (array $left, array $right): int => ((int) $right['count']) <=> ((int) $left['count'])
+        );
+
+        return $rows;
+    }
+
+    /**
+     * @param array<string, mixed> $stats
+     *
+     * @return array<string, float|int>
+     */
+    private function lightboxTotals(array $stats, int $galleryViewsTotal, int $imageViewsTotal): array
+    {
+        $lightboxSeries = isset($stats['daily']['lightbox_opens']) && is_array($stats['daily']['lightbox_opens'])
+            ? $this->normalizeSeries($stats['daily']['lightbox_opens'])
+            : [];
+        $infoSeries = isset($stats['daily']['info_panel_opens']) && is_array($stats['daily']['info_panel_opens'])
+            ? $this->normalizeSeries($stats['daily']['info_panel_opens'])
+            : [];
+
+        $lightboxOpens = array_sum($lightboxSeries);
+        $infoOpens = array_sum($infoSeries);
+
+        return [
+            'lightbox_opens' => $lightboxOpens,
+            'info_panel_opens' => $infoOpens,
+            'lightbox_rate_per_gallery_visit' => $galleryViewsTotal > 0 ? round(($lightboxOpens / $galleryViewsTotal) * 100, 1) : 0.0,
+            'info_rate_per_image_view' => $imageViewsTotal > 0 ? round(($infoOpens / $imageViewsTotal) * 100, 1) : 0.0,
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $galleryItems
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function topLightboxGalleries(array $galleryItems): array
+    {
+        $rows = array_values(
+            array_filter(
+                $galleryItems,
+                static fn (array $item): bool => (int) ($item['lightbox_opens'] ?? 0) > 0
+            )
+        );
+
+        usort(
+            $rows,
+            static fn (array $left, array $right): int => ((int) $right['lightbox_opens']) <=> ((int) $left['lightbox_opens'])
+        );
+
+        return array_slice($rows, 0, 4);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $imageItems
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function topLightboxImages(array $imageItems): array
+    {
+        $rows = array_values(
+            array_filter(
+                $imageItems,
+                static fn (array $item): bool => (int) ($item['lightbox_opens'] ?? 0) > 0
+            )
+        );
+
+        usort(
+            $rows,
+            static fn (array $left, array $right): int => ((int) $right['lightbox_opens']) <=> ((int) $left['lightbox_opens'])
+        );
+
+        return array_slice($rows, 0, 4);
+    }
+
+    /**
+     * @param array<string, int|numeric-string> $series
+     *
+     * @return list<array{label:string,count:int}>
+     */
+    private function monthlyRows(array $series): array
+    {
+        $normalized = $this->normalizeSeries($series);
+        $months = [];
+
+        foreach ($normalized as $day => $count) {
+            $monthKey = substr($day, 0, 7);
+            $months[$monthKey] = ($months[$monthKey] ?? 0) + $count;
+        }
+
+        ksort($months);
+        $rows = [];
+
+        foreach (array_slice($months, -12, 12, true) as $monthKey => $count) {
+            $rows[] = [
+                'label' => \gmdate('M Y', strtotime($monthKey . '-01 00:00:00 UTC')),
+                'count' => (int) $count,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $galleryItems
+     * @param list<array<string, mixed>> $imageItems
+     * @param array<string, int>         $portfolioGaps
+     * @param array<string, int|numeric-string> $sources
+     * @param array<string, int|numeric-string> $devices
+     *
+     * @return list<array{title:string,detail:string,tone:string}>
+     */
+    private function recommendations(
+        array $galleryItems,
+        array $imageItems,
+        array $portfolioGaps,
+        array $sources,
+        array $devices
+    ): array {
+        $recommendations = [];
+        $topMomentumGallery = $this->momentumRows($galleryItems, 'gallery_id')[0] ?? null;
+        $underperformingGallery = $this->underperformingGalleries($galleryItems)[0] ?? null;
+        $topSource = $this->aggregateRows($sources)[0] ?? null;
+        $topDevice = $this->aggregateRows($devices)[0] ?? null;
+        $topLightboxImage = $this->topLightboxImages($imageItems)[0] ?? null;
+
+        if (is_array($topMomentumGallery)) {
+            $recommendations[] = [
+                'title' => 'Promote the gallery gaining momentum',
+                'detail' => sprintf('%s is up by %d visits in the current period.', (string) $topMomentumGallery['name'], (int) $topMomentumGallery['delta']),
+                'tone' => 'positive',
+            ];
+        }
+
+        if (is_array($underperformingGallery)) {
+            $recommendations[] = [
+                'title' => 'Refresh a slipping gallery',
+                'detail' => sprintf('%s is lagging in the current window. Consider updating images, copy, or placement.', (string) $underperformingGallery['name']),
+                'tone' => 'warning',
+            ];
+        }
+
+        if (($portfolioGaps['galleries_without_description'] ?? 0) > 0) {
+            $recommendations[] = [
+                'title' => 'Fill missing gallery descriptions',
+                'detail' => sprintf('%d galleries still have no description, which weakens editorial presentation.', (int) $portfolioGaps['galleries_without_description']),
+                'tone' => 'warning',
+            ];
+        }
+
+        if (($portfolioGaps['uncategorized_images'] ?? 0) > 0) {
+            $recommendations[] = [
+                'title' => 'Categorize more tracked images',
+                'detail' => sprintf('%d tracked images are uncategorized, making portfolio discovery weaker.', (int) $portfolioGaps['uncategorized_images']),
+                'tone' => 'warning',
+            ];
+        }
+
+        if (is_array($topSource)) {
+            $recommendations[] = [
+                'title' => 'Lean into your strongest traffic source',
+                'detail' => sprintf('%s is currently driving the most tracked visits.', (string) $topSource['label']),
+                'tone' => 'positive',
+            ];
+        }
+
+        if (is_array($topDevice)) {
+            $recommendations[] = [
+                'title' => 'Prioritize your dominant device experience',
+                'detail' => sprintf('%s visitors currently make up the biggest share of interaction traffic.', (string) $topDevice['label']),
+                'tone' => 'neutral',
+            ];
+        }
+
+        if (is_array($topLightboxImage)) {
+            $recommendations[] = [
+                'title' => 'Feature images with strong lightbox intent',
+                'detail' => sprintf('%s is attracting the most lightbox opens, suggesting strong curiosity or detail interest.', (string) $topLightboxImage['title']),
+                'tone' => 'positive',
+            ];
+        }
+
+        return array_slice($recommendations, 0, 6);
     }
 }

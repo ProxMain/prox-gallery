@@ -39,6 +39,10 @@
       params.append("image_id", String(imageId));
     }
 
+    params.append("referrer", document.referrer || "");
+    params.append("current_url", window.location.href || "");
+    params.append("device_type", deviceType());
+
     if (navigator.sendBeacon) {
       var blob = new Blob([params.toString()], { type: "application/x-www-form-urlencoded; charset=UTF-8" });
       navigator.sendBeacon(config.ajaxUrl, blob);
@@ -53,6 +57,20 @@
       body: params.toString(),
       keepalive: true
     }).catch(function () {});
+  }
+
+  function deviceType() {
+    var width = window.innerWidth || document.documentElement.clientWidth || 1440;
+
+    if (width < 768) {
+      return "mobile";
+    }
+
+    if (width < 1100) {
+      return "tablet";
+    }
+
+    return "desktop";
   }
 
   function buildLightbox() {
@@ -306,6 +324,7 @@
         var galleryId = parseInt(rawGalleryId, 10);
         var imageId = parseInt(rawImageId, 10);
         sendTrackingEvent("image_view", galleryId || 0, imageId || 0);
+        sendTrackingEvent("lightbox_open", galleryId || 0, imageId || 0);
         showIndex(index, "next");
         lockBodyScroll();
         lightbox.classList.add("is-open");
@@ -360,6 +379,13 @@
         var isHidden = infoPanel.hidden;
         infoPanel.hidden = !isHidden;
         infoToggleButton.setAttribute("aria-expanded", isHidden ? "true" : "false");
+
+        if (isHidden && items.length && currentIndex >= 0) {
+          var currentLink = items[currentIndex];
+          var currentGalleryId = parseInt(currentLink.getAttribute("data-prox-gallery-id") || "0", 10) || 0;
+          var currentImageId = parseInt(currentLink.getAttribute("data-prox-image-id") || "0", 10) || 0;
+          sendTrackingEvent("info_panel_open", currentGalleryId, currentImageId);
+        }
       });
     }
 
