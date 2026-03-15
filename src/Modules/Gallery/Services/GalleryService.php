@@ -18,8 +18,7 @@ final class GalleryService implements ServiceInterface
     public function __construct(
         private GalleryRepositoryInterface $collection,
         private GalleryPageProvisionerInterface $pageProvisioning
-    )
-    {
+    ) {
     }
 
     public function id(): string
@@ -88,8 +87,7 @@ final class GalleryService implements ServiceInterface
         mixed $transitionOverride = null,
         mixed $showTitle = true,
         mixed $showDescription = true
-    ): array
-    {
+    ): array {
         $normalizedName = GallerySettingsNormalizer::normalizeName($name);
         $normalizedDescription = GallerySettingsNormalizer::normalizeDescription($description);
         $normalizedTemplate = GallerySettingsNormalizer::normalizeTemplate($template);
@@ -152,8 +150,7 @@ final class GalleryService implements ServiceInterface
         mixed $transitionOverride = null,
         mixed $showTitle = null,
         mixed $showDescription = null
-    ): array
-    {
+    ): array {
         if ($id <= 0) {
             throw new InvalidArgumentException('Gallery ID is required.');
         }

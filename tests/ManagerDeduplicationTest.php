@@ -35,12 +35,13 @@ final class ManagerDeduplicationTest extends WP_UnitTestCase
 
     private function createModule(string $id, string $marker, object $state): ModuleInterface
     {
-        return new class($id, $marker, $state) implements ModuleInterface {
+        return new class ($id, $marker, $state) implements ModuleInterface {
             public function __construct(
                 private string $id,
                 private string $marker,
                 private object $state
-            ) {}
+            ) {
+            }
 
             public function id(): string
             {
@@ -56,12 +57,13 @@ final class ManagerDeduplicationTest extends WP_UnitTestCase
 
     private function createController(string $id, string $marker, object $state): ControllerInterface
     {
-        return new class($id, $marker, $state) implements ControllerInterface {
+        return new class ($id, $marker, $state) implements ControllerInterface {
             public function __construct(
                 private string $id,
                 private string $marker,
                 private object $state
-            ) {}
+            ) {
+            }
 
             public function id(): string
             {

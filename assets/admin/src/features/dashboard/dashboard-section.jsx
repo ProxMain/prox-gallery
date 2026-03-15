@@ -67,14 +67,14 @@ function topCountryRows(countries = {}, limit = 5) {
 
 function deltaTone(delta) {
   if (number(delta) > 0) {
-    return "text-emerald-700 bg-emerald-50 border-emerald-200";
+    return "text-emerald-100 bg-emerald-400/15 border-emerald-400/25";
   }
 
   if (number(delta) < 0) {
-    return "text-rose-700 bg-rose-50 border-rose-200";
+    return "text-rose-100 bg-rose-400/15 border-rose-400/25";
   }
 
-  return "text-slate-700 bg-slate-50 border-slate-200";
+  return "text-white bg-white/[0.08] border-white/10";
 }
 
 function DeltaBadge({ delta, deltaPercentage }) {
@@ -111,9 +111,9 @@ function StatChip({ label, value, tone = "slate", delta = null, deltaPercentage 
 
 function SectionCard({ title, description, children, className = "" }) {
   return (
-    <Card className={`overflow-hidden border-slate-200/80 bg-white/90 shadow-[0_30px_80px_rgba(15,23,42,0.08)] backdrop-blur ${className}`}>
-      <CardHeader className="border-b border-slate-200/80 pb-4">
-        <CardTitle className="text-base text-slate-950">{title}</CardTitle>
+    <Card className={`overflow-hidden border-white/10 bg-slate-950/[0.78] shadow-[0_30px_80px_rgba(2,6,23,0.3)] backdrop-blur ${className}`}>
+      <CardHeader className="border-b border-white/10 pb-4">
+        <CardTitle className="text-base text-white">{title}</CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>
       <CardContent className="pt-5">{children}</CardContent>
@@ -140,7 +140,7 @@ function TrendBars({ rows, tone = "sky" }) {
                 style={{ height: `${Math.max(8, (number(row.count) / maxValue) * 100)}%` }}
               />
             </div>
-            <span className="text-[11px] text-slate-500">{String(row.label).replace(" ", "\u00a0")}</span>
+            <span className="text-[11px] text-white">{String(row.label).replace(" ", "\u00a0")}</span>
           </div>
         ))}
       </div>
@@ -150,7 +150,7 @@ function TrendBars({ rows, tone = "sky" }) {
 
 function InsightList({ rows, emptyText, renderRow }) {
   if (!Array.isArray(rows) || rows.length === 0) {
-    return <p className="text-sm text-slate-600">{emptyText}</p>;
+    return <p className="text-sm text-white">{emptyText}</p>;
   }
 
   return <div className="space-y-3">{rows.map(renderRow)}</div>;
@@ -261,7 +261,7 @@ export function DashboardSection({ config, isActive }) {
             <h2 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight text-white md:text-4xl">
               Track what is rising, what is slipping, and where your portfolio is actually gaining traction.
             </h2>
-            <p className="mt-3 max-w-2xl text-sm text-slate-200 md:text-base">
+            <p className="mt-3 max-w-2xl text-sm text-white md:text-base">
               Phase 2 adds trend and comparison signals so you can see momentum, underperformance, and layout-level performance instead of just raw totals.
             </p>
 
@@ -284,7 +284,7 @@ export function DashboardSection({ config, isActive }) {
               <StatChip label="Countries reached" value={formatCount(allCountryCount)} />
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-200">
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-white">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1">
                 <Clock3 className="h-4 w-4" />
                 Last refresh: {formatDateTime(summary?.updated_at)}
@@ -311,7 +311,7 @@ export function DashboardSection({ config, isActive }) {
                   </div>
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-slate-200">No gallery performance data yet.</p>
+                <p className="mt-3 text-sm text-white">No gallery performance data yet.</p>
               )}
             </div>
 
@@ -326,13 +326,13 @@ export function DashboardSection({ config, isActive }) {
                     <img src={spotlightImage.thumbnail_url} alt={spotlightImage.title} className="h-20 w-20 rounded-2xl object-cover ring-1 ring-white/20" />
                   ) : (
                     <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
-                      <ImageIcon className="h-8 w-8 text-slate-200" />
+                      <ImageIcon className="h-8 w-8 text-white" />
                     </div>
                   )}
                   <div className="min-w-0">
                     <p className="truncate text-lg font-semibold text-white">{spotlightImage.title || `#${spotlightImage.image_id}`}</p>
-                    <p className="mt-1 text-sm text-slate-200">{formatCount(spotlightImage.total)} image views</p>
-                    <p className="mt-1 text-xs text-slate-300">
+                    <p className="mt-1 text-sm text-white">{formatCount(spotlightImage.total)} image views</p>
+                    <p className="mt-1 text-xs text-white">
                       {Array.isArray(spotlightImage.categories) && spotlightImage.categories.length > 0
                         ? spotlightImage.categories.map((category) => category.name).join(", ")
                         : "No categories assigned"}
@@ -340,7 +340,7 @@ export function DashboardSection({ config, isActive }) {
                   </div>
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-slate-200">No image performance data yet.</p>
+                <p className="mt-3 text-sm text-white">No image performance data yet.</p>
               )}
             </div>
           </div>
@@ -348,7 +348,7 @@ export function DashboardSection({ config, isActive }) {
       </section>
 
       <Tabs defaultValue="overview" className="mt-6">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl border border-slate-200 bg-white/80 p-2">
+        <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl border border-white/10 bg-slate-950/[0.72] p-2">
           <TabsTrigger value="overview" className="rounded-xl px-4 py-2">Overview</TabsTrigger>
           <TabsTrigger value="performance" className="rounded-xl px-4 py-2">Performance</TabsTrigger>
           <TabsTrigger value="audience" className="rounded-xl px-4 py-2">Audience</TabsTrigger>
@@ -367,20 +367,20 @@ export function DashboardSection({ config, isActive }) {
                 renderRow={(gallery, index) => (
                   <div
                     key={gallery.gallery_id}
-                    className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 md:grid-cols-[auto_1fr_auto]"
+                    className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 md:grid-cols-[auto_1fr_auto]"
                   >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.08] text-sm font-semibold text-white">
                       {index + 1}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-950">{gallery.name}</p>
-                      <p className="mt-1 text-xs text-slate-600">
+                      <p className="truncate text-sm font-semibold text-white">{gallery.name}</p>
+                      <p className="mt-1 text-xs text-white">
                         {gallery.template} · {formatCount(gallery.image_count)} images · health {formatCount(gallery.health_score)}/100
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-slate-950">{formatCount(gallery.total)}</p>
-                      <p className="text-xs text-slate-500">visits</p>
+                      <p className="text-lg font-semibold text-white">{formatCount(gallery.total)}</p>
+                      <p className="text-xs text-white">visits</p>
                       <div className="mt-2">
                         <DeltaBadge delta={gallery.delta} deltaPercentage={gallery.delta_percentage} />
                       </div>
@@ -395,14 +395,14 @@ export function DashboardSection({ config, isActive }) {
                 rows={recentActivity}
                 emptyText="No recent activity yet."
                 renderRow={(item, index) => (
-                  <div key={`${item.type}-${item.title}-${index}`} className="grid gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 md:grid-cols-[auto_1fr]">
-                    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.type === "gallery" ? "bg-sky-100 text-sky-700" : "bg-violet-100 text-violet-700"}`}>
+                  <div key={`${item.type}-${item.title}-${index}`} className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 md:grid-cols-[auto_1fr]">
+                    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 ${item.type === "gallery" ? "bg-sky-400/15 text-sky-200" : "bg-fuchsia-400/15 text-fuchsia-200"}`}>
                       {item.type === "gallery" ? <FolderOpen className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
-                      <p className="mt-1 text-xs text-slate-600">{item.subtitle}</p>
-                      <p className="mt-1 text-xs text-slate-500">{formatDateTime(item.timestamp)}</p>
+                      <p className="truncate text-sm font-semibold text-white">{item.title}</p>
+                      <p className="mt-1 text-xs text-white">{item.subtitle}</p>
+                      <p className="mt-1 text-xs text-white">{formatDateTime(item.timestamp)}</p>
                     </div>
                   </div>
                 )}
@@ -416,25 +416,25 @@ export function DashboardSection({ config, isActive }) {
                 rows={images}
                 emptyText="No image views yet."
                 renderRow={(image) => (
-                  <div key={image.image_id} className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3">
+                  <div key={image.image_id} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-3">
                     {image.thumbnail_url ? (
                       <img src={image.thumbnail_url} alt={image.title} className="h-14 w-14 rounded-xl object-cover" />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-200">
-                        <ImageIcon className="h-5 w-5 text-slate-500" />
+                      <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/[0.08]">
+                        <ImageIcon className="h-5 w-5 text-white" />
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-950">{image.title || `#${image.image_id}`}</p>
-                      <p className="mt-1 text-xs text-slate-600">
+                      <p className="truncate text-sm font-semibold text-white">{image.title || `#${image.image_id}`}</p>
+                      <p className="mt-1 text-xs text-white">
                         {Array.isArray(image.categories) && image.categories.length > 0
                           ? image.categories.map((category) => category.name).join(", ")
                           : "No categories"}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-slate-950">{formatCount(image.total)}</p>
-                      <p className="text-xs text-slate-500">views</p>
+                      <p className="text-sm font-semibold text-white">{formatCount(image.total)}</p>
+                      <p className="text-xs text-white">views</p>
                     </div>
                   </div>
                 )}
@@ -446,16 +446,16 @@ export function DashboardSection({ config, isActive }) {
                 rows={categories}
                 emptyText="No categories assigned yet."
                 renderRow={(category) => (
-                  <div key={category.name} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                  <div key={category.name} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
-                        <Tags className="h-4 w-4 text-violet-600" />
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+                        <Tags className="h-4 w-4 text-orange-200" />
                         {category.name}
                       </div>
-                      <span className="text-sm font-semibold text-slate-950">{formatCount(category.count)}</span>
+                      <span className="text-sm font-semibold text-white">{formatCount(category.count)}</span>
                     </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-                      <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-400" style={{ width: `${Math.max(10, percentage(category.count, totals.tracked_images))}%` }} />
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-300" style={{ width: `${Math.max(10, percentage(category.count, totals.tracked_images))}%` }} />
                     </div>
                   </div>
                 )}
@@ -472,8 +472,8 @@ export function DashboardSection({ config, isActive }) {
             >
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-3xl font-semibold text-slate-950">{formatCount(comparison.gallery_views.current)}</p>
-                  <p className="text-sm text-slate-600">Current 7-day gallery visits</p>
+                  <p className="text-3xl font-semibold text-white">{formatCount(comparison.gallery_views.current)}</p>
+                  <p className="text-sm text-white">Current 7-day gallery visits</p>
                 </div>
                 <DeltaBadge delta={comparison.gallery_views.delta} deltaPercentage={comparison.gallery_views.delta_percentage} />
               </div>
@@ -486,8 +486,8 @@ export function DashboardSection({ config, isActive }) {
             >
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-3xl font-semibold text-slate-950">{formatCount(comparison.image_views.current)}</p>
-                  <p className="text-sm text-slate-600">Current 7-day image views</p>
+                  <p className="text-3xl font-semibold text-white">{formatCount(comparison.image_views.current)}</p>
+                  <p className="text-sm text-white">Current 7-day image views</p>
                 </div>
                 <DeltaBadge delta={comparison.image_views.delta} deltaPercentage={comparison.image_views.delta_percentage} />
               </div>
@@ -499,14 +499,14 @@ export function DashboardSection({ config, isActive }) {
             <SectionCard title="Momentum" description="Galleries and images accelerating in the current 7-day window.">
               <div className="space-y-5">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Galleries</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Galleries</p>
                   <InsightList
                     rows={momentum.galleries}
                     emptyText="No gallery momentum yet."
                     renderRow={(item) => (
-                      <div key={`momentum-gallery-${item.id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`momentum-gallery-${item.id}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                          <p className="truncate text-sm font-semibold text-white">{item.name}</p>
                           <DeltaBadge delta={item.delta} />
                         </div>
                       </div>
@@ -514,14 +514,14 @@ export function DashboardSection({ config, isActive }) {
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Images</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Images</p>
                   <InsightList
                     rows={momentum.images}
                     emptyText="No image momentum yet."
                     renderRow={(item) => (
-                      <div key={`momentum-image-${item.id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`momentum-image-${item.id}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
+                          <p className="truncate text-sm font-semibold text-white">{item.name}</p>
                           <DeltaBadge delta={item.delta} />
                         </div>
                       </div>
@@ -536,12 +536,12 @@ export function DashboardSection({ config, isActive }) {
                 rows={underperforming}
                 emptyText="No underperforming galleries yet."
                 renderRow={(gallery) => (
-                  <div key={gallery.gallery_id} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                  <div key={gallery.gallery_id} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="truncate text-sm font-semibold text-slate-950">{gallery.name}</p>
+                      <p className="truncate text-sm font-semibold text-white">{gallery.name}</p>
                       <DeltaBadge delta={gallery.delta} deltaPercentage={gallery.delta_percentage} />
                     </div>
-                    <p className="mt-2 text-xs text-slate-600">
+                    <p className="mt-2 text-xs text-white">
                       Current 7-day visits: {formatCount(gallery.current_period)} · Health {formatCount(gallery.health_score)}/100
                     </p>
                   </div>
@@ -552,22 +552,22 @@ export function DashboardSection({ config, isActive }) {
             <SectionCard title="Fresh Upload Performance" description="New uploads and galleries gaining traction soon after creation.">
               <div className="space-y-5">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recent images</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Recent images</p>
                   <InsightList
                     rows={freshUploads.images}
                     emptyText="No recent tracked images yet."
                     renderRow={(item) => (
-                      <div key={`fresh-image-${item.image_id}`} className="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3">
+                      <div key={`fresh-image-${item.image_id}`} className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-3">
                         {item.thumbnail_url ? (
                           <img src={item.thumbnail_url} alt={item.title} className="h-14 w-14 rounded-xl object-cover" />
                         ) : (
-                          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-200">
-                            <ImageIcon className="h-5 w-5 text-slate-500" />
+                          <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/[0.08]">
+                            <ImageIcon className="h-5 w-5 text-white" />
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
-                          <p className="text-xs text-slate-600">
+                          <p className="truncate text-sm font-semibold text-white">{item.title}</p>
+                          <p className="text-xs text-white">
                             {formatCount(item.current_period)} recent views · {formatCount(item.total)} total
                           </p>
                         </div>
@@ -576,14 +576,14 @@ export function DashboardSection({ config, isActive }) {
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Recent galleries</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Recent galleries</p>
                   <InsightList
                     rows={freshUploads.galleries}
                     emptyText="No recent galleries yet."
                     renderRow={(item) => (
-                      <div key={`fresh-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                        <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
-                        <p className="mt-1 text-xs text-slate-600">
+                      <div key={`fresh-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                        <p className="truncate text-sm font-semibold text-white">{item.name}</p>
+                        <p className="mt-1 text-xs text-white">
                           {item.template} · {formatCount(item.image_count)} images · {formatCount(item.current_period)} recent visits
                         </p>
                       </div>
@@ -598,17 +598,17 @@ export function DashboardSection({ config, isActive }) {
             <SectionCard title="Template And Layout Performance" description="Compare which presentation styles are pulling stronger traffic.">
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Templates</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Templates</p>
                   <InsightList
                     rows={templatePerformance}
                     emptyText="No template performance data yet."
                     renderRow={(item) => (
-                      <div key={`template-${item.template}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`template-${item.template}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-slate-950">{item.template}</p>
+                          <p className="text-sm font-semibold text-white">{item.template}</p>
                           <DeltaBadge delta={item.delta} />
                         </div>
-                        <p className="mt-2 text-xs text-slate-600">
+                        <p className="mt-2 text-xs text-white">
                           {formatCount(item.visits)} visits · {formatCount(item.avg_visits)} avg per gallery
                         </p>
                       </div>
@@ -616,17 +616,17 @@ export function DashboardSection({ config, isActive }) {
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Layouts</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Layouts</p>
                   <InsightList
                     rows={layoutPerformance}
                     emptyText="No layout performance data yet."
                     renderRow={(item) => (
-                      <div key={`layout-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`layout-${item.label}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
                           <DeltaBadge delta={item.delta} />
                         </div>
-                        <p className="mt-2 text-xs text-slate-600">
+                        <p className="mt-2 text-xs text-white">
                           {formatCount(item.visits)} visits · {formatCount(item.avg_visits)} avg per gallery
                         </p>
                       </div>
@@ -639,11 +639,11 @@ export function DashboardSection({ config, isActive }) {
             <SectionCard title="Seasonal Comparison" description="A 12-month view of gallery traffic and image engagement.">
               <div className="grid gap-6">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Gallery views by month</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Gallery views by month</p>
                   <TrendBars rows={Array.isArray(seasonal.gallery_views) ? seasonal.gallery_views : []} tone="sky" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Image views by month</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Image views by month</p>
                   <TrendBars rows={Array.isArray(seasonal.image_views) ? seasonal.image_views : []} tone="amber" />
                 </div>
               </div>
@@ -661,18 +661,18 @@ export function DashboardSection({ config, isActive }) {
                 rows={countries}
                 emptyText="No country data yet."
                 renderRow={(row) => (
-                  <div key={row.code} className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                  <div key={row.code} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
-                        <MapPinned className="h-4 w-4 text-emerald-600" />
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+                        <MapPinned className="h-4 w-4 text-emerald-300" />
                         {row.code}
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-slate-950">{formatCount(row.count)}</p>
-                        <p className="text-xs text-slate-500">{percentage(row.count, totals.gallery_views)}%</p>
+                        <p className="text-sm font-semibold text-white">{formatCount(row.count)}</p>
+                        <p className="text-xs text-white">{percentage(row.count, totals.gallery_views)}%</p>
                       </div>
                     </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
                       <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-sky-500" style={{ width: `${Math.max(8, percentage(row.count, totals.gallery_views))}%` }} />
                     </div>
                   </div>
@@ -683,30 +683,30 @@ export function DashboardSection({ config, isActive }) {
             <SectionCard title="Traffic Sources And Devices" description="See how visitors are arriving and which devices dominate the experience.">
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sources</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Sources</p>
                   <InsightList
                     rows={sources}
                     emptyText="No source tracking yet."
                     renderRow={(item) => (
-                      <div key={`source-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`source-${item.label}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-slate-950">{item.label}</p>
-                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <span className="text-sm font-semibold text-white">{formatCount(item.count)}</span>
                         </div>
                       </div>
                     )}
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Devices</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Devices</p>
                   <InsightList
                     rows={devices}
                     emptyText="No device tracking yet."
                     renderRow={(item) => (
-                      <div key={`device-${item.label}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`device-${item.label}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm font-semibold text-slate-950">{item.label}</p>
-                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.count)}</span>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
+                          <span className="text-sm font-semibold text-white">{formatCount(item.count)}</span>
                         </div>
                       </div>
                     )}
@@ -719,57 +719,57 @@ export function DashboardSection({ config, isActive }) {
           <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
             <SectionCard title="Lightbox Engagement" description="Measure deeper image curiosity beyond basic visits and views.">
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Totals</p>
-                  <p className="mt-3 text-2xl font-semibold text-slate-950">{formatCount(lightboxEngagement.totals.lightbox_opens)}</p>
-                  <p className="mt-1 text-sm text-slate-600">Lightbox opens</p>
-                  <p className="mt-3 text-sm text-slate-700">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Totals</p>
+                  <p className="mt-3 text-2xl font-semibold text-white">{formatCount(lightboxEngagement.totals.lightbox_opens)}</p>
+                  <p className="mt-1 text-sm text-white">Lightbox opens</p>
+                  <p className="mt-3 text-sm text-white">
                     {lightboxEngagement.totals.lightbox_rate_per_gallery_visit}% per gallery visit
                   </p>
-                  <p className="mt-1 text-sm text-slate-700">
+                  <p className="mt-1 text-sm text-white">
                     {formatCount(lightboxEngagement.totals.info_panel_opens)} info opens
                   </p>
                 </div>
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top image by curiosity</p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Top image by curiosity</p>
                   {Array.isArray(lightboxEngagement.top_images) && lightboxEngagement.top_images.length > 0 ? (
                     <>
-                      <p className="mt-3 text-lg font-semibold text-slate-950">{lightboxEngagement.top_images[0].title}</p>
-                      <p className="mt-1 text-sm text-slate-600">
+                      <p className="mt-3 text-lg font-semibold text-white">{lightboxEngagement.top_images[0].title}</p>
+                      <p className="mt-1 text-sm text-white">
                         {formatCount(lightboxEngagement.top_images[0].lightbox_opens)} lightbox opens · {lightboxEngagement.top_images[0].lightbox_rate}% of image views
                       </p>
                     </>
                   ) : (
-                    <p className="mt-3 text-sm text-slate-600">No lightbox interaction yet.</p>
+                    <p className="mt-3 text-sm text-white">No lightbox interaction yet.</p>
                   )}
                 </div>
               </div>
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top galleries</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Top galleries</p>
                   <InsightList
                     rows={lightboxEngagement.top_galleries}
                     emptyText="No gallery lightbox data yet."
                     renderRow={(item) => (
-                      <div key={`lightbox-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`lightbox-gallery-${item.gallery_id}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="truncate text-sm font-semibold text-slate-950">{item.name}</p>
-                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
+                          <p className="truncate text-sm font-semibold text-white">{item.name}</p>
+                          <span className="text-sm font-semibold text-white">{formatCount(item.lightbox_opens)}</span>
                         </div>
                       </div>
                     )}
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Top images</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Top images</p>
                   <InsightList
                     rows={lightboxEngagement.top_images}
                     emptyText="No image lightbox data yet."
                     renderRow={(item) => (
-                      <div key={`lightbox-image-${item.image_id}`} className="mt-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+                      <div key={`lightbox-image-${item.image_id}`} className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                         <div className="flex items-center justify-between gap-3">
-                          <p className="truncate text-sm font-semibold text-slate-950">{item.title}</p>
-                          <span className="text-sm font-semibold text-slate-950">{formatCount(item.lightbox_opens)}</span>
+                          <p className="truncate text-sm font-semibold text-white">{item.title}</p>
+                          <span className="text-sm font-semibold text-white">{formatCount(item.lightbox_opens)}</span>
                         </div>
                       </div>
                     )}
@@ -791,25 +791,25 @@ export function DashboardSection({ config, isActive }) {
                     key={`${item.title}-${index}`}
                     className={`rounded-2xl border p-4 ${
                       item.tone === "positive"
-                        ? "border-emerald-200 bg-emerald-50/80"
+                        ? "border-emerald-400/25 bg-emerald-400/10"
                         : item.tone === "warning"
-                          ? "border-amber-200 bg-amber-50/80"
-                          : "border-slate-200 bg-slate-50/80"
+                          ? "border-amber-400/25 bg-amber-400/10"
+                          : "border-white/10 bg-white/[0.05]"
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl ${
                         item.tone === "positive"
-                          ? "bg-emerald-100 text-emerald-700"
+                          ? "bg-emerald-400/15 text-emerald-200"
                           : item.tone === "warning"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-slate-200 text-slate-700"
+                            ? "bg-amber-400/15 text-amber-200"
+                            : "bg-white/10 text-white"
                       }`}>
                         <Zap className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-950">{item.title}</p>
-                        <p className="mt-1 text-sm text-slate-600">{item.detail}</p>
+                        <p className="text-sm font-semibold text-white">{item.title}</p>
+                        <p className="mt-1 text-sm text-white">{item.detail}</p>
                       </div>
                     </div>
                   </div>
@@ -819,22 +819,22 @@ export function DashboardSection({ config, isActive }) {
 
             <SectionCard title="Portfolio Gaps" description="Structural issues worth fixing before promotion.">
               <div className="space-y-3">
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-950">
+                <div className="rounded-2xl border border-amber-400/25 bg-amber-400/10 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-100">
                     <AlertTriangle className="h-4 w-4" />
                     Galleries missing descriptions
                   </div>
-                  <p className="mt-2 text-2xl font-semibold text-amber-950">{formatCount(gaps.galleries_without_description)}</p>
+                  <p className="mt-2 text-2xl font-semibold text-amber-100">{formatCount(gaps.galleries_without_description)}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-950">Thin galleries</p>
-                  <p className="mt-1 text-sm text-slate-600">Galleries with fewer than three images.</p>
-                  <p className="mt-2 text-xl font-semibold text-slate-950">{formatCount(gaps.galleries_with_few_images)}</p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                  <p className="text-sm font-semibold text-white">Thin galleries</p>
+                  <p className="mt-1 text-sm text-white">Galleries with fewer than three images.</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{formatCount(gaps.galleries_with_few_images)}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-950">Uncategorized tracked images</p>
-                  <p className="mt-1 text-sm text-slate-600">Tracked images that still need categorization.</p>
-                  <p className="mt-2 text-xl font-semibold text-slate-950">{formatCount(gaps.uncategorized_images)}</p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                  <p className="text-sm font-semibold text-white">Uncategorized tracked images</p>
+                  <p className="mt-1 text-sm text-white">Tracked images that still need categorization.</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{formatCount(gaps.uncategorized_images)}</p>
                 </div>
               </div>
             </SectionCard>
@@ -842,8 +842,8 @@ export function DashboardSection({ config, isActive }) {
         </TabsContent>
       </Tabs>
 
-      {isLoading ? <p className="mt-4 text-sm text-slate-600">Loading analytics...</p> : null}
-      {error !== "" ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+      {isLoading ? <p className="mt-4 text-sm text-white">Loading analytics...</p> : null}
+      {error !== "" ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
     </div>
   );
 }

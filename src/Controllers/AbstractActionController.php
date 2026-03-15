@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Controllers;
 
 use InvalidArgumentException;
-use Prox\ProxGallery\Contracts\ControllerInterface;
 use LogicException;
+use Prox\ProxGallery\Contracts\ControllerInterface;
 use Throwable;
 
 /**
@@ -96,7 +96,7 @@ abstract class AbstractActionController implements ControllerInterface
      */
     public function handleAjaxRequest(): void
     {
-        $action = isset($_REQUEST['action']) ? (string) \wp_unslash($_REQUEST['action']) : '';
+        $action = $this->requestString('action');
 
         if ($action == '' || ! isset($this->registeredActions[$action])) {
             $this->sendError(['message' => 'Unknown action.'], 404);
@@ -126,8 +126,7 @@ abstract class AbstractActionController implements ControllerInterface
         try {
             $callback = (string) $definition['callback'];
 
-            /** @var array<string, mixed> $payload */
-            $payload = is_array($_POST) ? \wp_unslash($_POST) : [];
+            $payload = $this->requestPostPayload();
 
             /** @var array<string, mixed> $response */
             $response = $this->{$callback}($payload, $action);
@@ -219,13 +218,43 @@ abstract class AbstractActionController implements ControllerInterface
             return true;
         }
 
-        $nonce = isset($_REQUEST['_ajax_nonce']) ? (string) \wp_unslash($_REQUEST['_ajax_nonce']) : '';
+        $nonce = $this->requestString('_ajax_nonce');
 
         if ($nonce == '') {
             return false;
         }
 
         return (bool) \wp_verify_nonce($nonce, $nonceAction);
+    }
+
+    private function requestString(string $key): string
+    {
+        $postValue = \filter_input(\INPUT_POST, $key, \FILTER_UNSAFE_RAW, \FILTER_NULL_ON_FAILURE);
+
+        if (is_string($postValue)) {
+            return (string) \wp_unslash($postValue);
+        }
+
+        $getValue = \filter_input(\INPUT_GET, $key, \FILTER_UNSAFE_RAW, \FILTER_NULL_ON_FAILURE);
+
+        if (is_string($getValue)) {
+            return (string) \wp_unslash($getValue);
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function requestPostPayload(): array
+    {
+        $payload = (array) \filter_input_array(\INPUT_POST, \FILTER_DEFAULT);
+
+        /** @var array<string, mixed> $normalizedPayload */
+        $normalizedPayload = \wp_unslash($payload);
+
+        return $normalizedPayload;
     }
 
     private function currentUserCan(string $capability, string $action): bool

@@ -18,8 +18,7 @@ final class FrontendGalleryController implements ControllerInterface
     public function __construct(
         private FrontendGalleryService $service,
         private FrontendTrackingService $tracking
-    )
-    {
+    ) {
     }
 
     public function id(): string
@@ -64,21 +63,19 @@ final class FrontendGalleryController implements ControllerInterface
      */
     public function trackEvent(): void
     {
-        $nonce = isset($_POST['_ajax_nonce']) ? (string) \wp_unslash($_POST['_ajax_nonce']) : '';
+        $nonce = $this->postString('_ajax_nonce');
 
         if ($nonce === '' || ! \wp_verify_nonce($nonce, self::TRACK_ACTION)) {
             \wp_send_json_error(['message' => 'Nonce verification failed.'], 403);
         }
 
-        $eventType = isset($_POST['event_type'])
-            ? \sanitize_key((string) \wp_unslash($_POST['event_type']))
-            : '';
-        $galleryId = isset($_POST['gallery_id']) ? (int) \wp_unslash($_POST['gallery_id']) : 0;
-        $imageId = isset($_POST['image_id']) ? (int) \wp_unslash($_POST['image_id']) : 0;
+        $eventType = \sanitize_key($this->postString('event_type'));
+        $galleryId = $this->postInt('gallery_id');
+        $imageId = $this->postInt('image_id');
         $context = [
-            'referrer' => isset($_POST['referrer']) ? (string) \wp_unslash($_POST['referrer']) : '',
-            'current_url' => isset($_POST['current_url']) ? (string) \wp_unslash($_POST['current_url']) : '',
-            'device_type' => isset($_POST['device_type']) ? (string) \wp_unslash($_POST['device_type']) : '',
+            'referrer' => $this->postString('referrer'),
+            'current_url' => $this->postString('current_url'),
+            'device_type' => $this->postString('device_type'),
         ];
 
         if ($this->isRateLimited()) {
@@ -189,6 +186,22 @@ final class FrontendGalleryController implements ControllerInterface
         }
 
         return (bool) \wp_attachment_is_image($imageId);
+    }
+
+    private function postString(string $key): string
+    {
+        $value = \filter_input(\INPUT_POST, $key, \FILTER_UNSAFE_RAW, \FILTER_NULL_ON_FAILURE);
+
+        if (! is_string($value)) {
+            return '';
+        }
+
+        return (string) \wp_unslash($value);
+    }
+
+    private function postInt(string $key): int
+    {
+        return (int) $this->postString($key);
     }
 
     private function isRateLimited(): bool

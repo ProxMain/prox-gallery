@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\DevelopmentSeed\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
+use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
 use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaCategoryService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
-use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 
 /**
  * Generates development seed data for media, galleries, and categories.
@@ -85,8 +85,7 @@ final class DevelopmentSeedService implements ServiceInterface
         private MediaCategoryService $mediaCategoryService,
         private TrackUploadedImageService $trackService,
         private UploadedImageQueueModel $queue
-    )
-    {
+    ) {
     }
 
     public function id(): string
@@ -121,8 +120,7 @@ final class DevelopmentSeedService implements ServiceInterface
         int $maxCategoriesPerImage = 3,
         int $maxGalleriesPerImage = 3,
         bool $clearExisting = false
-    ): array
-    {
+    ): array {
         $sanitizedImageCount = max(1, $imageCount);
         $sanitizedGalleryCount = max(1, $galleryCount);
         $sanitizedMaxCategories = max(0, $maxCategoriesPerImage);
@@ -465,7 +463,11 @@ final class DevelopmentSeedService implements ServiceInterface
         }
 
         if (! function_exists('wp_generate_attachment_metadata')) {
-            require_once \ABSPATH . 'wp-admin/includes/image.php';
+            $imageSupportPath = \defined('ABSPATH') ? \ABSPATH . 'wp-admin/includes/image.php' : '';
+
+            if ($imageSupportPath !== '' && is_file($imageSupportPath)) {
+                require_once $imageSupportPath;
+            }
         }
 
         if (function_exists('wp_generate_attachment_metadata')) {

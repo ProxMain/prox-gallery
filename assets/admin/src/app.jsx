@@ -19,7 +19,7 @@ export function App() {
   const description = sectionDescription(activeMenu);
 
   return (
-    <main className="prox-gallery-admin min-h-full w-full max-w-none space-y-8 py-8">
+    <main className="prox-gallery-admin prox-gallery-admin-theme min-h-full w-full max-w-none space-y-8 py-8">
       <TopBar menuItems={ADMIN_MENU_ITEMS} activeMenu={activeMenu} onSelectMenu={setActiveMenu} />
 
       <DashboardSection

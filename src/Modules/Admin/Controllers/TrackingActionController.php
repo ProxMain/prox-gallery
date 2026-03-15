@@ -16,7 +16,9 @@ final class TrackingActionController extends AbstractActionController implements
 {
     private const ACTION_GET = 'prox_gallery_tracking_summary_get';
 
-    public function __construct(private TrackingSummaryService $summaryService) {}
+    public function __construct(private TrackingSummaryService $summaryService)
+    {
+    }
 
     public function id(): string
     {

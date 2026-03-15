@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
 use Prox\ProxGallery\Controllers\Admin\AdminConfigContributorRegistry;
+use Prox\ProxGallery\Modules\MediaLibrary\Controllers\MediaManagerActionController;
 use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;

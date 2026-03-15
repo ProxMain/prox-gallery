@@ -9,8 +9,19 @@
         "test:isolated": "WP_PHPUNIT__TESTS_CONFIG=./tests/wp-tests-config.php WP_TESTS_SKIP_INSTALL=1 ./vendor/bin/phpunit -c phpunit.xml.dist",
         "test:list": "./vendor/bin/phpunit -c phpunit.xml.dist --list-tests",
         "test:dox": "./vendor/bin/phpunit -c phpunit.xml.dist --testdox",
-        "analyse": "./vendor/bin/phpstan analyse",
-        "fix": "./vendor/bin/php-cs-fixer fix"
+        "analyse": "./vendor/bin/phpstan analyse -c phpstan.neon.dist --debug",
+        "semgrep": "./bin/semgrep --config semgrep.yml --error",
+        "fix": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --allow-risky=yes --allow-unsupported-php-version=yes --sequential",
+        "fix:check": "./vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php --allow-risky=yes --allow-unsupported-php-version=yes --sequential",
+        "check": [
+            "@fix:check",
+            "@analyse",
+            "@semgrep"
+        ],
+        "check:full": [
+            "@check",
+            "@test"
+        ]
     },
     "require": {
         "php": "^8.1",

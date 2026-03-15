@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\OpenAi\Services;
 
 use InvalidArgumentException;
-use RuntimeException;
 use Prox\ProxGallery\States\AdminConfigurationState;
+use RuntimeException;
 
 /**
  * Stores and validates OpenAI settings.

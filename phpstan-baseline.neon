@@ -1,0 +1,3067 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Bootstrap/Plugin.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Bootstrap/Plugin.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 6
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function wp_create_nonce not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function wp_send_json_error not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function wp_send_json_success not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function wp_unslash not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Function wp_verify_nonce not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/AbstractActionController.php
+
+		-
+			message: '#^Call to static method add_command\(\) on an unknown class WP_CLI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Controllers/AbstractCliController.php
+
+		-
+			message: '#^Constant PROX_GALLERY_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Constant PROX_GALLERY_FILE not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function esc_html not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function plugins_url not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function wp_add_inline_script not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function wp_enqueue_media not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function wp_enqueue_script not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function wp_enqueue_style not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function wp_json_encode not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Function wp_script_add_data not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Controllers/Admin/AdminAssetLoader.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Controllers/Admin/AdminConfigContributorRegistry.php
+
+		-
+			message: '#^Function add_filter not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminConfigContributorRegistry.php
+
+		-
+			message: '#^Function admin_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminConfigProvider.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminConfigProvider.php
+
+		-
+			message: '#^Function wp_create_nonce not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminConfigProvider.php
+
+		-
+			message: '#^Function add_menu_page not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminMenuRegistrar.php
+
+		-
+			message: '#^Function esc_html__ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminMenuRegistrar.php
+
+		-
+			message: '#^Function wp_die not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Controllers/Admin/AdminMenuRegistrar.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Flows/AdminFlow.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Flows/FrontendFlow.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Admin/Controllers/AdminGalleryController.php
+
+		-
+			message: '#^Function add_filter not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Controllers/AdminGalleryController.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Controllers/AdminGalleryController.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Controllers/AdminGalleryController.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/AdminConfigurationService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TemplateCustomizationService.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Admin/Services/TemplateCustomizationService.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TemplateCustomizationService.php
+
+		-
+			message: '#^Access to property \$name on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Access to property \$slug on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Access to property \$term_id on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Class WP_Term not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Function get_the_title not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Function taxonomy_exists not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Function wp_get_attachment_image_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Function wp_get_attachment_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Function wp_get_object_terms not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''countries'' on array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''countries'' on array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''created_at'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''daily'' on array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''daily'' on array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''description'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''devices'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''galleries'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''gallery_views'' on array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 3
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''id'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''image_count'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''image_views'' on array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 3
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''images'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''info_opens'' on array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''lightbox_opens'' on array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''lightbox_opens'' on array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''name'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''name'' on array\{id\: int, name\: string, slug\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''sources'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''template'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''total'' on array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''total'' on array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Offset ''updated_at'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\{template\: string, galleries\: int\<1, max\>, visits\: int, current_period\: int, previous_period\: int, avg_visits\?\: int\}\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 6
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>uploadedAt" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Modules/Admin/Services/TrackingSummaryService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/AdminModule.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/CoreModule.php
+
+		-
+			message: '#^Call to static method error\(\) on an unknown class WP_CLI\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Controllers/DevelopmentSeedCliController.php
+
+		-
+			message: '#^Call to static method success\(\) on an unknown class WP_CLI\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/DevelopmentSeed/Controllers/DevelopmentSeedCliController.php
+
+		-
+			message: '#^Function WP_CLI\\Utils\\format_items not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/DevelopmentSeed/Controllers/DevelopmentSeedCliController.php
+
+		-
+			message: '#^Function WP_CLI\\Utils\\get_flag_value not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/DevelopmentSeed/Controllers/DevelopmentSeedCliController.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/DevelopmentSeedModule.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{slug\: string, label\: string, is_pro\: bool, available\: bool\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<700, 1300\> and 1 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Function wp_upload_bits not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''available'' on array\{slug\: string, label\: string, is_pro\: bool, available\: bool\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''devices'' does not exist on array\{name\: string, images\: int, galleries\: int, max_categories\: int, max_galleries\: int, gallery_day_base\: float, image_multiplier_min\: float, image_multiplier_max\: float, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''id'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''image_ids'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 2
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''info_rate_max'' does not exist on array\{name\: string, images\: int, galleries\: int, max_categories\: int, max_galleries\: int, gallery_day_base\: float, image_multiplier_min\: float, image_multiplier_max\: float, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''info_rate_min'' does not exist on array\{name\: string, images\: int, galleries\: int, max_categories\: int, max_galleries\: int, gallery_day_base\: float, image_multiplier_min\: float, image_multiplier_max\: float, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''lightbox_rate_max'' does not exist on array\{name\: string, images\: int, galleries\: int, max_categories\: int, max_galleries\: int, gallery_day_base\: float, image_multiplier_min\: float, image_multiplier_max\: float, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''lightbox_rate_min'' does not exist on array\{name\: string, images\: int, galleries\: int, max_categories\: int, max_galleries\: int, gallery_day_base\: float, image_multiplier_min\: float, image_multiplier_max\: float, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''slug'' on array\{slug\: string, label\: string, is_pro\: bool, available\: bool\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Offset ''sources'' does not exist on array\{name\: string, images\: int, galleries\: int, max_categories\: int, max_galleries\: int, gallery_day_base\: float, image_multiplier_min\: float, image_multiplier_max\: float, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 2
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Path in require_once\(\) "/tmp/wordpress/wp\-admin/includes/image\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php
+
+		-
+			message: '#^Constant PROX_GALLERY_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Constant PROX_GALLERY_FILE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Function plugins_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Function trailingslashit not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Function wp_add_inline_script not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Function wp_json_encode not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Function wp_register_script not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Offset ''id'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Offset ''name'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryBlockController.php
+
+		-
+			message: '#^Access to property \$post_type on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Constant PROX_GALLERY_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Constant PROX_GALLERY_FILE not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function add_shortcode not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function admin_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function get_transient not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function plugins_url not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function sanitize_key not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function set_transient not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function trailingslashit not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_attachment_is_image not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_create_nonce not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_enqueue_script not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_enqueue_style not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_localize_script not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_send_json_error not found\.$#'
+			identifier: function.notFound
+			count: 10
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_send_json_success not found\.$#'
+			identifier: function.notFound
+			count: 4
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_unslash not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Function wp_verify_nonce not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Controllers/FrontendGalleryController.php
+
+		-
+			message: '#^Offset ''id'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryRepository.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Frontend/Services/FrontendGalleryService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRegistry.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRegistry.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRegistry.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 2
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRegistry.php
+
+		-
+			message: '#^Function esc_attr not found\.$#'
+			identifier: function.notFound
+			count: 6
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function esc_html not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function esc_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function get_post_field not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function get_the_title not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function wp_get_attachment_image not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function wp_get_attachment_image_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''basic_grid_columns'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''basic_grid_full…'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''basic_grid_hover…'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''basic_grid_lightbox'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''basic_grid…'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''masonry_columns'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''masonry_full_width'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''masonry_hover_zoom'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''masonry_lightbox'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Offset ''masonry_transition'' on array\{basic_grid_columns\: int, basic_grid_lightbox\: bool, basic_grid_hover_zoom\: bool, basic_grid_full_width\: bool, basic_grid_transition\: string, masonry_columns\: int, masonry_lightbox\: bool, masonry_hover_zoom\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendGalleryTemplateRenderer.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 5
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Function wp_parse_url not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 14
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''devices'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: non\-empty\-array\<int\|string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>, info_opens\: 1, info_daily\: array\<string, int\>\}\|array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>, lightbox_opens\: 0, lightbox_daily\: array\{\}, info_opens\: 1, info_daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''devices'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: non\-empty\-array\<int\|string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>, lightbox_opens\: 0, lightbox_daily\: array\{\}, info_opens\: 0, info_daily\: array\{\}\}\|array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''devices'' on array\{galleries\: array\<string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\>, images\: non\-empty\-array\<int\|string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>, lightbox_opens\: 1, lightbox_daily\: array\<string, int\>, info_opens\: 0, info_daily\: array\{\}\}\|array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>, lightbox_opens\: 1, lightbox_daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''devices'' on array\{galleries\: non\-empty\-array\<int\|string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\|array\{total\: int, countries\: array\<string, int\>, images\: array\{\}, daily\: array\<string, int\>, lightbox_opens\: 0, lightbox_daily\: array\{\}\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''gallery_views'' on array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''image_views'' on array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''images'' on array\{total\: 0, countries\: array\{\}, images\: array\{\}, daily\: array\{\}, lightbox_opens\: 0, lightbox_daily\: array\{\}\}\|array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''info_panel_opens'' on array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''lightbox_opens'' on array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Offset ''sources'' on array\{galleries\: non\-empty\-array\<int\|string, array\{total\: int, countries\: array\<string, int\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\<string, int\>\}\|array\{total\: int, countries\: array\<string, int\>, images\: array\{\}, daily\: array\<string, int\>, lightbox_opens\: 0, lightbox_daily\: array\{\}\}\>, images\: array\<string, array\{total\: int, countries\: array\<string, int\>, daily\: array\<string, int\>\}\>, daily\: array\{gallery_views\: array\<string, int\>, image_views\: array\<string, int\>, lightbox_opens\: array\<string, int\>, info_panel_opens\: array\<string, int\>\}, sources\: array\<string, int\>, devices\: array\<string, int\>, updated_at\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Result of \|\| is always false\.$#'
+			identifier: booleanOr.alwaysFalse
+			count: 4
+			path: src/Modules/Frontend/Services/FrontendTrackingService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/FrontendModule.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/GalleryModule.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Models/GalleryCollectionModel.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Models/GalleryCollectionModel.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\}\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Modules/Gallery/Models/GalleryCollectionModel.php
+
+		-
+			message: '#^Access to property \$ID on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Access to property \$object on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Access to property \$object_id on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Access to property \$term_id on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Class WP_Error not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Class WP_Term not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function get_permalink not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function get_posts not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function get_registered_nav_menus not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function get_theme_mod not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function sanitize_key not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function sanitize_title not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function set_theme_mod not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function update_post_meta not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function wp_create_nav_menu not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function wp_get_nav_menu_items not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function wp_get_nav_menus not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function wp_insert_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Function wp_update_nav_menu_item not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Offset ''template'' on array\{id\: int, name\: string, description\: string, template\: string, created_at\: string, image_ids\: list\<int\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryPageProvisioningService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''full_width_override'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''grid_columns…'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''hover_zoom_override'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''lightbox_override'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''show_description'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''show_title'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Call to function array_key_exists\(\) with ''transition_override'' and array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Offset ''template'' on array\{id\: int, name\: string, description\: string, template\: string, grid_columns_override\: int\|null, lightbox_override\: bool\|null, hover_zoom_override\: bool\|null, full_width_override\: bool\|null, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/Gallery/Services/GalleryService.php
+
+		-
+			message: '#^Function sanitize_text_field not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Modules/Gallery/Support/GallerySettingsNormalizer.php
+
+		-
+			message: '#^Function get_objects_in_term not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaCategoryActionController.php
+
+		-
+			message: '#^Access to property \$post_type on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaLibraryCliController.php
+
+		-
+			message: '#^Call to static method error\(\) on an unknown class WP_CLI\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Controllers/MediaLibraryCliController.php
+
+		-
+			message: '#^Call to static method success\(\) on an unknown class WP_CLI\.$#'
+			identifier: class.notFound
+			count: 3
+			path: src/Modules/MediaLibrary/Controllers/MediaLibraryCliController.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaLibraryCliController.php
+
+		-
+			message: '#^Function WP_CLI\\Utils\\format_items not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaLibraryCliController.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaLibraryCliController.php
+
+		-
+			message: '#^Property Prox\\ProxGallery\\Modules\\MediaLibrary\\Controllers\\MediaManagerActionController\:\:\$queue is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaManagerActionController.php
+
+		-
+			message: '#^Property Prox\\ProxGallery\\Modules\\MediaLibrary\\Controllers\\MediaManagerActionController\:\:\$trackService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaManagerActionController.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Controllers/MediaUploadController.php
+
+		-
+			message: '#^Function add_filter not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaUploadController.php
+
+		-
+			message: '#^Function wp_clear_scheduled_hook not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaUploadController.php
+
+		-
+			message: '#^Function wp_next_scheduled not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaUploadController.php
+
+		-
+			message: '#^Function wp_schedule_single_event not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Controllers/MediaUploadController.php
+
+		-
+			message: '#^Access to property \$display_name on an unknown class WP_User\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Access to property \$post_author on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Access to property \$post_date_gmt on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Access to property \$user_login on an unknown class WP_User\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Class WP_User not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function get_post_mime_type not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function get_the_title not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function get_userdata not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function wp_get_attachment_metadata not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function wp_get_attachment_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/DTO/TrackedImageDto.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/MediaLibraryModule.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Models/UploadedImageQueueModel.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Models/UploadedImageQueueModel.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<Prox\\ProxGallery\\Modules\\MediaLibrary\\DTO\\TrackedImageDto\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Modules/MediaLibrary/Models/UploadedImageQueueModel.php
+
+		-
+			message: '#^Access to property \$count on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Access to property \$name on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Access to property \$post_type on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Access to property \$slug on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Access to property \$term_id on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Class WP_Error not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Class WP_Term not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function get_terms not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function register_taxonomy not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function sanitize_text_field not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function taxonomy_exists not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function term_exists not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function wp_get_object_terms not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function wp_insert_term not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Function wp_set_object_terms not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaCategoryService.php
+
+		-
+			message: '#^Access to property \$name on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Access to property \$post_content on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Access to property \$post_excerpt on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Access to property \$post_type on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Access to property \$slug on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Access to property \$term_id on an unknown class WP_Term\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Class WP_Term not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Function get_post_meta not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Function taxonomy_exists not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Function wp_attachment_is_image not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Function wp_get_object_terms not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Instanceof between WP_Post and WP_Post will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaManagerListService.php
+
+		-
+			message: '#^Access to property \$post_content on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Access to property \$post_excerpt on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Access to property \$post_title on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Access to property \$post_type on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Call to method get_error_message\(\) on an unknown class WP_Error\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Class WP_Error not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 4
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function get_post_meta not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function sanitize_text_field not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function sanitize_textarea_field not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function update_post_meta not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function wp_update_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerMetadataService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerSyncService.php
+
+		-
+			message: '#^Function get_posts not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/MediaManagerSyncService.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/MediaLibrary/Services/TrackUploadedImageService.php
+
+		-
+			message: '#^Function get_post_mime_type not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/TrackUploadedImageService.php
+
+		-
+			message: '#^Function wp_attachment_is_image not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/MediaLibrary/Services/TrackUploadedImageService.php
+
+		-
+			message: '#^Call to method add_cap\(\) on an unknown class WP_Role\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/OpenAi/OpenAiModule.php
+
+		-
+			message: '#^Call to method has_cap\(\) on an unknown class WP_Role\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/OpenAi/OpenAiModule.php
+
+		-
+			message: '#^Class WP_Role not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Modules/OpenAi/OpenAiModule.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/OpenAiModule.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiSettingsService.php
+
+		-
+			message: '#^Function get_site_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiSettingsService.php
+
+		-
+			message: '#^Function sanitize_key not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiSettingsService.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiSettingsService.php
+
+		-
+			message: '#^Function wp_json_encode not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiSettingsService.php
+
+		-
+			message: '#^Access to property \$post_type on an unknown class WP_Post\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Call to method get_error_message\(\) on an unknown class WP_Error\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Class WP_Error not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Class WP_Post not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function get_attached_file not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function get_post not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function get_post_field not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function get_post_mime_type not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function sanitize_key not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function sanitize_text_field not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function sanitize_textarea_field not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function wp_json_encode not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function wp_remote_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function wp_remote_retrieve_body not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function wp_remote_retrieve_response_code not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function wp_update_post not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Offset ''short_title'' on array\{short_title\: string, story\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Offset ''story'' on array\{short_title\: string, story\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Modules/OpenAi/Services/OpenAiStoryService.php
+
+		-
+			message: '#^Function add_filter not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Policies/AdminCapabilityPolicy.php
+
+		-
+			message: '#^Function add_filter not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/Policies/FrontendVisibilityPolicy.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/States/AdminConfigurationState.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: src/States/FrontendGalleryState.php
+
+		-
+			message: '#^AbstractActionControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but AbstractActionControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^AbstractActionControllerTest\:\:tearDown\(\) calls parent\:\:tearDown\(\) but AbstractActionControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AbstractActionControllerTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AbstractActionControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 13
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AbstractActionControllerTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AbstractActionControllerTest\:\:factory\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Function wp_create_nonce not found\.$#'
+			identifier: function.notFound
+			count: 5
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Function wp_set_current_user not found\.$#'
+			identifier: function.notFound
+			count: 7
+			path: tests/AbstractActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AbstractManagerBootTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/AbstractManagerBootTest.php
+
+		-
+			message: '#^Call to an undefined method AdminGalleryControllerTest\:\:markTestSkipped\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AdminGalleryControllerTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AdminGalleryControllerTest\:\:assertNotFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AdminGalleryControllerTest\:\:assertStringContainsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method AdminGalleryControllerTest\:\:factory\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Function has_action not found\.$#'
+			identifier: function.notFound
+			count: 4
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Function set_current_screen not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Function wp_set_current_user not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/AdminGalleryControllerTest.php
+
+		-
+			message: '#^Call to an undefined method CliManagerTest\:\:markTestSkipped\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/CliManagerTest.php
+
+		-
+			message: '#^Call to an undefined static method CliManagerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/CliManagerTest.php
+
+		-
+			message: '#^Call to an undefined method ContainerTest\:\:expectException\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/ContainerTest.php
+
+		-
+			message: '#^Call to an undefined static method ContainerTest\:\:assertNotSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/ContainerTest.php
+
+		-
+			message: '#^Call to an undefined static method ContainerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/ContainerTest.php
+
+		-
+			message: '#^Call to an undefined static method CoreModuleBootTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/CoreModuleBootTest.php
+
+		-
+			message: '#^Function did_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/CoreModuleBootTest.php
+
+		-
+			message: '#^Call to an undefined method FlowBootTest\:\:markTestSkipped\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/FlowBootTest.php
+
+		-
+			message: '#^Call to an undefined static method FlowBootTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/FlowBootTest.php
+
+		-
+			message: '#^Function did_action not found\.$#'
+			identifier: function.notFound
+			count: 8
+			path: tests/FlowBootTest.php
+
+		-
+			message: '#^Function set_current_screen not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/FlowBootTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryBlockControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/FrontendGalleryBlockControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryBlockControllerTest\:\:assertStringContainsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/FrontendGalleryBlockControllerTest.php
+
+		-
+			message: '#^FrontendGalleryBlockControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but FrontendGalleryBlockControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/FrontendGalleryBlockControllerTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/FrontendGalleryBlockControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryServiceTest\:\:assertContains\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryServiceTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryServiceTest\:\:assertStringContainsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 14
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryServiceTest\:\:assertStringNotContainsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method FrontendGalleryServiceTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^FrontendGalleryServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but FrontendGalleryServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^FrontendGalleryServiceTest\:\:tearDown\(\) calls parent\:\:tearDown\(\) but FrontendGalleryServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Function add_filter not found\.$#'
+			identifier: function.notFound
+			count: 4
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 4
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Function remove_all_filters not found\.$#'
+			identifier: function.notFound
+			count: 6
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 12
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Offset ''slug'' on array\{slug\: string, label\: string, is_pro\: bool, available\: bool\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: tests/FrontendGalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertIsArray\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertIsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertNotEmpty\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertNotFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 9
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertNotSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 20
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryActionControllerTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Function admin_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Function has_action not found\.$#'
+			identifier: function.notFound
+			count: 9
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^GalleryActionControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but GalleryActionControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/GalleryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryServiceTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryServiceTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryServiceTest\:\:assertNull\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 11
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method GalleryServiceTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^GalleryServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but GalleryServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^GalleryServiceTest\:\:tearDown\(\) calls parent\:\:tearDown\(\) but GalleryServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/GalleryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method ManagerDeduplicationTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/ManagerDeduplicationTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertGreaterThanOrEqual\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertIsArray\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertNotFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryActionControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 6
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Function admin_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Function has_action not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^MediaCategoryActionControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaCategoryActionControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaCategoryActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryServiceTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryServiceTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryServiceTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryServiceTest\:\:assertNotEmpty\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaCategoryServiceTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Function taxonomy_exists not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Function wp_insert_term not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^MediaCategoryServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaCategoryServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaCategoryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 6
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertInstanceOf\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertIsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertNotSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 7
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryCliControllerTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Function wp_delete_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^MediaLibraryCliControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaLibraryCliControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaLibraryCliControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertInstanceOf\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertIsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertNotSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaLibraryUploadTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 5
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^MediaLibraryUploadTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaLibraryUploadTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaLibraryUploadTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 6
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertIsArray\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertIsString\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertNotFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertNotSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerActionControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 15
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Function admin_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Function has_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^MediaManagerActionControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaManagerActionControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaManagerActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerListServiceTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerListServiceTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerListServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^Function wp_delete_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^MediaManagerListServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaManagerListServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaManagerListServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerTrackSelectionServiceTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerTrackSelectionServiceTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerTrackSelectionServiceTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method MediaManagerTrackSelectionServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 6
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^MediaManagerTrackSelectionServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but MediaManagerTrackSelectionServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/MediaManagerTrackSelectionServiceTest.php
+
+		-
+			message: '#^Call to an undefined method PluginBootTest\:\:assertInstanceOf\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/PluginBootTest.php
+
+		-
+			message: '#^Call to an undefined static method PluginBootTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/PluginBootTest.php
+
+		-
+			message: '#^Call to an undefined static method PluginBootTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/PluginBootTest.php
+
+		-
+			message: '#^Function add_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/PluginBootTest.php
+
+		-
+			message: '#^Function do_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/PluginBootTest.php
+
+		-
+			message: '#^Function remove_action not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/PluginBootTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateCustomizationServiceTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateCustomizationServiceTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateCustomizationServiceTest\:\:assertIsArray\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateCustomizationServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 15
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateCustomizationServiceTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 8
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Function get_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^TemplateCustomizationServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but TemplateCustomizationServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/TemplateCustomizationServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateSettingsActionControllerTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateSettingsActionControllerTest\:\:assertFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateSettingsActionControllerTest\:\:assertNotFalse\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateSettingsActionControllerTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 8
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method TemplateSettingsActionControllerTest\:\:assertTrue\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Function admin_url not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Function apply_filters not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Function has_action not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^TemplateSettingsActionControllerTest\:\:setUp\(\) calls parent\:\:setUp\(\) but TemplateSettingsActionControllerTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/TemplateSettingsActionControllerTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertArrayHasKey\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 7
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertCount\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertGreaterThan\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertGreaterThanOrEqual\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertInstanceOf\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertIsInt\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertNotEmpty\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Call to an undefined static method TrackingSummaryServiceTest\:\:assertSame\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 27
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Function delete_option not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Function update_option not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Function wp_insert_attachment not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^TrackingSummaryServiceTest\:\:setUp\(\) calls parent\:\:setUp\(\) but TrackingSummaryServiceTest does not extend any class\.$#'
+			identifier: class.noParent
+			count: 1
+			path: tests/TrackingSummaryServiceTest.php
+
+		-
+			message: '#^Function tests_add_filter not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: tests/bootstrap.php

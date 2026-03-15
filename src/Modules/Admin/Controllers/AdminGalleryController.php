@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\Admin\Controllers;
 
+use Prox\ProxGallery\Contracts\ControllerInterface;
 use Prox\ProxGallery\Controllers\Admin\AdminAssetLoader;
 use Prox\ProxGallery\Controllers\Admin\AdminConfigProvider;
 use Prox\ProxGallery\Controllers\Admin\AdminMenuRegistrar;
-use Prox\ProxGallery\Contracts\ControllerInterface;
 
 /**
  * Admin boundary controller.

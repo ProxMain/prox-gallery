@@ -6,8 +6,8 @@ namespace Prox\ProxGallery\Modules\Gallery\Controllers;
 
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
-use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
+use Prox\ProxGallery\Modules\Gallery\Services\GalleryService;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
@@ -28,7 +28,8 @@ final class GalleryActionController extends AbstractActionController implements 
     public function __construct(
         private GalleryService $service,
         private FrontendGalleryService $frontendGalleryService
-    ) {}
+    ) {
+    }
 
     public function id(): string
     {

@@ -16,8 +16,7 @@ final class MediaLibraryModule implements ModuleInterface
     public function __construct(
         private TrackUploadedImageService $service,
         private MediaCategoryService $categoryService
-    )
-    {
+    ) {
     }
 
     public function id(): string

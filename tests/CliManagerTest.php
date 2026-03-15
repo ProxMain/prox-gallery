@@ -47,8 +47,10 @@ final class CliManagerTest extends WP_UnitTestCase
 
     private function createCommand(object $state): CliCommandInterface
     {
-        return new class($state) implements CliCommandInterface {
-            public function __construct(private object $state) {}
+        return new class ($state) implements CliCommandInterface {
+            public function __construct(private object $state)
+            {
+            }
 
             public static function command(): string
             {

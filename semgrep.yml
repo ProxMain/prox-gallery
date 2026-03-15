@@ -1,0 +1,94 @@
+rules:
+  - id: php-no-direct-wp-superglobal
+    languages: [php]
+    severity: WARNING
+    message: Read request data through a dedicated normalization/validation path instead of directly using superglobals.
+    patterns:
+      - pattern-either:
+          - pattern: $_POST[$KEY]
+          - pattern: $_GET[$KEY]
+          - pattern: $_REQUEST[$KEY]
+    paths:
+      include:
+        - "**/src/**/*.php"
+      exclude:
+        - "**/tests/**/*.php"
+
+  - id: php-no-direct-wordpress-exit
+    languages: [php]
+    severity: WARNING
+    message: Prefer returning through controllers/services instead of calling exit/die directly.
+    patterns:
+      - pattern-either:
+          - pattern: exit(...)
+          - pattern: die(...)
+    paths:
+      include:
+        - "**/src/**/*.php"
+      exclude:
+        - "**/tests/**/*.php"
+
+  - id: php-no-adhoc-require
+    languages: [php]
+    severity: WARNING
+    message: Avoid ad hoc require/include in application code unless runtime integration demands it.
+    patterns:
+      - pattern-either:
+          - pattern: require_once ...
+          - pattern: require ...
+          - pattern: include_once ...
+          - pattern: include ...
+    paths:
+      include:
+        - "**/src/**/*.php"
+      exclude:
+        - "**/tests/**/*.php"
+        - "**/src/Modules/DevelopmentSeed/Services/DevelopmentSeedService.php"
+
+  - id: ts-no-root-relative-assets-in-vite-admin
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Do not hardcode root-relative asset paths in the Vite admin app. Import assets through the module system.
+    patterns:
+      - pattern-regex: '["'']/(assets|wp-content)/[^"'']+["'']'
+    paths:
+      include:
+        - "**/assets/admin/src/**/*"
+
+  - id: ts-no-direct-fetch-in-features
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: Frontend transport should go through action controllers, not ad hoc fetch calls inside feature logic.
+    patterns:
+      - pattern: fetch(...)
+    paths:
+      include:
+        - "**/assets/admin/src/features/**/*.ts"
+        - "**/assets/admin/src/features/**/*.js"
+      exclude:
+        - "**/assets/admin/src/modules/**/*"
+
+  - id: ts-no-window-config-outside-config-module
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: Keep admin config access centralized instead of reading window config from multiple places.
+    patterns:
+      - pattern-regex: 'window\\.ProxGalleryAdminConfig'
+    paths:
+      include:
+        - "**/assets/admin/src/**/*.ts"
+        - "**/assets/admin/src/**/*.js"
+      exclude:
+        - "**/assets/admin/src/lib/admin-config.ts"
+
+  - id: ts-no-business-logic-in-ui-primitives
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: UI primitives should stay presentational and avoid direct business/data logic.
+    patterns:
+      - pattern-either:
+          - pattern: fetch(...)
+          - pattern: new $CONTROLLER(...)
+    paths:
+      include:
+        - "**/assets/admin/src/components/ui/**/*"

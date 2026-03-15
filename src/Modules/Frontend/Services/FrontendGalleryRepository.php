@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\Frontend\Services;
 
-use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
+use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
 
 /**
  * Loads normalized gallery rows used by frontend rendering.

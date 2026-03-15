@@ -23,7 +23,8 @@ final class MediaCategoryActionController extends AbstractActionController imple
     public function __construct(
         private MediaCategoryService $service,
         private UploadedImageQueueModel $queue
-    ) {}
+    ) {
+    }
 
     public function id(): string
     {

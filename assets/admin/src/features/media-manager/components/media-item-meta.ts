@@ -1,4 +1,17 @@
-export function formatDimensions(width, height) {
+import type { MediaManagerTrackedImage } from "@/modules/media-library/controllers/media-manager-action-controller";
+
+type MediaChipTone = "violet" | "indigo" | "amber" | "emerald" | "slate";
+
+type MediaChip = {
+  text: string;
+  tone: MediaChipTone;
+};
+
+type MediaMetaImage = MediaManagerTrackedImage & {
+  gallery_ids?: number[];
+};
+
+export function formatDimensions(width: number | string | null, height: number | string | null): string | null {
   const w = Number(width);
   const h = Number(height);
 
@@ -9,8 +22,8 @@ export function formatDimensions(width, height) {
   return `${w}x${h}`;
 }
 
-export function buildMediaMetaChips(image) {
-  const chips = [];
+export function buildMediaMetaChips(image: MediaMetaImage): MediaChip[] {
+  const chips: MediaChip[] = [];
 
   if (image.mime_type) {
     chips.push({ text: image.mime_type, tone: "violet" });
@@ -39,7 +52,7 @@ export function buildMediaMetaChips(image) {
   return chips;
 }
 
-export function mediaChipToneClass(tone) {
+export function mediaChipToneClass(tone: MediaChipTone): string {
   if (tone === "violet") {
     return "bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200";
   }

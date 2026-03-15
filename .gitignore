@@ -64,12 +64,15 @@ docker-compose.override.yml
 #
 # PHPStan
 #
-/phpstan-baseline.neon
+/.phpstan.cache
 
 #
 # IDE helper / tooling cache
 #
 /.php-cs-fixer.cache
+/.eslintcache
+/.semgrep/
+*.tsbuildinfo
 
 #
 # WordPress (voor als je ooit per ongeluk een volledige install in je repo krijgt)

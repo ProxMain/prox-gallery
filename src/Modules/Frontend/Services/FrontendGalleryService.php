@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\Frontend\Services;
 
 use Prox\ProxGallery\Contracts\ServiceInterface;
-use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRegistryInterface;
 use Prox\ProxGallery\Modules\Frontend\Contracts\FrontendGalleryTemplateRendererInterface;
+use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\States\FrontendGalleryState;
 
 /**

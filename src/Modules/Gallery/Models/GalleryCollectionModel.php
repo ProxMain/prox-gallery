@@ -136,8 +136,7 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         ?string $transitionOverride = null,
         bool $showTitle = true,
         bool $showDescription = true
-    ): array
-    {
+    ): array {
         $items = $this->all();
         $nextId = 1;
 
@@ -197,8 +196,7 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         ?string $transitionOverride = null,
         ?bool $showTitle = null,
         ?bool $showDescription = null
-    ): ?array
-    {
+    ): ?array {
         $items = $this->all();
         $updated = null;
 

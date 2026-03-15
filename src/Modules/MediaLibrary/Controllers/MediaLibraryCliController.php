@@ -16,8 +16,7 @@ final class MediaLibraryCliController extends AbstractCliController
     public function __construct(
         private UploadedImageQueueModel $queue,
         private TrackUploadedImageService $service
-    )
-    {
+    ) {
     }
 
     protected static function moduleCommand(): string

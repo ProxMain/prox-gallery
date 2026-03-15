@@ -23,25 +23,25 @@ export function MediaManagerHeader({
         actions={
           <>
             <Button
-              type="button"
-              variant="outline"
-              onClick={onOpenPicker}
-              disabled={isOpeningPicker}
-              className="focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-            >
+            type="button"
+            variant="outline"
+            onClick={onOpenPicker}
+            disabled={isOpeningPicker}
+            className="focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+          >
               {isOpeningPicker ? "Opening..." : "Add media"}
-            </Button>
-            <Badge variant="outline" className="h-9 px-3 text-xs font-medium text-slate-700">
+          </Button>
+            <Badge variant="outline" className="h-9 px-3 text-xs font-medium text-slate-300">
               Environment: Local | Screen: {config.screen || "n/a"}
             </Badge>
           </>
         }
       />
       {lastSelectionSummary !== "" ? (
-        <p className="text-sm text-emerald-700">{lastSelectionSummary}</p>
+        <p className="text-sm text-emerald-300">{lastSelectionSummary}</p>
       ) : null}
       {pickerError !== "" ? (
-        <p className="text-sm text-red-600">{pickerError}</p>
+        <p className="text-sm text-red-300">{pickerError}</p>
       ) : null}
     </div>
   );

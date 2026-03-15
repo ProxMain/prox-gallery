@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Flows;
 
 use Prox\ProxGallery\Contracts\FlowInterface;
-use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
+use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\States\FrontendGalleryState;
 
 /**

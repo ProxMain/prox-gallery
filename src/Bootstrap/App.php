@@ -25,8 +25,7 @@ final class App
         Container $container,
         AppBindingRegistrar $bindingRegistrar,
         AppManagerRegistrar $managerRegistrar
-    )
-    {
+    ) {
         $this->container = $container;
         $this->bindingRegistrar = $bindingRegistrar;
         $this->managerRegistrar = $managerRegistrar;

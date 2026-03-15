@@ -148,7 +148,7 @@ export function MediaManagerSection({
 
     return (
       <CollectionPagination
-        className="border-white/70 bg-white/80"
+        className="border-white/10 bg-slate-950/[0.72]"
         itemLabel={viewMode === "thumbnail" ? "items" : "rows"}
         totalItems={totalItems}
         currentPage={currentPage}

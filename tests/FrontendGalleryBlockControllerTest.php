@@ -70,8 +70,7 @@ final class FrontendGalleryBlockControllerTest extends WP_UnitTestCase
 
     private function pageProvisioner(): GalleryPageProvisionerInterface
     {
-        return new class implements GalleryPageProvisionerInterface
-        {
+        return new class () implements GalleryPageProvisionerInterface {
             public function provisionForGallery(int $galleryId, array $gallery): array
             {
                 return [

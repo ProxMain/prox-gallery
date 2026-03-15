@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
-use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
+use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryRepository;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryTemplateRegistry;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryTemplateRenderer;
-use Prox\ProxGallery\Modules\Admin\Services\TemplateCustomizationService;
+use Prox\ProxGallery\Modules\Gallery\Models\GalleryCollectionModel;
+use Prox\ProxGallery\Policies\FrontendVisibilityPolicy;
 use Prox\ProxGallery\States\AdminConfigurationState;
 use Prox\ProxGallery\States\FrontendGalleryState;
 
