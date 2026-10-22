@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\Gallery\Models;
 
+use Prox\ProxGallery\Storage\AtomicOptionStore;
 use Prox\ProxGallery\Contracts\ModelInterface;
 use Prox\ProxGallery\Modules\Gallery\Contracts\GalleryRepositoryInterface;
 use Prox\ProxGallery\Modules\Gallery\Support\GallerySettingsNormalizer;
@@ -13,6 +14,10 @@ use Prox\ProxGallery\Modules\Gallery\Support\GallerySettingsNormalizer;
  */
 final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryInterface
 {
+    public function __construct(private AtomicOptionStore $store = new AtomicOptionStore())
+    {
+    }
+
     public function id(): string
     {
         return 'gallery.collection';
@@ -42,11 +47,12 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
      */
     public function all(): array
     {
-        $value = \get_option($this->optionKey(), []);
+        return $this->normalizeRows($this->store->read($this->optionKey()));
+    }
 
-        if (! is_array($value)) {
-            return [];
-        }
+    private function normalizeRows(array $value): array
+    {
+
 
         $items = [];
 
@@ -100,7 +106,9 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
      */
     public function replaceAll(array $items): void
     {
-        \update_option($this->optionKey(), array_values($items), false);
+        $this->store->mutate($this->optionKey(), static function (array &$raw) use ($items): void {
+            $raw = array_values($items);
+        });
     }
 
     public function clearAll(): void
@@ -138,34 +146,36 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         bool $showDescription = true
     ): array
     {
-        $items = $this->all();
-        $nextId = 1;
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($name, $description, $template, $gridColumnsOverride, $lightboxOverride, $hoverZoomOverride, $fullWidthOverride, $transitionOverride, $showTitle, $showDescription) {
+            $items = $this->normalizeRows($raw);
+            $nextId = 1;
 
-        foreach ($items as $item) {
-            if ($item['id'] >= $nextId) {
-                $nextId = $item['id'] + 1;
+            foreach ($items as $item) {
+                if ($item['id'] >= $nextId) {
+                    $nextId = $item['id'] + 1;
+                }
             }
-        }
 
-        $gallery = [
-            'id' => $nextId,
-            'name' => $name,
-            'description' => $description,
-            'template' => $template,
-            'grid_columns_override' => $gridColumnsOverride,
-            'lightbox_override' => $lightboxOverride,
-            'hover_zoom_override' => $hoverZoomOverride,
-            'full_width_override' => $fullWidthOverride,
-            'transition_override' => $transitionOverride,
-            'show_title' => $showTitle,
-            'show_description' => $showDescription,
-            'created_at' => \gmdate('c'),
-            'image_ids' => [],
-        ];
-        $items[] = $gallery;
-        $this->replaceAll($items);
+            $gallery = [
+                'id' => $nextId,
+                'name' => $name,
+                'description' => $description,
+                'template' => $template,
+                'grid_columns_override' => $gridColumnsOverride,
+                'lightbox_override' => $lightboxOverride,
+                'hover_zoom_override' => $hoverZoomOverride,
+                'full_width_override' => $fullWidthOverride,
+                'transition_override' => $transitionOverride,
+                'show_title' => $showTitle,
+                'show_description' => $showDescription,
+                'created_at' => \gmdate('c'),
+                'image_ids' => [],
+            ];
+            $items[] = $gallery;
+            $raw = $items;
 
-        return $gallery;
+            return $gallery;
+        });
     }
 
     /**
@@ -199,75 +209,79 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
         ?bool $showDescription = null
     ): ?array
     {
-        $items = $this->all();
-        $updated = null;
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($id, $name, $description, $template, $gridColumnsOverride, $lightboxOverride, $hoverZoomOverride, $fullWidthOverride, $transitionOverride, $showTitle, $showDescription) {
+            $items = $this->normalizeRows($raw);
+            $updated = null;
 
-        foreach ($items as $index => $item) {
-            if ($item['id'] !== $id) {
-                continue;
+            foreach ($items as $index => $item) {
+                if ($item['id'] !== $id) {
+                    continue;
+                }
+
+                $items[$index]['name'] = $name;
+                $items[$index]['description'] = $description;
+                if (is_string($template) && $template !== '') {
+                    $items[$index]['template'] = $template;
+                }
+                if ($gridColumnsOverride !== null || array_key_exists('grid_columns_override', $items[$index])) {
+                    $items[$index]['grid_columns_override'] = $gridColumnsOverride;
+                }
+                if ($lightboxOverride !== null || array_key_exists('lightbox_override', $items[$index])) {
+                    $items[$index]['lightbox_override'] = $lightboxOverride;
+                }
+                if ($hoverZoomOverride !== null || array_key_exists('hover_zoom_override', $items[$index])) {
+                    $items[$index]['hover_zoom_override'] = $hoverZoomOverride;
+                }
+                if ($fullWidthOverride !== null || array_key_exists('full_width_override', $items[$index])) {
+                    $items[$index]['full_width_override'] = $fullWidthOverride;
+                }
+                if ($transitionOverride !== null || array_key_exists('transition_override', $items[$index])) {
+                    $items[$index]['transition_override'] = $transitionOverride;
+                }
+                if ($showTitle !== null || array_key_exists('show_title', $items[$index])) {
+                    $items[$index]['show_title'] = $showTitle ?? true;
+                }
+                if ($showDescription !== null || array_key_exists('show_description', $items[$index])) {
+                    $items[$index]['show_description'] = $showDescription ?? true;
+                }
+                $updated = $items[$index];
+                break;
             }
 
-            $items[$index]['name'] = $name;
-            $items[$index]['description'] = $description;
-            if (is_string($template) && $template !== '') {
-                $items[$index]['template'] = $template;
+            if ($updated === null) {
+                return null;
             }
-            if ($gridColumnsOverride !== null || array_key_exists('grid_columns_override', $items[$index])) {
-                $items[$index]['grid_columns_override'] = $gridColumnsOverride;
-            }
-            if ($lightboxOverride !== null || array_key_exists('lightbox_override', $items[$index])) {
-                $items[$index]['lightbox_override'] = $lightboxOverride;
-            }
-            if ($hoverZoomOverride !== null || array_key_exists('hover_zoom_override', $items[$index])) {
-                $items[$index]['hover_zoom_override'] = $hoverZoomOverride;
-            }
-            if ($fullWidthOverride !== null || array_key_exists('full_width_override', $items[$index])) {
-                $items[$index]['full_width_override'] = $fullWidthOverride;
-            }
-            if ($transitionOverride !== null || array_key_exists('transition_override', $items[$index])) {
-                $items[$index]['transition_override'] = $transitionOverride;
-            }
-            if ($showTitle !== null || array_key_exists('show_title', $items[$index])) {
-                $items[$index]['show_title'] = $showTitle ?? true;
-            }
-            if ($showDescription !== null || array_key_exists('show_description', $items[$index])) {
-                $items[$index]['show_description'] = $showDescription ?? true;
-            }
-            $updated = $items[$index];
-            break;
-        }
 
-        if ($updated === null) {
-            return null;
-        }
+            $raw = $items;
 
-        $this->replaceAll($items);
-
-        return $updated;
+            return $updated;
+        });
     }
 
     public function delete(int $id): bool
     {
-        $items = $this->all();
-        $remaining = [];
-        $deleted = false;
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($id) {
+            $items = $this->normalizeRows($raw);
+            $remaining = [];
+            $deleted = false;
 
-        foreach ($items as $item) {
-            if ($item['id'] === $id) {
-                $deleted = true;
-                continue;
+            foreach ($items as $item) {
+                if ($item['id'] === $id) {
+                    $deleted = true;
+                    continue;
+                }
+
+                $remaining[] = $item;
             }
 
-            $remaining[] = $item;
-        }
+            if (! $deleted) {
+                return false;
+            }
 
-        if (! $deleted) {
-            return false;
-        }
+            $raw = $remaining;
 
-        $this->replaceAll($remaining);
-
-        return true;
+            return true;
+        });
     }
 
     public function exists(int $id): bool
@@ -313,27 +327,29 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
      */
     public function setImageGalleries(int $imageId, array $galleryIds): array
     {
-        $items = $this->all();
-        $normalizedGalleryIds = array_values(array_unique(array_filter($galleryIds, static fn (int $id): bool => $id > 0)));
-        $updatedGalleryIds = [];
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($imageId, $galleryIds) {
+            $items = $this->normalizeRows($raw);
+            $normalizedGalleryIds = array_values(array_unique(array_filter($galleryIds, static fn (int $id): bool => $id > 0)));
+            $updatedGalleryIds = [];
 
-        foreach ($items as $index => $item) {
-            $current = array_values(array_filter(
-                $item['image_ids'],
-                static fn (int $id): bool => $id !== $imageId
-            ));
+            foreach ($items as $index => $item) {
+                $current = array_values(array_filter(
+                    $item['image_ids'],
+                    static fn (int $id): bool => $id !== $imageId
+                ));
 
-            if (in_array((int) $item['id'], $normalizedGalleryIds, true)) {
-                $current[] = $imageId;
-                $updatedGalleryIds[] = (int) $item['id'];
+                if (in_array((int) $item['id'], $normalizedGalleryIds, true)) {
+                    $current[] = $imageId;
+                    $updatedGalleryIds[] = (int) $item['id'];
+                }
+
+                $items[$index]['image_ids'] = array_values(array_unique($current));
             }
 
-            $items[$index]['image_ids'] = array_values(array_unique($current));
-        }
+            $raw = $items;
 
-        $this->replaceAll($items);
-
-        return $updatedGalleryIds;
+            return $updatedGalleryIds;
+        });
     }
 
     /**
@@ -341,31 +357,33 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
      */
     public function addImagesToGallery(int $galleryId, array $imageIds): bool
     {
-        $items = $this->all();
-        $normalizedImageIds = $this->normalizeImageIds($imageIds);
-        $updated = false;
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($galleryId, $imageIds) {
+            $items = $this->normalizeRows($raw);
+            $normalizedImageIds = $this->normalizeImageIds($imageIds);
+            $updated = false;
 
-        foreach ($items as $index => $item) {
-            if ((int) $item['id'] !== $galleryId) {
-                continue;
+            foreach ($items as $index => $item) {
+                if ((int) $item['id'] !== $galleryId) {
+                    continue;
+                }
+
+                $items[$index]['image_ids'] = array_values(
+                    array_unique(
+                        array_merge($item['image_ids'], $normalizedImageIds)
+                    )
+                );
+                $updated = true;
+                break;
             }
 
-            $items[$index]['image_ids'] = array_values(
-                array_unique(
-                    array_merge($item['image_ids'], $normalizedImageIds)
-                )
-            );
-            $updated = true;
-            break;
-        }
+            if (! $updated) {
+                return false;
+            }
 
-        if (! $updated) {
-            return false;
-        }
+            $raw = $items;
 
-        $this->replaceAll($items);
-
-        return true;
+            return true;
+        });
     }
 
     /**
@@ -373,27 +391,29 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
      */
     public function setGalleryImages(int $galleryId, array $imageIds): bool
     {
-        $items = $this->all();
-        $normalizedImageIds = $this->normalizeImageIds($imageIds);
-        $updated = false;
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($galleryId, $imageIds) {
+            $items = $this->normalizeRows($raw);
+            $normalizedImageIds = $this->normalizeImageIds($imageIds);
+            $updated = false;
 
-        foreach ($items as $index => $item) {
-            if ((int) $item['id'] !== $galleryId) {
-                continue;
+            foreach ($items as $index => $item) {
+                if ((int) $item['id'] !== $galleryId) {
+                    continue;
+                }
+
+                $items[$index]['image_ids'] = $normalizedImageIds;
+                $updated = true;
+                break;
             }
 
-            $items[$index]['image_ids'] = $normalizedImageIds;
-            $updated = true;
-            break;
-        }
+            if (! $updated) {
+                return false;
+            }
 
-        if (! $updated) {
-            return false;
-        }
+            $raw = $items;
 
-        $this->replaceAll($items);
-
-        return true;
+            return true;
+        });
     }
 
     /**
@@ -431,9 +451,6 @@ final class GalleryCollectionModel implements ModelInterface, GalleryRepositoryI
      */
     private function normalizeImageIds(mixed $value): array
     {
-        if (! is_array($value)) {
-            return [];
-        }
 
         $ids = [];
 

@@ -1,6 +1,6 @@
 # Security assessment — 22 October 2026
 
-Repository: `ProxMain/prox-gallery`, starting commit `87a413d` on `master`. Candidate: `0.2.0-rc.1`.
+Repository: `ProxMain/prox-gallery`, starting commit `87a413d` on `master`. Candidate: `0.2.0-rc.2`.
 
 This assessment combines manual inspection of the main AJAX, OpenAI, media, gallery and public-rendering boundaries, dependency audits and local regression tests. It is not an external penetration test, a scan of the user's deployed website, or a claim that all security bugs have been found. No live OpenAI request or production write was made.
 
@@ -22,20 +22,20 @@ The object permission choice follows [WordPress current_user_can documentation](
 
 ## Remaining risks and limits
 
-1. **Shared option writes are not atomic.** Statistics and gallery/index mutations can lose updates under concurrency. The repaired nested-bucket bug is separate from this unresolved race. A storage migration requires real WordPress/database tests.
+1. **Shared option races addressed in rc.2.** Uncached reads and byte-exact SQL compare-and-swap replay mutations on contention. Existing data is retained without migration. Bounded retries return an explicit error instead of overwriting another request.
 2. **Public analytics are estimates.** A public visitor can obtain the guest nonce, and WordPress guest nonces are shared by default. The current per-IP transient limit is not reliable bot prevention and can group visitors behind a proxy. Totals are events, not unique humans or billing-grade metrics. Configure rate limits at a trusted edge if exposed at scale.
-3. **AI spending has no per-user quota.** Generating is deliberate and now constrained to editable attachments, but the capability still permits repeated paid requests. Restrict roles or add a separately specified quota policy if this installation needs a spending boundary.
-4. **Large-library behaviour remains limited.** The tracked-media option retains at most 500 entries and list endpoints are unpaginated at the server. Original files are not deleted by index eviction. This must be resolved before positioning the plugin for large libraries.
+3. **AI quotas added in rc.2.** Default limits are 20 provider attempts per user and 100 per site per UTC day, including administrators. Both counters reserve atomically before dispatch. Limits are editable in Settings; zero pauses generation. Failed provider requests count; local validation failures do not. Exhaustion returns HTTP 429. These request quotas do not replace a provider spending budget.
+4. **The 500-record eviction is removed in rc.2.** All indexed attachments are retained. Previously evicted rows need reindexing via the existing CLI import. Storage and list endpoints still process whole collections; performance at very large scale is not established and server pagination remains a separate improvement.
 5. **API-key recovery depends on site configuration.** Existing encryption derives from site URL and WordPress key constants. Changing them may invalidate the stored key. Re-enter the key after such a migration; no key material was collected here.
-6. **Real deployment behaviour remains unverified.** Docker was not running and no disposable WordPress test database was configured. Actual role mapping, AJAX dispatch, media picker uploads, page/menu provisioning, theme interactions and plugin activation need staging verification. Three real WordPress attachment-authorisation tests were added but not executed locally.
+6. **A real disposable WordPress deployment was verified in rc.2.** TasteWP without an account: WordPress 7.1.3, PHP 8.5.12, MySQL 8.0.46 and Twenty Twenty-Three. All 25 browser/database checks passed, followed by native media upload and manual UI checks. This is one environment, not compatibility certification across themes, caches or host configurations. The separate WordPress PHPUnit suite still requires its own test library/database and was not run as a full suite here.
 
 ## Local evidence
 
-- UI workflow and public lightbox suite: 13 passing tests.
-- Isolated PHP regression suite: 10 passing tests, 23 assertions. WordPress functions are explicit boundary doubles; this does not validate the real WordPress capability mapper.
+- UI workflow, AI quota and public lightbox suite: 15 passing tests.
+- Isolated PHP regression suite: 24 passing tests, 51 assertions. WordPress functions are explicit boundary doubles; this does not validate the real WordPress capability mapper.
 - TypeScript checking and production asset build passed.
-- PHP syntax check covers 110 files.
+- PHP syntax check covers 117 files.
 - Manual browser checks cover gallery list, create form, media library/editor, settings and a 390 px mobile layout; no horizontal overflow was observed on the mobile gallery page.
 - Portable HTML preview was built from the real application plus isolated fixtures and opened successfully.
 
-Use the accompanying staging checklist before deploying the candidate. Treat unresolved persistence and quota requirements as design work, not as security certification supplied by a clean dependency audit.
+Use the accompanying staging checklist before deploying the candidate. A clean dependency audit or passing regression suite is not security certification. See the separate WordPress verification report for deployment checks.

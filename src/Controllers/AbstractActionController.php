@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Prox\ProxGallery\Contracts\ControllerInterface;
 use LogicException;
 use Throwable;
+use Prox\ProxGallery\Storage\StorageBusyException;
 
 /**
  * Base class for authenticated AJAX action controllers with nonce validation.
@@ -167,6 +168,12 @@ abstract class AbstractActionController implements ControllerInterface
             );
 
             $this->sendSuccess($response);
+            return;
+        } catch (RateLimitException $exception) {
+            $this->sendError(['message' => $exception->getMessage()], 429);
+            return;
+        } catch (StorageBusyException $exception) {
+            $this->sendError(['message' => $exception->getMessage()], 503);
             return;
         } catch (ForbiddenActionException $exception) {
             $this->sendError(['message' => 'You are not allowed to edit this attachment.'], 403);

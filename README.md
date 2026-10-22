@@ -1,6 +1,6 @@
-# Prox Gallery 0.2.0-rc.1
+# Prox Gallery 0.2.0-rc.2
 
-A WordPress gallery plugin with a redesigned image workspace. This is a release candidate: the isolated checks pass, but a complete WordPress integration run is still required before production use.
+A WordPress gallery plugin with a redesigned image workspace. This is a release candidate. Local regression checks and 25 real WordPress browser/database checks passed on a disposable TasteWP installation; see the verification report for coverage and limits.
 
 ## Develop
 
@@ -50,8 +50,12 @@ The packager checks that the supplied vendor directory excludes development pack
 - Deleting a gallery keeps source images and existing WordPress pages. Deleting a media image through its WordPress link permanently affects every place using that image; the UI says so.
 - The saved OpenAI key is never returned by settings endpoints. A blank key field preserves the current key.
 - AI generate/apply requires both the existing action capability and permission to edit the individual attachment.
+- AI requests reserve atomic per-user and site quotas before provider dispatch (default 20/100 per UTC day). Zero pauses generation; failed provider requests and timeouts count. Settings and the image editor show the policy and usage.
+- Gallery, media, tracking and settings writes retry concurrent changes instead of overwriting them. The silent 500-image index limit has been removed; server-side pagination remains future scaling work.
 - Default AI capabilities are initialised once; later role revocations are respected. Existing default roles remain administrator, editor and author.
 - Country statistics use server-provided `GEOIP_COUNTRY_CODE` or an explicit trusted `prox_gallery/tracking/country_code` integration. Unverified country headers now resolve to Unknown.
 - Listing media does not write to the queue, and reads current attachment titles after edits from other screens.
 
-See [the architecture notes](docs/architecture.md), [security assessment](docs/security-assessment.md) and [staging checks](docs/staging-checks.md).
+See [the architecture notes](docs/architecture.md), [security assessment](docs/security-assessment.md) and [staging checks](docs/staging-checks.md) and [real WordPress verification](docs/wordpress-verification.md).
+
+For the separate disposable-site browser verification fixture, see [tests/wordpress-verification](tests/wordpress-verification/README.md). It is never included in the production ZIP.

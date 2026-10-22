@@ -26,13 +26,12 @@ The shared admin config type replaces the second, drifting type definition in co
 4. Keep one owner for each draft and collection request. Keep effect dependencies stable and reject obsolete responses.
 5. Do not add interfaces or managers unless they protect a real integration boundary or have an actual alternate implementation.
 
-## Remaining persistence work
+## Atomic persistence and AI reservations
 
-The current option-backed stores are retained to avoid an untested data migration. They still need explicit redesign for larger installations:
+`Storage/AtomicOptionStore` owns uncached reads and bounded compare-and-swap writes to existing WordPress option rows. A byte-exact SQL comparison detects another writer; the operation retries against the new value. Callbacks must be free of external side effects. Exhausted contention returns HTTP 503; it never falls back to an unconditional overwrite. Database errors fail explicitly. Core option caches are invalidated after a commit; plugin reads bypass those caches so a persistent cache cannot reintroduce stale writes.
 
-- `UploadedImageQueueModel` silently retains at most 500 records in `remember()`. This is tracking-index eviction, not deletion of original WordPress files. Server-side pagination and an attachment-meta/query-backed index should replace this limit.
-- Gallery and statistics writes replace shared option values. Concurrent writers can lose changes. Use atomic counters or bounded tables with a tested migration and rollback path.
-- Statistics have no retention window. Cache/read policies and retention belong in persistence, not components.
-- `OpenAiStoryService` still combines image preparation and the external request. If the integration grows, isolate the provider transport with tests rather than adding more flags to this service.
+Gallery creation, membership changes, media indexing, tracking increments and both settings sections use this boundary. Explicit replacement/clear operations still replace the requested collection; concurrent full edits of the same field use the last committed edit. CLI cleanup removes only the IDs found stale, preserving concurrent additions. Existing option keys and payloads remain readable without migration. The 500-entry eviction has been removed; originals and earlier index rows remain intact. Rows evicted by older plugin versions cannot be reconstructed automatically; use the existing CLI import to reindex those attachments.
 
-These are known follow-up requirements, not claims that the redesign makes storage production-ready at arbitrary scale.
+`OpenAiUsageService` reserves the user and site counters in one atomic change before `OpenAiStoryService` dispatches its HTTP request. Defaults are 20 attempts per user and 100 per site per UTC day. Administrators are included; zero disables generation. Failed requests and timeouts count, because billing may already have happened. Local validation failures do not count. The previous day's counters are replaced on the first new reservation; user IDs are retained for the current day only. The provider request has an 800-token output cap. Request quotas are not currency budgets.
+
+The stores and list endpoints still load complete collections. This removes the data-loss threshold and lost-update races, but does not establish performance at arbitrary scale. Database tables, pagination and statistics retention are separate work if measurements demand them. The public per-IP tracking throttle remains best-effort and analytics are not billing-grade metrics.

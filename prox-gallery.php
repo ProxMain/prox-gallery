@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Prox Gallery
  * Description:       All-in-one WordPress image gallery and media manager plugin with customizable gallery templates, fullscreen lightbox, image organization tools, and optional OpenAI title/description generation.
- * Version:           0.2.0-rc.1
+ * Version:           0.2.0-rc.2
  * Requires at least: 6.9.1
  * Requires PHP:      8.1
  * Author:            Marcel Santing

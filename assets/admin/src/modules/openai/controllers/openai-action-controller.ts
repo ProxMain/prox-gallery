@@ -23,6 +23,8 @@ export type OpenAiSettings = {
   api_key: string;
   api_key_configured?: boolean;
   model: string;
+  user_daily_limit: number;
+  site_daily_limit: number;
   languages: string[];
   prompt_templates: OpenAiPromptTemplate[];
 };
@@ -31,6 +33,15 @@ export type OpenAiGenerationConfig = {
   model: string;
   languages: string[];
   prompt_templates: OpenAiPromptTemplate[];
+  usage?: {
+    user_limit: number;
+    site_limit: number;
+    user_used: number;
+    site_used: number;
+    user_remaining: number;
+    site_remaining: number;
+    resets_at: string;
+  };
 };
 
 export class OpenAiActionController extends AbstractActionController<OpenAiDefinitions> {
@@ -48,6 +59,8 @@ export class OpenAiActionController extends AbstractActionController<OpenAiDefin
     return this.dispatch("settings_update", {
       api_key: settings.api_key,
       model: settings.model,
+      user_daily_limit: settings.user_daily_limit,
+      site_daily_limit: settings.site_daily_limit,
       languages_csv: settings.languages.join(","),
       prompt_templates_json: JSON.stringify(settings.prompt_templates),
     });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\MediaLibrary\Models;
 
+use Prox\ProxGallery\Storage\AtomicOptionStore;
 use Prox\ProxGallery\Contracts\ModelInterface;
 use Prox\ProxGallery\Modules\MediaLibrary\DTO\TrackedImageDto;
 
@@ -12,7 +13,9 @@ use Prox\ProxGallery\Modules\MediaLibrary\DTO\TrackedImageDto;
  */
 final class UploadedImageQueueModel implements ModelInterface
 {
-    private const MAX_ITEMS = 500;
+    public function __construct(private AtomicOptionStore $store = new AtomicOptionStore())
+    {
+    }
 
     public function id(): string
     {
@@ -26,28 +29,14 @@ final class UploadedImageQueueModel implements ModelInterface
 
     public function remember(TrackedImageDto $image): void
     {
-        $items = $this->all();
-        $itemsById = [];
-
-        foreach ($items as $item) {
-            $itemsById[$item->id] = $item;
-        }
-
-        $itemsById[$image->id] = $image;
-        $items = array_values($itemsById);
-
-        if (count($items) > self::MAX_ITEMS) {
-            $items = array_slice($items, -self::MAX_ITEMS);
-        }
-
-        \update_option(
-            $this->optionKey(),
-            array_map(
-                static fn (TrackedImageDto $item): array => $item->toArray(),
-                $items
-            ),
-            false
-        );
+        $this->store->mutate($this->optionKey(), function (array &$raw) use ($image): void {
+            $itemsById = [];
+            foreach ($this->normalizeRows($raw) as $item) {
+                $itemsById[$item->id] = $item->toArray();
+            }
+            $itemsById[$image->id] = $image->toArray();
+            $raw = array_values($itemsById);
+        });
     }
 
     /**
@@ -55,14 +44,22 @@ final class UploadedImageQueueModel implements ModelInterface
      */
     public function replaceAll(array $items): void
     {
-        \update_option(
-            $this->optionKey(),
-            array_map(
+        $this->store->mutate($this->optionKey(), static function (array &$raw) use ($items): void {
+            $raw = array_map(static fn (TrackedImageDto $item): array => $item->toArray(), array_values($items));
+        });
+    }
+
+    /** @return array{removed:int,remaining:int} Counts from the committed state. */
+    public function removeIds(array $ids): array
+    {
+        return $this->store->mutate($this->optionKey(), function (array &$raw) use ($ids): array {
+            $items = $this->normalizeRows($raw);
+            $raw = array_values(array_map(
                 static fn (TrackedImageDto $item): array => $item->toArray(),
-                array_values($items)
-            ),
-            false
-        );
+                array_filter($items, static fn (TrackedImageDto $item): bool => ! in_array($item->id, $ids, true))
+            ));
+            return ['removed' => count($items) - count($raw), 'remaining' => count($raw)];
+        });
     }
 
     /**
@@ -70,11 +67,12 @@ final class UploadedImageQueueModel implements ModelInterface
      */
     public function all(): array
     {
-        $value = \get_option($this->optionKey(), []);
+        return $this->normalizeRows($this->store->read($this->optionKey()));
+    }
 
-        if (! is_array($value)) {
-            return [];
-        }
+    private function normalizeRows(array $value): array
+    {
+
 
         $items = [];
 

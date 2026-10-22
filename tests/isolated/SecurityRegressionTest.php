@@ -18,6 +18,7 @@ final class SecurityRegressionTest extends TestCase
 {
     protected function setUp(): void
     {
+        $GLOBALS['wpdb'] = new TestOptionDatabase();
         $GLOBALS['test_options'] = $GLOBALS['test_filters'] = $GLOBALS['test_can'] = $GLOBALS['test_cap_checks'] = [];
         $GLOBALS['test_posts'] = [7 => new WP_Post()];
         $GLOBALS['test_roles'] = array_fill_keys(['administrator', 'editor', 'author'], new WP_Role());

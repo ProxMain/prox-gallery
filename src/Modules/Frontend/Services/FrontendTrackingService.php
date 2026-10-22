@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\Frontend\Services;
 
+use Prox\ProxGallery\Storage\AtomicOptionStore;
 use Prox\ProxGallery\Contracts\ServiceInterface;
 
 /**
@@ -11,6 +12,10 @@ use Prox\ProxGallery\Contracts\ServiceInterface;
  */
 final class FrontendTrackingService implements ServiceInterface
 {
+    public function __construct(private AtomicOptionStore $store = new AtomicOptionStore())
+    {
+    }
+
     private const OPTION_KEY = 'prox_gallery_tracking_stats';
 
     public function id(): string
@@ -33,42 +38,8 @@ final class FrontendTrackingService implements ServiceInterface
         }
 
         $country = $this->resolveCountryCode();
-        $stats = $this->stats();
-        $galleryKey = (string) $galleryId;
-
-        if (! isset($stats['galleries'][$galleryKey]) || ! is_array($stats['galleries'][$galleryKey])) {
-            $stats['galleries'][$galleryKey] = [
-                'total' => 0,
-                'countries' => [],
-                'images' => [],
-            ];
-        }
-
-        $stats['galleries'][$galleryKey] = $this->incrementBucket($stats['galleries'][$galleryKey], $country);
-        $stats['updated_at'] = \gmdate('c');
-        \update_option(self::OPTION_KEY, $stats, false);
-    }
-
-    public function recordImageView(int $galleryId, int $imageId): void
-    {
-        if ($imageId <= 0) {
-            return;
-        }
-
-        $country = $this->resolveCountryCode();
-        $stats = $this->stats();
-        $imageKey = (string) $imageId;
-
-        if (! isset($stats['images'][$imageKey]) || ! is_array($stats['images'][$imageKey])) {
-            $stats['images'][$imageKey] = [
-                'total' => 0,
-                'countries' => [],
-            ];
-        }
-
-        $stats['images'][$imageKey] = $this->incrementBucket($stats['images'][$imageKey], $country);
-
-        if ($galleryId > 0) {
+        $this->store->mutate(self::OPTION_KEY, function (array &$raw) use ($galleryId, $country): void {
+            $stats = $this->normalizeStats($raw);
             $galleryKey = (string) $galleryId;
 
             if (! isset($stats['galleries'][$galleryKey]) || ! is_array($stats['galleries'][$galleryKey])) {
@@ -79,25 +50,63 @@ final class FrontendTrackingService implements ServiceInterface
                 ];
             }
 
-            if (! isset($stats['galleries'][$galleryKey]['images']) || ! is_array($stats['galleries'][$galleryKey]['images'])) {
-                $stats['galleries'][$galleryKey]['images'] = [];
-            }
+            $stats['galleries'][$galleryKey] = $this->incrementBucket($stats['galleries'][$galleryKey], $country);
+            $stats['updated_at'] = \gmdate('c');
+            $raw = $stats;
+        });
+    }
 
-            if (! isset($stats['galleries'][$galleryKey]['images'][$imageKey]) || ! is_array($stats['galleries'][$galleryKey]['images'][$imageKey])) {
-                $stats['galleries'][$galleryKey]['images'][$imageKey] = [
+    public function recordImageView(int $galleryId, int $imageId): void
+    {
+        if ($imageId <= 0) {
+            return;
+        }
+
+        $country = $this->resolveCountryCode();
+        $this->store->mutate(self::OPTION_KEY, function (array &$raw) use ($galleryId, $imageId, $country): void {
+            $stats = $this->normalizeStats($raw);
+            $imageKey = (string) $imageId;
+
+            if (! isset($stats['images'][$imageKey]) || ! is_array($stats['images'][$imageKey])) {
+                $stats['images'][$imageKey] = [
                     'total' => 0,
                     'countries' => [],
                 ];
             }
 
-            $stats['galleries'][$galleryKey]['images'][$imageKey] = $this->incrementBucket(
-                $stats['galleries'][$galleryKey]['images'][$imageKey],
-                $country
-            );
-        }
+            $stats['images'][$imageKey] = $this->incrementBucket($stats['images'][$imageKey], $country);
 
-        $stats['updated_at'] = \gmdate('c');
-        \update_option(self::OPTION_KEY, $stats, false);
+            if ($galleryId > 0) {
+                $galleryKey = (string) $galleryId;
+
+                if (! isset($stats['galleries'][$galleryKey]) || ! is_array($stats['galleries'][$galleryKey])) {
+                    $stats['galleries'][$galleryKey] = [
+                        'total' => 0,
+                        'countries' => [],
+                        'images' => [],
+                    ];
+                }
+
+                if (! isset($stats['galleries'][$galleryKey]['images']) || ! is_array($stats['galleries'][$galleryKey]['images'])) {
+                    $stats['galleries'][$galleryKey]['images'] = [];
+                }
+
+                if (! isset($stats['galleries'][$galleryKey]['images'][$imageKey]) || ! is_array($stats['galleries'][$galleryKey]['images'][$imageKey])) {
+                    $stats['galleries'][$galleryKey]['images'][$imageKey] = [
+                        'total' => 0,
+                        'countries' => [],
+                    ];
+                }
+
+                $stats['galleries'][$galleryKey]['images'][$imageKey] = $this->incrementBucket(
+                    $stats['galleries'][$galleryKey]['images'][$imageKey],
+                    $country
+                );
+            }
+
+            $stats['updated_at'] = \gmdate('c');
+            $raw = $stats;
+        });
     }
 
     /**
@@ -109,11 +118,12 @@ final class FrontendTrackingService implements ServiceInterface
      */
     public function stats(): array
     {
-        $value = \get_option(self::OPTION_KEY, []);
+        return $this->normalizeStats($this->store->read(self::OPTION_KEY));
+    }
 
-        if (! is_array($value)) {
-            $value = [];
-        }
+    private function normalizeStats(array $value): array
+    {
+
 
         $galleries = isset($value['galleries']) && is_array($value['galleries']) ? $value['galleries'] : [];
         $images = isset($value['images']) && is_array($value['images']) ? $value['images'] : [];

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\Frontend\Controllers;
 
 use Prox\ProxGallery\Contracts\ControllerInterface;
+use Prox\ProxGallery\Storage\StorageBusyException;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
 
@@ -92,29 +93,33 @@ final class FrontendGalleryController implements ControllerInterface
             \wp_send_json_error(['message' => 'Rate limit exceeded.'], 429);
         }
 
-        if ($eventType === 'gallery_visit') {
-            if (! $this->service->galleryExists($galleryId)) {
-                \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
+        try {
+            if ($eventType === 'gallery_visit') {
+                if (! $this->service->galleryExists($galleryId)) {
+                    \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
+                }
+
+                $this->tracking->recordGalleryVisit($galleryId);
+                \wp_send_json_success(['tracked' => true]);
             }
 
-            $this->tracking->recordGalleryVisit($galleryId);
-            \wp_send_json_success(['tracked' => true]);
+            if ($eventType === 'image_view') {
+                if (! $this->imageExists($imageId)) {
+                    \wp_send_json_error(['message' => 'Invalid image.'], 400);
+                }
+
+                if ($galleryId <= 0 || ! $this->service->galleryContainsImage($galleryId, $imageId)) {
+                    \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
+                }
+
+                $this->tracking->recordImageView($galleryId, $imageId);
+                \wp_send_json_success(['tracked' => true]);
+            }
+
+            \wp_send_json_error(['message' => 'Invalid tracking event.'], 400);
+        } catch (StorageBusyException $exception) {
+            \wp_send_json_error(['message' => $exception->getMessage()], 503);
         }
-
-        if ($eventType === 'image_view') {
-            if (! $this->imageExists($imageId)) {
-                \wp_send_json_error(['message' => 'Invalid image.'], 400);
-            }
-
-            if ($galleryId <= 0 || ! $this->service->galleryContainsImage($galleryId, $imageId)) {
-                \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
-            }
-
-            $this->tracking->recordImageView($galleryId, $imageId);
-            \wp_send_json_success(['tracked' => true]);
-        }
-
-        \wp_send_json_error(['message' => 'Invalid tracking event.'], 400);
     }
 
     private function enqueueFrontendAssets(): void

@@ -1,0 +1,7 @@
+# Disposable WordPress browser verification
+
+Zip `verification.php` and `runner.js` together inside a `pg-verification/` directory. Upload as a separate plugin on a fresh expendable **TasteWP** site, activate Prox Gallery first, then this fixture. Open Tools → Gallery verification and run the button. This is excluded from the production plugin package.
+
+It creates 600 real attachment posts sharing one tiny PNG, a published shortcode page, an author test user and small batches of concurrent authenticated AJAX requests. It changes only the disposable site's plugin/test data and sets the test contact to the explicitly requested `marcel@prox-web.nl`. It intercepts all OpenAI HTTP transport while active and never needs a real API key. Provider failures, quota exhaustion, object permissions, legacy option data and real SQL interleavings are checked. Final JSON is printed on the page. This is a functional concurrency check, not a load test or provider-output quality evaluation.
+
+The fixture is restricted to `*.tastewp.com`, requires an administrator and a valid nonce for every fixture operation, has no unauthenticated handlers and accepts only named operations. Deactivate it after recording results; the temporary site expires through TasteWP. Never install it on a user's production site. Re-running creates additional small test collections; use a fresh disposable site for an independent run.

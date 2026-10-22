@@ -49,6 +49,12 @@ export function ImageAiPanel({ image, controller, onApplied }) {
         message: error.message || "Generation failed.",
       });
     } finally {
+      try {
+        const response = await controller.getGenerationConfig();
+        setConfig(response.config);
+      } catch {
+        // Preserve the generation result or error if refreshing usage fails.
+      }
       setBusy(false);
     }
   };
@@ -97,6 +103,13 @@ export function ImageAiPanel({ image, controller, onApplied }) {
         ) : null
       ) : (
         <>
+          {config.usage ? (
+            <p className="pg-muted" role="status">
+              Today: {config.usage.user_remaining} of {config.usage.user_limit} attempts left for you;
+              {" "}{config.usage.site_remaining} of {config.usage.site_limit} for this site.
+              Resets at 00:00 UTC.
+            </p>
+          ) : null}
           <div className="pg-form-grid">
             <label className="pg-field">
               Template
@@ -141,7 +154,7 @@ export function ImageAiPanel({ image, controller, onApplied }) {
               onChange={(event) => setPrompt(event.target.value)}
             />
           </label>
-          <Button onClick={generate} disabled={busy || !template}>
+          <Button onClick={generate} disabled={busy || !template || (config.usage && (config.usage.user_remaining === 0 || config.usage.site_remaining === 0))}>
             <Sparkles size={15} />
             {busy ? "Working…" : "Generate preview"}
           </Button>

@@ -12,6 +12,8 @@ Run on a backed-up, disposable WordPress installation matching production's PHP 
 8. Check that no saved API key appears in settings responses. Save another setting with the key field blank and verify the existing key remains configured. Do not perform a paid Generate action without the account owner's approval.
 9. Revoke `prox_gallery_use_openai` from a test role, reload and verify that revocation persists after initial capability migration.
 10. Record an image view, then a gallery visit, then another image view. Confirm existing image totals remain. Untrusted country headers must not change geolocation.
-11. Exercise ordinary workloads and concurrent mutations. Measure option size and lost updates before accepting larger-library or higher-traffic use. The existing 500-entry tracking limit and non-atomic storage remain known limitations.
+11. Exercise ordinary workloads and concurrent mutations. Verify exact counts after concurrent gallery creation, media updates and tracking. Verify libraries beyond 500 attachments retain their oldest records. Atomic option mutations and removal of index eviction are included in rc.2; full-collection reads remain a scaling limitation.
+
+12. Configure user/site AI quotas, including zero. Run concurrent generations with intercepted transport and verify excess requests return HTTP 429 before reaching the provider. Verify day rollover and timeout accounting. See `tests/wordpress-verification/README.md` for the disposable TasteWP fixture.
 
 The release candidate has not been installed or tested on the user's live WordPress site. No production content or menus were changed by this work.

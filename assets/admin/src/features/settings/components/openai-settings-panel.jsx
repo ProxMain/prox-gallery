@@ -44,6 +44,25 @@ export function OpenAiSettingsPanel({ value, update, disabled }) {
           />
         </label>
       </div>
+      <div className="pg-form-grid">
+        <label className="pg-field">
+          Daily attempts per user
+          <input type="number" min="0" max="10000" step="1"
+            value={value.user_daily_limit}
+            onChange={(event) => update("user_daily_limit", event.target.value)} />
+        </label>
+        <label className="pg-field">
+          Daily attempts for the site
+          <input type="number" min="0" max="10000" step="1"
+            value={value.site_daily_limit}
+            onChange={(event) => update("site_daily_limit", event.target.value)} />
+        </label>
+      </div>
+      <p className="pg-muted">
+        Resets at 00:00 UTC. Limits include administrators and failed provider
+        requests. Set either limit to 0 to pause generation. These are request
+        limits; set a spending budget with your API provider as well.
+      </p>
       <label className="pg-field">
         Languages, separated by commas
         <input

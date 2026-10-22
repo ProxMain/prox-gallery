@@ -12,7 +12,7 @@ use RuntimeException;
  */
 final class OpenAiStoryService
 {
-    public function __construct(private OpenAiSettingsService $settings)
+    public function __construct(private OpenAiSettingsService $settings, private OpenAiUsageService $usage = new OpenAiUsageService())
     {
     }
 
@@ -99,6 +99,7 @@ final class OpenAiStoryService
 
         $request = [
             'model' => (string) $settings['model'],
+            'max_output_tokens' => 800,
             'input' => [
                 [
                     'role' => 'system',
@@ -129,6 +130,9 @@ final class OpenAiStoryService
                 ],
             ],
         ];
+
+        // Failed requests and timeouts consume a reservation too: they may already be billed.
+        $this->usage->reserve(\get_current_user_id(), $settings);
 
         $response = \wp_remote_post(
             'https://api.openai.com/v1/responses',

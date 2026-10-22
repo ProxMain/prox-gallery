@@ -25,6 +25,8 @@ const TEMPLATE_DEFAULTS = {
 const AI_DEFAULTS = {
   api_key: "",
   api_key_configured: false,
+  user_daily_limit: 20,
+  site_daily_limit: 100,
   model: "gpt-4.1-mini",
   languages: ["English", "Dutch"],
   prompt_templates: [],

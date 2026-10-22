@@ -143,6 +143,8 @@ export function createPreviewBackend() {
   let aiSettings = {
     api_key: "",
     api_key_configured: false,
+    user_daily_limit: 20,
+    site_daily_limit: 100,
     model: "gpt-4.1-mini",
     languages: ["English", "Dutch"],
     prompt_templates: [
@@ -288,6 +290,8 @@ export function createPreviewBackend() {
           api_key: "",
           api_key_configured:
             Boolean(payload.api_key) || aiSettings.api_key_configured,
+          user_daily_limit: Number(payload.user_daily_limit),
+          site_daily_limit: Number(payload.site_daily_limit),
           model: payload.model,
           languages: payload.languages_csv.split(","),
           prompt_templates: JSON.parse(payload.prompt_templates_json),

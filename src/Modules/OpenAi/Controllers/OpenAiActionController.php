@@ -10,6 +10,7 @@ use Prox\ProxGallery\Controllers\ForbiddenActionException;
 use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
+use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiUsageService;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
@@ -25,7 +26,8 @@ final class OpenAiActionController extends AbstractActionController implements A
 
     public function __construct(
         private OpenAiSettingsService $settings,
-        private OpenAiStoryService $stories
+        private OpenAiStoryService $stories,
+        private OpenAiUsageService $usage = new OpenAiUsageService()
     ) {
     }
 
@@ -119,7 +121,7 @@ final class OpenAiActionController extends AbstractActionController implements A
     {
         return [
             'action' => $action,
-            'config' => $this->settings->generationConfig(),
+            'config' => [...$this->settings->generationConfig(), 'usage' => $this->usage->status(\get_current_user_id(), $this->settings->settings())],
         ];
     }
 

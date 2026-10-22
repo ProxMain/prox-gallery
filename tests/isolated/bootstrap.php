@@ -28,7 +28,48 @@ function taxonomy_exists(string $name): bool { return false; }
 function wp_get_attachment_image_url(int $id, string $size): string { return 'https://example.test/' . $id . '.jpg'; }
 function wp_update_post(array $post, bool $error = false): int { foreach ($post as $key => $value) { if ($key !== 'ID') $GLOBALS['test_posts'][$post['ID']]->{$key} = $value; } return $post['ID']; }
 class WP_Post { public string $post_type = 'attachment'; public string $post_title = ''; public string $post_content = ''; public string $post_excerpt = ''; }
-class WP_Error {}
+function maybe_serialize(mixed $value): string { return serialize($value); }
+function maybe_unserialize(string $value): mixed { return unserialize($value, ['allowed_classes' => false]); }
+function wp_cache_delete(string $key, string $group): bool { return true; }
+function get_current_user_id(): int { return $GLOBALS['test_user_id'] ?? 1; }
+function get_attached_file(int $id): string { return $GLOBALS['test_attachment_file'] ?? __FILE__; }
+function get_post_mime_type(int $id): string { return 'image/png'; }
+function wp_remote_post(string $url, array $args): mixed { $GLOBALS['test_provider_calls'] = ($GLOBALS['test_provider_calls'] ?? 0) + 1; return $GLOBALS['test_provider_response'] ?? new WP_Error(); }
+function wp_remote_retrieve_response_code(array $response): int { return $response['response']['code']; }
+function wp_remote_retrieve_body(array $response): string { return $response['body']; }
+class WP_Error { public function get_error_message(): string { return 'Simulated provider timeout'; } }
+
+// A deterministic SQL-boundary double. Real SQL and concurrent HTTP are checked on WordPress.
+class TestOptionDatabase {
+    public string $options = 'wp_options';
+    public string $last_error = '';
+    public mixed $beforeWrite = null;
+    public bool $conflict = false;
+    public bool $fail = false;
+    public function prepare(string $sql, mixed ...$args): array { return [$sql, $args]; }
+    public function get_var(array $query): ?string {
+        $key = $query[1][0];
+        return array_key_exists($key, $GLOBALS['test_options']) ? serialize($GLOBALS['test_options'][$key]) : null;
+    }
+    public function query(array $query): int|false {
+        if ($this->fail) return false;
+        $callback = $this->beforeWrite;
+        $this->beforeWrite = null;
+        if ($callback) $callback();
+        if ($this->conflict) return 0;
+        [$sql, $args] = $query;
+        if (str_starts_with($sql, 'INSERT')) {
+            [$key, $next] = $args;
+            if (array_key_exists($key, $GLOBALS['test_options'])) return 0;
+        } else {
+            [$next, $key, $previous] = $args;
+            if (!array_key_exists($key, $GLOBALS['test_options']) || serialize($GLOBALS['test_options'][$key]) !== $previous) return 0;
+        }
+        $GLOBALS['test_options'][$key] = unserialize($next, ['allowed_classes' => false]);
+        return 1;
+    }
+}
+$GLOBALS['wpdb'] = new TestOptionDatabase();
 class WP_Role {
     public array $capabilities = [];
     public function has_cap(string $key): bool { return (bool) ($this->capabilities[$key] ?? false); }
