@@ -7,13 +7,18 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "checkJs": false,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["assets/admin/src/*"]
+      "@/*": ["./assets/admin/src/*"]
     },
     "types": ["vite/client"],
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["assets/admin/src/**/*.ts", "assets/admin/src/**/*.tsx", "assets/admin/src/**/*.js", "assets/admin/src/**/*.jsx", "vite.admin.config.js"]
+  "include": [
+    "assets/admin/src/**/*.ts",
+    "assets/admin/src/**/*.tsx",
+    "assets/admin/src/**/*.js",
+    "assets/admin/src/**/*.jsx",
+    "vite.admin.config.js"
+  ]
 }

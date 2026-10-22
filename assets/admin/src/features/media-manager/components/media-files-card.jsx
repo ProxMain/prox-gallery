@@ -1,9 +1,5 @@
-import { Images } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { CollectionPagination } from "@/components/ui/collection-pagination";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { SectionHeader } from "@/core/section-header";
 import { MediaFilesEmptyState } from "@/features/media-manager/components/media-files-empty-state";
 import { MediaFilesFilters } from "@/features/media-manager/components/media-files-filters";
 import { MediaFilesToolbar } from "@/features/media-manager/components/media-files-toolbar";
@@ -30,7 +26,7 @@ export function MediaFilesCard({
   currentPage,
   pageSize,
   onPageChange,
-  onPaginationChange
+  onPaginationChange,
 }) {
   const [activeModal, setActiveModal] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -58,9 +54,9 @@ export function MediaFilesCard({
         ...current,
         image: {
           ...current.image,
-          ...updated
+          ...updated,
         },
-        mode: "view"
+        mode: "view",
       };
     });
   };
@@ -84,9 +80,14 @@ export function MediaFilesCard({
   const visibleImages = useMemo(() => {
     const normalizedSearchQuery = searchQuery.trim().toLowerCase();
     const filtered = trackedImages.filter((image) => {
-      const title = String(image.title || "").trim().toLowerCase();
+      const title = String(image.title || "")
+        .trim()
+        .toLowerCase();
 
-      if (normalizedSearchQuery !== "" && !title.includes(normalizedSearchQuery)) {
+      if (
+        normalizedSearchQuery !== "" &&
+        !title.includes(normalizedSearchQuery)
+      ) {
         return false;
       }
 
@@ -95,7 +96,9 @@ export function MediaFilesCard({
       }
 
       return (image.categories || []).some(
-        (category) => String(category.name || "").toLowerCase() === selectedCategory.toLowerCase()
+        (category) =>
+          String(category.name || "").toLowerCase() ===
+          selectedCategory.toLowerCase(),
       );
     });
 
@@ -105,7 +108,9 @@ export function MediaFilesCard({
       const leftValue = Number.isNaN(leftDate) ? 0 : leftDate;
       const rightValue = Number.isNaN(rightDate) ? 0 : rightDate;
 
-      return dateSort === "date_asc" ? leftValue - rightValue : rightValue - leftValue;
+      return dateSort === "date_asc"
+        ? leftValue - rightValue
+        : rightValue - leftValue;
     });
 
     return sorted;
@@ -125,82 +130,96 @@ export function MediaFilesCard({
   useEffect(() => {
     onPaginationChange({
       totalItems: visibleImages.length,
-      totalPages
+      totalPages,
     });
   }, [visibleImages.length, totalPages, onPaginationChange]);
 
   return (
     <>
-      <Card>
-        <CardHeader className="p-0">
-          <SectionHeader
-            framed={false}
-            icon={Images}
-            title="Media files"
-            description="Manage files and switch views from one compact header bar."
-            actions={
-              <MediaFilesToolbar
-                onReloadTrackedImages={onReloadTrackedImages}
-                onSetThumbnailView={() => setViewMode("thumbnail")}
-                onSetRowView={() => setViewMode("row")}
-                onToggleFilters={() => setIsFilterOpen((current) => !current)}
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-              />
+      <div aria-busy={isLoadingList}>
+        <MediaFilesToolbar
+          onReloadTrackedImages={onReloadTrackedImages}
+          onSetThumbnailView={() => setViewMode("thumbnail")}
+          onSetRowView={() => setViewMode("row")}
+          onToggleFilters={() => setIsFilterOpen((current) => !current)}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          viewMode={viewMode}
+          isFilterOpen={isFilterOpen}
+          isLoading={isLoadingList}
+        />
+        {listError ? (
+          <p className="pg-notice pg-error" role="alert">
+            {listError}
+          </p>
+        ) : null}
+        {isFilterOpen ? (
+          <MediaFilesFilters
+            selectedCategory={selectedCategory}
+            onSelectedCategoryChange={setSelectedCategory}
+            categoryOptions={categoryOptions}
+            dateSort={dateSort}
+            onDateSortChange={setDateSort}
+          />
+        ) : null}
+
+        {isLoadingList ? (
+          <p className="text-sm text-slate-600">Loading tracked images...</p>
+        ) : visibleImages.length === 0 && !listError ? (
+          <MediaFilesEmptyState
+            isLoadingList={isLoadingList}
+            onReloadTrackedImages={onReloadTrackedImages}
+            hasActiveSearch={
+              searchQuery.trim() !== "" || selectedCategory !== "all"
             }
           />
-        </CardHeader>
-        <CardContent>
-          {isFilterOpen ? (
-            <MediaFilesFilters
-              selectedCategory={selectedCategory}
-              onSelectedCategoryChange={setSelectedCategory}
-              categoryOptions={categoryOptions}
-              dateSort={dateSort}
-              onDateSortChange={setDateSort}
-            />
-          ) : null}
+        ) : viewMode === "thumbnail" ? (
+          <MediaThumbnailGrid
+            trackedImages={paginatedImages}
+            onDeleteLinkClick={onDeleteLinkClick}
+            onViewClick={(image) => handleOpenImageModal(image, "view")}
+            onEditClick={(image) => handleOpenImageModal(image, "edit")}
+          />
+        ) : (
+          <MediaRowsList
+            trackedImages={paginatedImages}
+            onDeleteLinkClick={onDeleteLinkClick}
+            onViewClick={(image) => handleOpenImageModal(image, "view")}
+            onEditClick={(image) => handleOpenImageModal(image, "edit")}
+          />
+        )}
+      </div>
 
-          {isLoadingList ? (
-            <p className="text-sm text-slate-600">Loading tracked images...</p>
-          ) : visibleImages.length === 0 ? (
-            <MediaFilesEmptyState
-              isLoadingList={isLoadingList}
-              onReloadTrackedImages={onReloadTrackedImages}
-              hasActiveSearch={searchQuery.trim() !== ""}
-            />
-          ) : viewMode === "thumbnail" ? (
-            <MediaThumbnailGrid
-              trackedImages={paginatedImages}
-              onDeleteLinkClick={onDeleteLinkClick}
-              onViewClick={(image) => handleOpenImageModal(image, "view")}
-              onEditClick={(image) => handleOpenImageModal(image, "edit")}
-            />
-          ) : (
-            <MediaRowsList
-              trackedImages={paginatedImages}
-              onDeleteLinkClick={onDeleteLinkClick}
-              onViewClick={(image) => handleOpenImageModal(image, "view")}
-              onEditClick={(image) => handleOpenImageModal(image, "edit")}
-            />
-          )}
-          {listError !== "" ? <p className="mt-3 text-sm text-red-600">{listError}</p> : null}
-        </CardContent>
-      </Card>
-
-      <MediaImageModal
-        image={activeModal?.image ?? null}
-        mode={activeModal?.mode ?? "view"}
-        onSave={handleSaveImageMetadata}
-        onLoadCategories={onLoadMediaCategories}
-        onSuggestCategories={onSuggestMediaCategories}
-        onAssignCategories={onAssignMediaCategories}
-        onListGalleries={onListGalleries}
-        onLoadImageGalleries={onLoadImageGalleries}
-        onSetImageGalleries={onSetImageGalleries}
-        openAiController={openAiController}
-        onClose={handleCloseImageModal}
-      />
+      {activeModal ? (
+        <MediaImageModal
+          image={activeModal?.image ?? null}
+          mode={activeModal?.mode ?? "view"}
+          onSave={handleSaveImageMetadata}
+          onLoadCategories={onLoadMediaCategories}
+          onSuggestCategories={onSuggestMediaCategories}
+          onAssignCategories={onAssignMediaCategories}
+          onListGalleries={onListGalleries}
+          onLoadImageGalleries={onLoadImageGalleries}
+          onSetImageGalleries={onSetImageGalleries}
+          openAiController={openAiController}
+          onApplied={async (response) => {
+            setActiveModal((current) =>
+              current
+                ? {
+                    ...current,
+                    image: {
+                      ...current.image,
+                      title: response.short_title,
+                      description: response.story,
+                    },
+                  }
+                : current,
+            );
+            await onReloadTrackedImages();
+          }}
+          onClose={handleCloseImageModal}
+        />
+      ) : null}
     </>
   );
 }

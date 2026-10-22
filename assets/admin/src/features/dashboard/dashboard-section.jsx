@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { BarChart3, Eye, FolderOpen, Globe2, Image as ImageIcon, LayoutDashboard } from "lucide-react";
+import {
+  BarChart3,
+  Eye,
+  FolderOpen,
+  Globe2,
+  Image as ImageIcon,
+  LayoutDashboard,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SectionHeader } from "@/core/section-header";
@@ -54,7 +61,10 @@ export function DashboardSection({ config, isActive }) {
           return;
         }
 
-        const message = loadError instanceof Error ? loadError.message : "Failed to load dashboard analytics.";
+        const message =
+          loadError instanceof Error
+            ? loadError.message
+            : "Failed to load dashboard analytics.";
         setError(message);
       } finally {
         if (active) {
@@ -72,16 +82,20 @@ export function DashboardSection({ config, isActive }) {
 
   const totals = summary?.totals ?? { gallery_views: 0, image_views: 0 };
   const countries = topCountryRows(summary?.countries ?? {}, 8);
-  const galleries = Array.isArray(summary?.galleries) ? summary.galleries.slice(0, 8) : [];
-  const images = Array.isArray(summary?.images) ? summary.images.slice(0, 8) : [];
+  const galleries = Array.isArray(summary?.galleries)
+    ? summary.galleries.slice(0, 8)
+    : [];
+  const images = Array.isArray(summary?.images)
+    ? summary.images.slice(0, 8)
+    : [];
 
   return (
-    <div className={isActive ? "" : "hidden"}>
+    <div className={isActive ? "space-y-6" : "hidden"}>
       <SectionHeader
         variant="page"
         icon={LayoutDashboard}
-        title="Prox Gallery - Dashboard"
-        description="Live analytics for gallery visits and image views by country."
+        title="A little perspective."
+        description="How visitors explore your work. Recorded visits are estimates, not unique people."
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -117,7 +131,11 @@ export function DashboardSection({ config, isActive }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold text-slate-900">
-            {formatCount(countries.length)}
+            {formatCount(
+              Object.keys(summary?.countries ?? {}).filter(
+                (code) => code !== "ZZ",
+              ).length,
+            )}
           </CardContent>
         </Card>
 
@@ -129,7 +147,9 @@ export function DashboardSection({ config, isActive }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm font-medium text-slate-900">
-            {summary?.updated_at ? new Date(summary.updated_at).toLocaleString() : "No data yet"}
+            {summary?.updated_at
+              ? new Date(summary.updated_at).toLocaleString()
+              : "No data yet"}
           </CardContent>
         </Card>
       </section>
@@ -145,9 +165,16 @@ export function DashboardSection({ config, isActive }) {
             ) : (
               <div className="space-y-2">
                 {countries.map((row) => (
-                  <div key={row.code} className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2">
-                    <span className="text-sm font-medium text-slate-900">{row.code}</span>
-                    <span className="text-xs text-slate-600">{formatCount(row.count)}</span>
+                  <div
+                    key={row.code}
+                    className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2"
+                  >
+                    <span className="text-sm font-medium text-slate-900">
+                      {row.code === "ZZ" ? "Unknown" : row.code}
+                    </span>
+                    <span className="text-xs text-slate-600">
+                      {formatCount(row.count)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -165,9 +192,16 @@ export function DashboardSection({ config, isActive }) {
             ) : (
               <div className="space-y-2">
                 {galleries.map((gallery) => (
-                  <div key={gallery.gallery_id} className="rounded-md border border-slate-200 px-3 py-2">
-                    <p className="truncate text-sm font-medium text-slate-900">{gallery.name}</p>
-                    <p className="mt-0.5 text-xs text-slate-600">{formatCount(gallery.total)} visits</p>
+                  <div
+                    key={gallery.gallery_id}
+                    className="rounded-md border border-slate-200 px-3 py-2"
+                  >
+                    <p className="truncate text-sm font-medium text-slate-900">
+                      {gallery.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-600">
+                      {formatCount(gallery.total)} visits
+                    </p>
                   </div>
                 ))}
               </div>
@@ -185,10 +219,17 @@ export function DashboardSection({ config, isActive }) {
             ) : (
               <div className="space-y-2">
                 {images.map((image) => (
-                  <div key={image.image_id} className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2">
+                  <div
+                    key={image.image_id}
+                    className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2"
+                  >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-900">{image.title || `#${image.image_id}`}</p>
-                      <p className="text-xs text-slate-600">Image #{image.image_id}</p>
+                      <p className="truncate text-sm font-medium text-slate-900">
+                        {image.title || `#${image.image_id}`}
+                      </p>
+                      <p className="text-xs text-slate-600">
+                        Image #{image.image_id}
+                      </p>
                     </div>
                     <span className="inline-flex items-center gap-1 text-xs text-slate-700">
                       <ImageIcon className="h-3.5 w-3.5 text-sky-600" />
@@ -202,8 +243,14 @@ export function DashboardSection({ config, isActive }) {
         </Card>
       </section>
 
-      {isLoading ? <p className="text-sm text-slate-600">Loading analytics...</p> : null}
-      {error !== "" ? <p className="text-sm text-red-600">{error}</p> : null}
+      {isLoading ? (
+        <p className="text-sm text-slate-600">Loading analytics...</p>
+      ) : null}
+      {error !== "" ? (
+        <p className="pg-notice pg-error" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/isolated/bootstrap.php" colors="true" failOnWarning="true">
+  <testsuites><testsuite name="Isolated security and tracking regressions"><directory>tests/isolated</directory></testsuite></testsuites>
+</phpunit>

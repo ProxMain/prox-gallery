@@ -155,13 +155,9 @@ final class MediaLibraryCliController extends AbstractCliController
             $valid[] = $image;
         }
 
-        $removed = count($tracked) - count($valid);
-        $this->queue->replaceAll($valid);
-
-        return [
-            'removed' => $removed,
-            'remaining' => count($valid),
-        ];
+        $validIds = array_map(static fn ($image): int => $image->id, $valid);
+        $staleIds = array_values(array_diff(array_map(static fn ($image): int => $image->id, $tracked), $validIds));
+        return $this->queue->removeIds($staleIds);
     }
 
     /**

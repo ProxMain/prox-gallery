@@ -1,6 +1,4 @@
-import { Database, Filter, Settings2, WandSparkles } from "lucide-react";
-
-import { InlineSearchInput } from "@/components/ui/inline-search-input";
+import { Filter, LayoutGrid, List, RefreshCw, Search } from "lucide-react";
 
 export function MediaFilesToolbar({
   onReloadTrackedImages,
@@ -8,48 +6,59 @@ export function MediaFilesToolbar({
   onSetRowView,
   onToggleFilters,
   searchQuery,
-  onSearchQueryChange
+  onSearchQueryChange,
+  viewMode,
+  isFilterOpen,
+  isLoading,
 }) {
   return (
-    <>
+    <div className="pg-library-toolbar">
+      <label className="pg-search">
+        <Search size={17} aria-hidden="true" />
+        <input
+          type="search"
+          aria-label="Search media by name"
+          value={searchQuery}
+          onChange={(event) => onSearchQueryChange(event.target.value)}
+          placeholder="Find an image…"
+        />
+      </label>
       <button
         type="button"
-        onClick={onReloadTrackedImages}
-        className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-      >
-        <Settings2 className="h-4 w-4 text-sky-700" />
-        <span>Reload</span>
-      </button>
-      <button
-        type="button"
-        onClick={onSetThumbnailView}
-        className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-      >
-        <WandSparkles className="h-4 w-4 text-indigo-700" />
-        <span>Thumbnails</span>
-      </button>
-      <button
-        type="button"
-        onClick={onSetRowView}
-        className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-      >
-        <Database className="h-4 w-4 text-emerald-700" />
-        <span>Rows</span>
-      </button>
-      <button
-        type="button"
+        className="pg-filter-button"
         onClick={onToggleFilters}
-        className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+        aria-expanded={isFilterOpen}
       >
-        <Filter className="h-4 w-4 text-slate-700" />
-        <span>Filters</span>
+        <Filter size={16} />
+        Filters
       </button>
-      <InlineSearchInput
-        value={searchQuery}
-        onChange={onSearchQueryChange}
-        placeholder="Search media by name"
-        ariaLabel="Search media by name"
-      />
-    </>
+      <div className="pg-view-switch">
+        <button
+          type="button"
+          onClick={onSetThumbnailView}
+          aria-label="Thumbnail view"
+          aria-pressed={viewMode === "thumbnail"}
+        >
+          <LayoutGrid size={17} />
+        </button>
+        <button
+          type="button"
+          onClick={onSetRowView}
+          aria-label="Row view"
+          aria-pressed={viewMode === "row"}
+        >
+          <List size={17} />
+        </button>
+      </div>
+      <button
+        type="button"
+        className="pg-icon-button"
+        onClick={onReloadTrackedImages}
+        disabled={isLoading}
+        aria-label="Refresh media"
+      >
+        <RefreshCw size={17} className={isLoading ? "animate-spin" : ""} />
+      </button>
+    </div>
   );
 }

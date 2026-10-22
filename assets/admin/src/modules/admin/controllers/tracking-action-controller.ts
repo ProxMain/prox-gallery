@@ -1,7 +1,7 @@
 import {
   AbstractActionController,
   type ActionControllerConfig,
-  type AjaxActionDefinition
+  type AjaxActionDefinition,
 } from "@/modules/core/controllers/abstract-action-controller";
 
 type TrackingDefinitions = {
@@ -33,7 +33,10 @@ export type TrackingSummaryResponse = {
 };
 
 export class TrackingActionController extends AbstractActionController<TrackingDefinitions> {
-  constructor(config: ActionControllerConfig, definitions: TrackingDefinitions) {
+  constructor(
+    config: ActionControllerConfig,
+    definitions: TrackingDefinitions,
+  ) {
     super(config, definitions);
   }
 
@@ -41,4 +44,3 @@ export class TrackingActionController extends AbstractActionController<TrackingD
     return this.dispatch<TrackingSummaryResponse>("get");
   }
 }
-

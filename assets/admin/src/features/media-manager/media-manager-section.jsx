@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CollectionPagination } from "@/components/ui/collection-pagination";
 import { MediaFilesCard } from "@/features/media-manager/components/media-files-card";
@@ -9,13 +9,10 @@ import {
   useGalleryActionController,
   useMediaCategoryActionController,
   useMediaManagerActionController,
-  useOpenAiActionController
+  useOpenAiActionController,
 } from "@/lib/action-controller-hooks";
 
-export function MediaManagerSection({
-  config,
-  isActive
-}) {
+export function MediaManagerSection({ config, isActive }) {
   const mediaManagerController = useMediaManagerActionController(config);
   const mediaCategoryController = useMediaCategoryActionController(config);
   const galleryController = useGalleryActionController(config);
@@ -31,33 +28,30 @@ export function MediaManagerSection({
     listError,
     setViewMode,
     loadTrackedImages,
-    reloadTrackedImages
+    reloadTrackedImages,
   } = useMediaManagerState(mediaManagerController);
-  const {
-    isOpeningPicker,
-    pickerError,
-    lastSelectionSummary,
-    openPicker
-  } = useMediaManagerPicker({
-    onTrackSelection: async (attachmentIds) => {
-      if (!mediaManagerController) {
-        throw new Error("Media manager action configuration is missing.");
-      }
+  const { isOpeningPicker, pickerError, lastSelectionSummary, openPicker } =
+    useMediaManagerPicker({
+      onTrackSelection: async (attachmentIds) => {
+        if (!mediaManagerController) {
+          throw new Error("Media manager action configuration is missing.");
+        }
 
-      const response = await mediaManagerController.trackSelectedAttachments(attachmentIds);
-      await reloadTrackedImages();
+        const response =
+          await mediaManagerController.trackSelectedAttachments(attachmentIds);
+        await reloadTrackedImages();
 
-      return response;
-    }
-  });
+        return response;
+      },
+    });
 
   useEffect(() => {
     if (!isActive) {
       return;
     }
 
-    void loadTrackedImages();
-  }, [isActive, loadTrackedImages]);
+    void reloadTrackedImages();
+  }, [isActive, reloadTrackedImages]);
 
   useEffect(() => {
     setCurrentPage((page) => Math.min(page, totalPages));
@@ -69,77 +63,109 @@ export function MediaManagerSection({
       return;
     }
 
-    const confirmed = window.confirm("Delete this media item?");
+    const confirmed = window.confirm(
+      "Permanently delete this image from the WordPress media library? It will disappear from every gallery and any other page using it.",
+    );
 
     if (!confirmed) {
       event.preventDefault();
     }
   };
 
-  const handleUpdateMediaMetadata = async (payload) => {
-    if (!mediaManagerController) {
-      throw new Error("Media manager action configuration is missing.");
-    }
+  const handleUpdateMediaMetadata = useCallback(
+    async (payload) => {
+      if (!mediaManagerController) {
+        throw new Error("Media manager action configuration is missing.");
+      }
 
-    const response = await mediaManagerController.updateTrackedImageMetadata(payload);
-    await reloadTrackedImages();
+      const response =
+        await mediaManagerController.updateTrackedImageMetadata(payload);
+      await reloadTrackedImages();
 
-    return response.item;
-  };
+      return response.item;
+    },
+    [mediaManagerController, reloadTrackedImages],
+  );
 
-  const handleLoadMediaCategories = async (attachmentId) => {
-    if (!mediaCategoryController) {
-      throw new Error("Media category action configuration is missing.");
-    }
+  const handleLoadMediaCategories = useCallback(
+    async (attachmentId) => {
+      if (!mediaCategoryController) {
+        throw new Error("Media category action configuration is missing.");
+      }
 
-    const response = await mediaCategoryController.listForAttachment(attachmentId);
-    return response.items;
-  };
+      const response =
+        await mediaCategoryController.listForAttachment(attachmentId);
+      return response.items;
+    },
+    [mediaCategoryController],
+  );
 
-  const handleSuggestMediaCategories = async (query) => {
-    if (!mediaCategoryController) {
-      return [];
-    }
+  const handleSuggestMediaCategories = useCallback(
+    async (query) => {
+      if (!mediaCategoryController) {
+        return [];
+      }
 
-    const response = await mediaCategoryController.suggestCategories(query, 12);
-    return response.items;
-  };
+      const response = await mediaCategoryController.suggestCategories(
+        query,
+        12,
+      );
+      return response.items;
+    },
+    [mediaCategoryController],
+  );
 
-  const handleAssignMediaCategories = async (attachmentId, categories) => {
-    if (!mediaCategoryController) {
-      throw new Error("Media category action configuration is missing.");
-    }
+  const handleAssignMediaCategories = useCallback(
+    async (attachmentId, categories) => {
+      if (!mediaCategoryController) {
+        throw new Error("Media category action configuration is missing.");
+      }
 
-    const response = await mediaCategoryController.assignToAttachment(attachmentId, categories.join(","));
-    return response.items;
-  };
+      const response = await mediaCategoryController.assignToAttachment(
+        attachmentId,
+        categories.join(","),
+      );
+      await reloadTrackedImages();
+      return response.items;
+    },
+    [mediaCategoryController, reloadTrackedImages],
+  );
 
-  const handleLoadImageGalleries = async (imageId) => {
-    if (!galleryController) {
-      return [];
-    }
+  const handleLoadImageGalleries = useCallback(
+    async (imageId) => {
+      if (!galleryController) {
+        return [];
+      }
 
-    const response = await galleryController.listImageGalleries(imageId);
-    return response.gallery_ids;
-  };
+      const response = await galleryController.listImageGalleries(imageId);
+      return response.gallery_ids;
+    },
+    [galleryController],
+  );
 
-  const handleSetImageGalleries = async (imageId, galleryIds) => {
-    if (!galleryController) {
-      throw new Error("Galleries action configuration is missing.");
-    }
+  const handleSetImageGalleries = useCallback(
+    async (imageId, galleryIds) => {
+      if (!galleryController) {
+        throw new Error("Galleries action configuration is missing.");
+      }
 
-    const response = await galleryController.setImageGalleries(imageId, galleryIds);
-    return response.gallery_ids;
-  };
+      const response = await galleryController.setImageGalleries(
+        imageId,
+        galleryIds,
+      );
+      return response.gallery_ids;
+    },
+    [galleryController],
+  );
 
-  const handleListGalleries = async () => {
+  const handleListGalleries = useCallback(async () => {
     if (!galleryController) {
       return [];
     }
 
     const response = await galleryController.listGalleries();
     return response.items;
-  };
+  }, [galleryController]);
 
   const pagination = useMemo(() => {
     if (totalItems <= 0) {
@@ -158,7 +184,9 @@ export function MediaManagerSection({
           setCurrentPage(1);
         }}
         onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
-        onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+        onNextPage={() =>
+          setCurrentPage((page) => Math.min(totalPages, page + 1))
+        }
         totalPages={totalPages}
       />
     );
@@ -172,7 +200,6 @@ export function MediaManagerSection({
         onOpenPicker={openPicker}
         pickerError={pickerError}
         lastSelectionSummary={lastSelectionSummary}
-        pagination={pagination}
       />
       <MediaFilesCard
         isLoadingList={isLoadingList}
@@ -193,11 +220,15 @@ export function MediaManagerSection({
         currentPage={currentPage}
         pageSize={pageSize}
         onPageChange={setCurrentPage}
-        onPaginationChange={({ totalItems: nextTotalItems, totalPages: nextTotalPages }) => {
+        onPaginationChange={({
+          totalItems: nextTotalItems,
+          totalPages: nextTotalPages,
+        }) => {
           setTotalItems(nextTotalItems);
           setTotalPages(nextTotalPages);
         }}
       />
+      {pagination}
     </section>
   );
 }

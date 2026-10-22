@@ -149,8 +149,6 @@ final class MediaManagerActionControllerTest extends WP_UnitTestCase
         $trackService = new TrackUploadedImageService($queue);
 
         return new MediaManagerActionController(
-            $queue,
-            $trackService,
             new MediaManagerListService($queue),
             new MediaManagerSyncService($queue, $trackService),
             new MediaManagerTrackSelectionService($trackService),

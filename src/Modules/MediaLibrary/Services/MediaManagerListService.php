@@ -23,7 +23,6 @@ final class MediaManagerListService
     public function listItems(array $payload = []): array
     {
         $items = [];
-        $validTrackedImages = [];
 
         foreach ($this->queue->all() as $image) {
             $post = \get_post($image->id);
@@ -32,7 +31,6 @@ final class MediaManagerListService
                 continue;
             }
 
-            $validTrackedImages[] = $image;
             $viewUrl = (string) $image->url;
             $editUrl = \function_exists('get_edit_post_link')
                 ? (string) (\get_edit_post_link($image->id, '') ?? '')
@@ -72,11 +70,12 @@ final class MediaManagerListService
 
             $items[] = [
                 'id' => $image->id,
-                'title' => $image->title,
+                'title' => (string) $post->post_title,
                 'mime_type' => $image->mimeType,
                 'uploaded_at' => $image->uploadedAt,
                 'uploaded_by' => $image->uploadedBy,
                 'url' => $image->url,
+                'thumbnail_url' => (string) (\wp_get_attachment_image_url($image->id, 'medium') ?: $image->url),
                 'view_url' => $viewUrl,
                 'edit_url' => $editUrl,
                 'delete_url' => $deleteUrl,
@@ -88,10 +87,6 @@ final class MediaManagerListService
                 'height' => $image->height,
                 'file_size' => $image->fileSize,
             ];
-        }
-
-        if (count($validTrackedImages) !== count($this->queue->all())) {
-            $this->queue->replaceAll($validTrackedImages);
         }
 
         /**

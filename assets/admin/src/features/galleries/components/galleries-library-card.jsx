@@ -1,876 +1,180 @@
-import { FilePlus2, Filter, FolderOpen, Images, LayoutGrid, List, Pencil, RefreshCcw, Settings2, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-
+import { useMemo, useState } from "react";
+import { FolderOpen, LayoutGrid, List, RefreshCw, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { CollectionPagination } from "@/components/ui/collection-pagination";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { InlineSearchInput } from "@/components/ui/inline-search-input";
-import { SectionHeader } from "@/core/section-header";
-import { GalleryActionIconButton } from "@/features/galleries/components/gallery-action-icon-button";
-import { GalleryCreationWizard } from "@/features/galleries/components/gallery-creation-wizard";
-import { GalleryMetaChipList } from "@/features/galleries/components/gallery-meta-chip-list";
+import { GalleryCard } from "./gallery-card";
 
 export function GalleriesLibraryCard({
   galleries,
-  templateOptions = [],
+  templates,
   isLoading,
   error,
   onReloadGalleries,
-  onCreateGallery,
-  onRenameGallery,
-  onDeleteGallery,
-  onCreateGalleryPage,
-  onLoadTrackedImages,
-  onAddImagesToGallery,
-  onSetGalleryImages,
-  currentPage,
-  pageSize,
-  onPageChange,
-  onPaginationChange,
-  wizard
+  onCreate,
+  ...actions
 }) {
-  const [viewMode, setViewMode] = useState("grid");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortMode, setSortMode] = useState("date_desc");
-  const [templateFilter, setTemplateFilter] = useState("all");
-  const [createMessage, setCreateMessage] = useState("");
-  const [isMutating, setIsMutating] = useState(false);
-  const [activeAddGalleryId, setActiveAddGalleryId] = useState(null);
-  const [trackedImages, setTrackedImages] = useState([]);
-  const [selectedImageIds, setSelectedImageIds] = useState([]);
-  const [isLoadingTrackedImages, setIsLoadingTrackedImages] = useState(false);
-  const [draggedImageId, setDraggedImageId] = useState(null);
-  const [activeDisplayGalleryId, setActiveDisplayGalleryId] = useState(null);
-  const [editGridColumnsOverride, setEditGridColumnsOverride] = useState("inherit");
-  const [editLightboxOverride, setEditLightboxOverride] = useState("inherit");
-  const [editHoverZoomOverride, setEditHoverZoomOverride] = useState("inherit");
-  const [editFullWidthOverride, setEditFullWidthOverride] = useState("inherit");
-  const [editTransitionOverride, setEditTransitionOverride] = useState("inherit");
-  const [editShowTitle, setEditShowTitle] = useState("on");
-  const [editShowDescription, setEditShowDescription] = useState("on");
-  const [editTemplate, setEditTemplate] = useState("basic-grid");
-
-  const availableTemplates = useMemo(() => {
-    const map = new Map();
-    const defaults = [
-      { slug: "basic-grid", label: "Basic Grid", is_pro: false, available: true },
-      { slug: "masonry", label: "Masonry", is_pro: false, available: true }
-    ];
-
-    defaults.forEach((template) => {
-      map.set(template.slug, template);
-    });
-
-    templateOptions.forEach((template) => {
-      if (!template || typeof template.slug !== "string" || template.slug === "") {
-        return;
-      }
-
-      map.set(template.slug, {
-        slug: template.slug,
-        label: typeof template.label === "string" && template.label !== "" ? template.label : template.slug,
-        is_pro: Boolean(template.is_pro),
-        available: Boolean(template.available)
-      });
-    });
-
-    return Array.from(map.values()).filter((template) => Boolean(template.available));
-  }, [templateOptions]);
-
-  const allTemplateOptions = useMemo(() => {
-    const map = new Map(
-      availableTemplates.map((template) => [template.slug, template])
-    );
-
-    templateOptions.forEach((template) => {
-      if (!template || typeof template.slug !== "string" || template.slug === "") {
-        return;
-      }
-
-      if (!map.has(template.slug)) {
-        map.set(template.slug, template);
-      }
-    });
-
-    return Array.from(map.values());
-  }, [availableTemplates, templateOptions]);
-
-  const visibleGalleries = useMemo(() => {
-    const normalizedSearchQuery = searchQuery.trim().toLowerCase();
-    const filtered = galleries.filter((gallery) => {
-      const name = String(gallery.name || "").trim().toLowerCase();
-      return normalizedSearchQuery === "" || name.includes(normalizedSearchQuery);
-    });
-    const sorted = [...filtered].sort((left, right) => {
-      const leftDate = Date.parse(String(left.created_at || ""));
-      const rightDate = Date.parse(String(right.created_at || ""));
-      const leftValue = Number.isNaN(leftDate) ? 0 : leftDate;
-      const rightValue = Number.isNaN(rightDate) ? 0 : rightDate;
-
-      return sortMode === "date_asc" ? leftValue - rightValue : rightValue - leftValue;
-    });
-
-    if (templateFilter === "all") {
-      return sorted;
-    }
-
-    return sorted.filter((gallery) => {
-      const slug = typeof gallery.template === "string" && gallery.template !== "" ? gallery.template : "basic-grid";
-      return slug === templateFilter;
-    });
-  }, [galleries, sortMode, templateFilter, searchQuery]);
-
-  const totalPages = Math.max(1, Math.ceil(visibleGalleries.length / pageSize));
-  const paginatedGalleries = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-
-    return visibleGalleries.slice(startIndex, startIndex + pageSize);
-  }, [visibleGalleries, currentPage, pageSize]);
-
-  useEffect(() => {
-    onPageChange(1);
-  }, [searchQuery, sortMode, templateFilter, viewMode, onPageChange]);
-
-  useEffect(() => {
-    onPaginationChange({
-      totalItems: visibleGalleries.length,
-      totalPages
-    });
-  }, [visibleGalleries.length, totalPages, onPaginationChange]);
-
-  const activeDisplayGallery = useMemo(
-    () => galleries.find((item) => item.id === activeDisplayGalleryId) ?? null,
-    [galleries, activeDisplayGalleryId]
+  const [query, setQuery] = useState("");
+  const [template, setTemplate] = useState("");
+  const [sort, setSort] = useState("newest");
+  const [view, setView] = useState("grid");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+  const visible = useMemo(
+    () =>
+      galleries
+        .filter(
+          (gallery) =>
+            `${gallery.name} ${gallery.description}`
+              .toLowerCase()
+              .includes(query.trim().toLowerCase()) &&
+            (!template || gallery.template === template),
+        )
+        .sort((left, right) =>
+          sort === "name"
+            ? left.name.localeCompare(right.name)
+            : String(right.created_at).localeCompare(String(left.created_at)),
+        ),
+    [galleries, query, template, sort],
   );
-
-  const selectedImageItems = useMemo(() => {
-    const byId = new Map(trackedImages.map((image) => [image.id, image]));
-
-    return selectedImageIds
-      .map((id) => byId.get(id))
-      .filter(Boolean);
-  }, [trackedImages, selectedImageIds]);
-
-  const handleRename = async (gallery) => {
-    const nextName = window.prompt("Rename gallery", gallery.name || "");
-
-    if (nextName === null) {
-      return;
-    }
-
-    const trimmed = nextName.trim();
-
-    if (trimmed === "") {
-      setCreateMessage("Gallery name is required.");
-      return;
-    }
-
-    try {
-      setIsMutating(true);
-      setCreateMessage("");
-      await onRenameGallery({
-        id: gallery.id,
-        name: trimmed,
-        description: gallery.description || "",
-        template: typeof gallery.template === "string" ? gallery.template : "basic-grid",
-        grid_columns_override:
-          typeof gallery.grid_columns_override === "number" ? gallery.grid_columns_override : null,
-        lightbox_override:
-          typeof gallery.lightbox_override === "boolean" ? gallery.lightbox_override : null,
-        hover_zoom_override:
-          typeof gallery.hover_zoom_override === "boolean" ? gallery.hover_zoom_override : null,
-        full_width_override:
-          typeof gallery.full_width_override === "boolean" ? gallery.full_width_override : null,
-        transition_override:
-          typeof gallery.transition_override === "string" ? gallery.transition_override : null,
-        show_title:
-          typeof gallery.show_title === "boolean" ? gallery.show_title : true,
-        show_description:
-          typeof gallery.show_description === "boolean" ? gallery.show_description : true
-      });
-      setCreateMessage("Gallery renamed.");
-    } catch (renameError) {
-      const message = renameError instanceof Error ? renameError.message : "Failed to rename gallery.";
-      setCreateMessage(message);
-    } finally {
-      setIsMutating(false);
-    }
-  };
-
-  const handleOpenDisplaySettings = (gallery) => {
-    setActiveDisplayGalleryId(gallery.id);
-    setEditTemplate(
-      typeof gallery.template === "string" && gallery.template !== "" ? gallery.template : "basic-grid"
-    );
-    setEditGridColumnsOverride(
-      typeof gallery.grid_columns_override === "number" ? String(gallery.grid_columns_override) : "inherit"
-    );
-    setEditLightboxOverride(
-      typeof gallery.lightbox_override === "boolean" ? (gallery.lightbox_override ? "on" : "off") : "inherit"
-    );
-    setEditHoverZoomOverride(
-      typeof gallery.hover_zoom_override === "boolean" ? (gallery.hover_zoom_override ? "on" : "off") : "inherit"
-    );
-    setEditFullWidthOverride(
-      typeof gallery.full_width_override === "boolean" ? (gallery.full_width_override ? "on" : "off") : "inherit"
-    );
-    setEditTransitionOverride(
-      typeof gallery.transition_override === "string" ? gallery.transition_override : "inherit"
-    );
-    setEditShowTitle(
-      typeof gallery.show_title === "boolean" ? (gallery.show_title ? "on" : "off") : "on"
-    );
-    setEditShowDescription(
-      typeof gallery.show_description === "boolean" ? (gallery.show_description ? "on" : "off") : "on"
-    );
-    setCreateMessage("");
-  };
-
-  const handleSaveDisplaySettings = async (gallery) => {
-    try {
-      setIsMutating(true);
-      setCreateMessage("");
-      await onRenameGallery({
-        id: gallery.id,
-        name: gallery.name || "",
-        description: gallery.description || "",
-        template: editTemplate,
-        grid_columns_override: toNullableInt(editGridColumnsOverride),
-        lightbox_override: toNullableBool(editLightboxOverride),
-        hover_zoom_override: toNullableBool(editHoverZoomOverride),
-        full_width_override: toNullableBool(editFullWidthOverride),
-        transition_override: editTransitionOverride === "inherit" ? null : editTransitionOverride,
-        show_title: editShowTitle === "on",
-        show_description: editShowDescription === "on"
-      });
-      setActiveDisplayGalleryId(null);
-      setCreateMessage("Per-gallery display settings updated.");
-    } catch (saveError) {
-      const message = saveError instanceof Error ? saveError.message : "Failed to update display settings.";
-      setCreateMessage(message);
-    } finally {
-      setIsMutating(false);
-    }
-  };
-
-  const handleDelete = async (gallery) => {
-    const confirmed = window.confirm(`Delete gallery \"${gallery.name}\"?`);
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setIsMutating(true);
-      setCreateMessage("");
-      await onDeleteGallery({ id: gallery.id });
-      setCreateMessage("Gallery deleted.");
-    } catch (deleteError) {
-      const message = deleteError instanceof Error ? deleteError.message : "Failed to delete gallery.";
-      setCreateMessage(message);
-    } finally {
-      setIsMutating(false);
-    }
-  };
-
-  const handleCreatePage = async (gallery) => {
-    try {
-      setIsMutating(true);
-      setCreateMessage("");
-      const response = await onCreateGalleryPage({ id: gallery.id });
-      const pageUrl = typeof response?.page_url === "string" ? response.page_url : "";
-
-      if (pageUrl !== "") {
-        setCreateMessage(`Gallery page ready: ${pageUrl}`);
-      } else {
-        setCreateMessage("Gallery page created and added to menu.");
-      }
-    } catch (pageError) {
-      const message = pageError instanceof Error ? pageError.message : "Failed to create gallery page.";
-      setCreateMessage(message);
-    } finally {
-      setIsMutating(false);
-    }
-  };
-
-  const handleOpenAddImages = async (galleryId) => {
-    const gallery = galleries.find((item) => item.id === galleryId);
-
-    setActiveAddGalleryId(galleryId);
-    setSelectedImageIds(Array.isArray(gallery?.image_ids) ? gallery.image_ids : []);
-    setCreateMessage("");
-
-    try {
-      setIsLoadingTrackedImages(true);
-      const items = await onLoadTrackedImages();
-      setTrackedImages(Array.isArray(items) ? items : []);
-    } catch (loadError) {
-      const message = loadError instanceof Error ? loadError.message : "Failed to load tracked images.";
-      setCreateMessage(message);
-    } finally {
-      setIsLoadingTrackedImages(false);
-    }
-  };
-
-  const toggleImageSelection = (imageId) => {
-    setSelectedImageIds((current) => {
-      if (current.includes(imageId)) {
-        return current.filter((id) => id !== imageId);
-      }
-
-      return [...current, imageId];
-    });
-  };
-
-  const handleAddImages = async () => {
-    if (!activeAddGalleryId || selectedImageIds.length === 0) {
-      setCreateMessage("Select at least one image.");
-      return;
-    }
-
-    try {
-      setIsMutating(true);
-      setCreateMessage("");
-      if (onSetGalleryImages) {
-        await onSetGalleryImages(activeAddGalleryId, selectedImageIds);
-      } else {
-        await onAddImagesToGallery(activeAddGalleryId, selectedImageIds);
-      }
-      setCreateMessage("Gallery images updated.");
-      setActiveAddGalleryId(null);
-      setSelectedImageIds([]);
-    } catch (addError) {
-      const message = addError instanceof Error ? addError.message : "Failed to add images.";
-      setCreateMessage(message);
-    } finally {
-      setIsMutating(false);
-    }
-  };
-
-  const handleDragStart = (imageId) => {
-    setDraggedImageId(imageId);
-  };
-
-  const handleDropOnImage = (targetImageId) => {
-    if (draggedImageId === null || draggedImageId === targetImageId) {
-      return;
-    }
-
-    setSelectedImageIds((current) => {
-      const sourceIndex = current.indexOf(draggedImageId);
-      const targetIndex = current.indexOf(targetImageId);
-
-      if (sourceIndex < 0 || targetIndex < 0) {
-        return current;
-      }
-
-      const next = [...current];
-      next.splice(sourceIndex, 1);
-      next.splice(targetIndex, 0, draggedImageId);
-
-      return next;
-    });
-    setDraggedImageId(null);
+  const pages = Math.max(1, Math.ceil(visible.length / pageSize));
+  const currentPage = Math.min(page, pages);
+  const update = (setter) => (event) => {
+    setter(event.target.value);
+    setPage(1);
   };
 
   return (
-    <>
-    <Card>
-      <CardHeader className="p-0">
-        <SectionHeader
-          framed={false}
-          icon={FolderOpen}
-          title="Galleries"
-          description="Placeholder workspace aligned with Media Manager layout."
-          actions={
-            <>
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-              >
-                <LayoutGrid className="h-4 w-4 text-indigo-700" />
-                <span>Grid</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("row")}
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-              >
-                <List className="h-4 w-4 text-emerald-700" />
-                <span>Rows</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsFilterOpen((current) => !current)}
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-              >
-                <Filter className="h-4 w-4 text-slate-700" />
-                <span>Filters</span>
-              </button>
-              <InlineSearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Search galleries by name"
-                ariaLabel="Search galleries by name"
-              />
-              <button
-                type="button"
-                onClick={onReloadGalleries}
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
-              >
-                <RefreshCcw className="h-4 w-4 text-sky-700" />
-                <span>Reload</span>
-              </button>
-            </>
-          }
-        />
-      </CardHeader>
-      <CardContent>
-        {isFilterOpen ? (
-          <div className="mb-4 grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">
-            <label className="space-y-1">
-              <span className="text-xs font-medium text-slate-600">Sort by date</span>
-              <select
-                value={sortMode}
-                onChange={(event) => setSortMode(event.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-              >
-                <option value="date_desc">Newest first</option>
-                <option value="date_asc">Oldest first</option>
-              </select>
-            </label>
-            <label className="space-y-1">
-              <span className="text-xs font-medium text-slate-600">Filter by template</span>
-              <select
-                value={templateFilter}
-                onChange={(event) => setTemplateFilter(event.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-              >
-                <option value="all">All templates</option>
-                {allTemplateOptions.map((template) => (
-                  <option key={template.slug} value={template.slug} disabled={!template.available}>
-                    {template.label}
-                    {template.is_pro ? " (Pro)" : ""}
-                    {!template.available ? " - Locked" : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        ) : null}
-
-        {isLoading ? (
-          <p className="text-sm text-slate-600">Loading galleries...</p>
-        ) : visibleGalleries.length === 0 ? (
-          <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
-            <h3 className="text-lg font-semibold text-slate-900">
-              {searchQuery.trim() !== "" ? "No galleries match your search" : "No galleries yet"}
-            </h3>
-            <p className="mt-1 max-w-xl text-sm text-slate-600">
-              {searchQuery.trim() !== ""
-                ? "Try a different gallery name or clear the search field."
-                : "Use the New action to create your first gallery."}
-            </p>
-          </div>
-        ) : viewMode === "grid" ? (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {paginatedGalleries.map((gallery) => (
-              <article key={gallery.id} className="flex h-full flex-col rounded-lg border border-slate-200 bg-white">
-                <header className="flex items-start justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-900">{gallery.name}</p>
-                    <p className="mt-0.5 text-[11px] text-slate-500">Created {gallery.created_at || "Unknown"}</p>
-                  </div>
-                  <span className="ml-2 shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-inset ring-sky-200">
-                    {gallery.image_count || 0} images
-                  </span>
-                </header>
-                <div className="space-y-2 px-3 py-3">
-                  <p className="min-h-[42px] rounded-md bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
-                    {gallery.description || "No description yet. Add context so collaborators know what belongs in this gallery."}
-                  </p>
-                  <GalleryMetaChipList gallery={gallery} />
-                </div>
-                <footer className="mt-auto border-t border-slate-200 px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <GalleryActionIconButton
-                      label="Details"
-                      description="Open gallery display settings and template options."
-                      onClick={() => handleOpenDisplaySettings(gallery)}
-                      disabled={isMutating}
-                      tone="violet"
-                    >
-                      <Settings2 className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Create page"
-                      description="Create a frontend page, add shortcode and menu link."
-                      onClick={() => void handleCreatePage(gallery)}
-                      disabled={isMutating}
-                      tone="emerald"
-                    >
-                      <FilePlus2 className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Add images"
-                      description="Select and order tracked images for this gallery."
-                      onClick={() => void handleOpenAddImages(gallery.id)}
-                      disabled={isMutating}
-                      tone="sky"
-                    >
-                      <Images className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Rename"
-                      description="Change the gallery name and keep current settings."
-                      onClick={() => void handleRename(gallery)}
-                      disabled={isMutating}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Delete"
-                      description="Permanently remove this gallery and its assignments."
-                      onClick={() => void handleDelete(gallery)}
-                      disabled={isMutating}
-                      tone="red"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                  </div>
-                </footer>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {paginatedGalleries.map((gallery) => (
-              <article key={gallery.id} className="rounded-lg border border-slate-200 bg-white">
-                <header className="flex items-start justify-between border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-900">{gallery.name}</p>
-                    <p className="mt-0.5 text-[11px] text-slate-500">Created {gallery.created_at || "Unknown"}</p>
-                  </div>
-                  <span className="ml-2 shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-inset ring-sky-200">
-                    {gallery.image_count || 0} images
-                  </span>
-                </header>
-                <div className="space-y-2 px-3 py-3">
-                  <p className="rounded-md bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
-                    {gallery.description || "No description yet. Add context so collaborators know what belongs in this gallery."}
-                  </p>
-                  <GalleryMetaChipList gallery={gallery} />
-                </div>
-                <footer className="border-t border-slate-200 px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <GalleryActionIconButton
-                      label="Details"
-                      description="Open gallery display settings and template options."
-                      onClick={() => handleOpenDisplaySettings(gallery)}
-                      disabled={isMutating}
-                      tone="violet"
-                    >
-                      <Settings2 className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Create page"
-                      description="Create a frontend page, add shortcode and menu link."
-                      onClick={() => void handleCreatePage(gallery)}
-                      disabled={isMutating}
-                      tone="emerald"
-                    >
-                      <FilePlus2 className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Add images"
-                      description="Select and order tracked images for this gallery."
-                      onClick={() => void handleOpenAddImages(gallery.id)}
-                      disabled={isMutating}
-                      tone="sky"
-                    >
-                      <Images className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Rename"
-                      description="Change the gallery name and keep current settings."
-                      onClick={() => void handleRename(gallery)}
-                      disabled={isMutating}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                    <GalleryActionIconButton
-                      label="Delete"
-                      description="Permanently remove this gallery and its assignments."
-                      onClick={() => void handleDelete(gallery)}
-                      disabled={isMutating}
-                      tone="red"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </GalleryActionIconButton>
-                  </div>
-                </footer>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {activeDisplayGallery ? (
-          <div
-            className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/35 p-4"
-            role="dialog"
-            aria-modal="true"
+    <div aria-busy={isLoading}>
+      <div className="pg-library-toolbar">
+        <label className="pg-search">
+          <Search size={17} aria-hidden="true" />
+          <input
+            type="search"
+            aria-label="Search galleries"
+            placeholder="Find a collection…"
+            value={query}
+            onChange={update(setQuery)}
+          />
+        </label>
+        <select
+          aria-label="Filter by layout"
+          value={template}
+          onChange={update(setTemplate)}
+        >
+          <option value="">All layouts</option>
+          {templates.map((item) => (
+            <option key={item.slug} value={item.slug}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Sort galleries"
+          value={sort}
+          onChange={update(setSort)}
+        >
+          <option value="newest">Newest first</option>
+          <option value="name">Name A–Z</option>
+        </select>
+        <div className="pg-view-switch">
+          <button
+            type="button"
+            onClick={() => setView("grid")}
+            aria-label="Grid view"
+            aria-pressed={view === "grid"}
           >
-            <div className="w-full max-w-4xl rounded-xl border border-slate-200 bg-white shadow-2xl [animation:prox-gallery-slide-up_180ms_ease-out]">
-              <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-                <p className="text-sm font-semibold text-slate-900">Gallery details: {activeDisplayGallery.name}</p>
-                <button
-                  type="button"
-                  onClick={() => setActiveDisplayGalleryId(null)}
-                  className="h-8 rounded-md border border-slate-300 px-3 text-xs text-slate-700 transition hover:bg-slate-100"
-                >
-                  Close
-                </button>
-              </div>
-              <div className="grid gap-3 p-4">
-                <fieldset className="min-w-0 rounded border border-slate-200 bg-slate-50 p-3">
-                  <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                    Template
-                  </legend>
-                  <label className="flex min-w-0 flex-col gap-1">
-                    <span className="text-xs font-medium text-slate-600">Template</span>
-                    <select
-                      value={editTemplate}
-                      onChange={(event) => setEditTemplate(event.target.value)}
-                      className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                    >
-                      {allTemplateOptions.map((template) => (
-                        <option
-                          key={template.slug}
-                          value={template.slug}
-                          disabled={!template.available && template.slug !== editTemplate}
-                        >
-                          {template.label}
-                          {template.is_pro ? " (Pro)" : ""}
-                          {!template.available ? " - Locked" : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </fieldset>
-                <fieldset className="min-w-0 rounded border border-slate-200 bg-slate-50 p-3">
-                  <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                    Grid settings
-                  </legend>
-                  <div className="grid gap-2 md:grid-cols-3">
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Columns</span>
-                      <select
-                        value={editGridColumnsOverride}
-                        onChange={(event) => setEditGridColumnsOverride(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="inherit">Inherit</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                      </select>
-                    </label>
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Hover zoom</span>
-                      <select
-                        value={editHoverZoomOverride}
-                        onChange={(event) => setEditHoverZoomOverride(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="inherit">Inherit</option>
-                        <option value="on">On</option>
-                        <option value="off">Off</option>
-                      </select>
-                    </label>
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Full width</span>
-                      <select
-                        value={editFullWidthOverride}
-                        onChange={(event) => setEditFullWidthOverride(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="inherit">Inherit</option>
-                        <option value="on">On</option>
-                        <option value="off">Off</option>
-                      </select>
-                    </label>
-                  </div>
-                </fieldset>
-                <fieldset className="min-w-0 rounded border border-slate-200 bg-slate-50 p-3">
-                  <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                    Lightbox
-                  </legend>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Lightbox</span>
-                      <select
-                        value={editLightboxOverride}
-                        onChange={(event) => setEditLightboxOverride(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="inherit">Inherit</option>
-                        <option value="on">On</option>
-                        <option value="off">Off</option>
-                      </select>
-                    </label>
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Transition</span>
-                      <select
-                        value={editTransitionOverride}
-                        onChange={(event) => setEditTransitionOverride(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="inherit">Inherit</option>
-                        <option value="none">None</option>
-                        <option value="slide">Slide</option>
-                        <option value="fade">Fade</option>
-                        <option value="explode">Explode</option>
-                        <option value="implode">Implode</option>
-                      </select>
-                    </label>
-                  </div>
-                </fieldset>
-                <fieldset className="min-w-0 rounded border border-slate-200 bg-slate-50 p-3">
-                  <legend className="px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                    Content
-                  </legend>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Show title</span>
-                      <select
-                        value={editShowTitle}
-                        onChange={(event) => setEditShowTitle(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="on">On</option>
-                        <option value="off">Off</option>
-                      </select>
-                    </label>
-                    <label className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-600">Show description</span>
-                      <select
-                        value={editShowDescription}
-                        onChange={(event) => setEditShowDescription(event.target.value)}
-                        className="h-8 w-full rounded border border-slate-300 bg-white px-2 text-xs text-slate-900"
-                      >
-                        <option value="on">On</option>
-                        <option value="off">Off</option>
-                      </select>
-                    </label>
-                  </div>
-                </fieldset>
-              </div>
-              <div className="flex items-center justify-end gap-2 border-t border-slate-200 px-4 py-3">
-                <button
-                  type="button"
-                  onClick={() => void handleSaveDisplaySettings(activeDisplayGallery)}
-                  disabled={isMutating}
-                  className="h-8 rounded-md bg-violet-600 px-3 text-xs font-medium text-white transition hover:bg-violet-700 disabled:opacity-60"
-                >
-                  Save details
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveDisplayGalleryId(null)}
-                  className="h-8 rounded-md border border-slate-300 px-3 text-xs text-slate-700 transition hover:bg-slate-100"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {activeAddGalleryId !== null ? (
-          <div className="mt-4 space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3">
-            <p className="text-sm font-medium text-slate-800">Add images to gallery</p>
-            {isLoadingTrackedImages ? (
-              <p className="text-sm text-slate-600">Loading tracked images...</p>
-            ) : trackedImages.length === 0 ? (
-              <p className="text-sm text-slate-600">No tracked images available.</p>
-            ) : (
-              <div className="max-h-52 space-y-1 overflow-auto rounded-md border border-slate-200 bg-white p-2">
-                {trackedImages.map((image) => (
-                  <label key={image.id} className="flex items-center gap-2 rounded px-1 py-1 text-sm text-slate-800">
-                    <input
-                      type="checkbox"
-                      checked={selectedImageIds.includes(image.id)}
-                      onChange={() => toggleImageSelection(image.id)}
-                      className="h-4 w-4 rounded border-slate-300"
-                    />
-                    <span className="truncate">{image.title || `#${image.id}`}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            {selectedImageItems.length > 0 ? (
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-slate-600">Selected order (drag to reorder)</p>
-                <div className="max-h-44 space-y-1 overflow-auto rounded-md border border-slate-200 bg-white p-2">
-                  {selectedImageItems.map((image) => (
-                    <div
-                      key={image.id}
-                      draggable
-                      onDragStart={() => handleDragStart(image.id)}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={() => handleDropOnImage(image.id)}
-                      onDragEnd={() => setDraggedImageId(null)}
-                      className="cursor-move rounded border border-slate-200 px-2 py-1 text-xs text-slate-700 transition hover:bg-slate-50"
-                    >
-                      {image.title || `#${image.id}`}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleAddImages}
-                disabled={isMutating || isLoadingTrackedImages}
-                className="rounded-md bg-sky-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-sky-700 disabled:opacity-70"
-              >
-                Save images
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveAddGalleryId(null);
-                  setSelectedImageIds([]);
-                }}
-                className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {error !== "" ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-        {createMessage !== "" ? <p className="mt-3 text-sm text-slate-700">{createMessage}</p> : null}
-      </CardContent>
-      </Card>
-
-      <GalleryCreationWizard
-        isOpen={wizard.isOpen}
-        stepIndex={wizard.stepIndex}
-        value={wizard.value}
-        availableTemplates={availableTemplates}
-        isSubmitting={wizard.isSubmitting}
-        message={wizard.message}
-        onClose={wizard.closeWizard}
-        onStepChange={wizard.setStepIndex}
-        onValueChange={wizard.updateValue}
-        onSubmit={wizard.submitWizard}
-      />
-    </>
+            <LayoutGrid size={17} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("list")}
+            aria-label="List view"
+            aria-pressed={view === "list"}
+          >
+            <List size={17} />
+          </button>
+        </div>
+        <button
+          type="button"
+          className="pg-icon-button"
+          onClick={onReloadGalleries}
+          disabled={isLoading}
+          aria-label="Refresh galleries"
+        >
+          <RefreshCw size={17} className={isLoading ? "animate-spin" : ""} />
+        </button>
+      </div>
+      {error ? (
+        <p className="pg-notice pg-error" role="alert">
+          {error}{" "}
+          <button type="button" onClick={onReloadGalleries}>
+            Try again
+          </button>
+        </p>
+      ) : null}
+      {isLoading && !galleries.length ? (
+        <div
+          className="pg-gallery-grid"
+          role="status"
+          aria-label="Loading galleries"
+        >
+          {[1, 2, 3].map((key) => (
+            <div key={key} className="pg-skeleton" />
+          ))}
+        </div>
+      ) : !visible.length && !error ? (
+        <div className="pg-empty">
+          <FolderOpen size={40} strokeWidth={1} />
+          <h2>
+            {galleries.length
+              ? "No matching collections"
+              : "Your first collection starts here"}
+          </h2>
+          <p>
+            {galleries.length
+              ? "Try another search or layout."
+              : "Bring a few images together and give them a home."}
+          </p>
+          <Button onClick={onCreate}>Create gallery</Button>
+        </div>
+      ) : (
+        <div
+          className={`pg-gallery-grid ${view === "list" ? "pg-gallery-list" : ""}`}
+        >
+          {visible
+            .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+            .map((gallery) => (
+              <GalleryCard key={gallery.id} gallery={gallery} {...actions} />
+            ))}
+          {!query && !template && currentPage === pages ? (
+            <button
+              type="button"
+              className="pg-new-collection"
+              onClick={onCreate}
+            >
+              <span>+</span>
+              <strong>A new perspective</strong>
+              <small>Create another collection</small>
+            </button>
+          ) : null}
+        </div>
+      )}
+      {visible.length ? (
+        <CollectionPagination
+          itemLabel="collections"
+          totalItems={visible.length}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          pageSizeOptions={[12, 24, 48]}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+          onPreviousPage={() => setPage(currentPage - 1)}
+          onNextPage={() => setPage(currentPage + 1)}
+          totalPages={pages}
+        />
+      ) : null}
+    </div>
   );
 }

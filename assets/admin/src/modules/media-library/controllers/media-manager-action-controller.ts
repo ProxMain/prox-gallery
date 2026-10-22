@@ -1,7 +1,7 @@
 import {
   AbstractActionController,
   type ActionControllerConfig,
-  type AjaxActionDefinition
+  type AjaxActionDefinition,
 } from "@/modules/core/controllers/abstract-action-controller";
 
 type MediaManagerDefinitions = {
@@ -69,7 +69,10 @@ export type MediaManagerTrackSelectionResponse = {
 };
 
 export class MediaManagerActionController extends AbstractActionController<MediaManagerDefinitions> {
-  constructor(config: ActionControllerConfig, definitions: MediaManagerDefinitions) {
+  constructor(
+    config: ActionControllerConfig,
+    definitions: MediaManagerDefinitions,
+  ) {
     super(config, definitions);
   }
 
@@ -77,13 +80,17 @@ export class MediaManagerActionController extends AbstractActionController<Media
     return this.dispatch<MediaManagerListResponse>("list");
   }
 
-  public trackSelectedAttachments(attachmentIds: number[]): Promise<MediaManagerTrackSelectionResponse> {
+  public trackSelectedAttachments(
+    attachmentIds: number[],
+  ): Promise<MediaManagerTrackSelectionResponse> {
     return this.dispatch<MediaManagerTrackSelectionResponse>("track_selected", {
-      attachment_ids: attachmentIds.join(",")
+      attachment_ids: attachmentIds.join(","),
     });
   }
 
-  public updateTrackedImageMetadata(payload: MediaManagerUpdatePayload): Promise<MediaManagerUpdateResponse> {
+  public updateTrackedImageMetadata(
+    payload: MediaManagerUpdatePayload,
+  ): Promise<MediaManagerUpdateResponse> {
     return this.dispatch<MediaManagerUpdateResponse>("update", payload);
   }
 }

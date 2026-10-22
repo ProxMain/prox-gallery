@@ -15,6 +15,7 @@ export type ProxGalleryAdminConfig = {
     media_manager?: {
       list?: AjaxActionDefinition;
       sync?: AjaxActionDefinition;
+      track_selected?: AjaxActionDefinition;
       update?: AjaxActionDefinition;
     };
     media_category?: {
@@ -59,7 +60,7 @@ export function getAdminConfig(): ProxGalleryAdminConfig {
     return {
       screen: "",
       rest_nonce: "",
-      ajax_url: ""
+      ajax_url: "",
     };
   }
 
@@ -70,7 +71,7 @@ export function getAdminConfig(): ProxGalleryAdminConfig {
     action_controllers:
       source.action_controllers && typeof source.action_controllers === "object"
         ? source.action_controllers
-        : undefined
+        : undefined,
   };
 }
 

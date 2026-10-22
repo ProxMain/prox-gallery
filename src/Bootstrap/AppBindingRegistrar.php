@@ -157,8 +157,6 @@ final class AppBindingRegistrar
         $container->set(
             MediaManagerActionController::class,
             static fn (Container $container) => new MediaManagerActionController(
-                $container->get(UploadedImageQueueModel::class),
-                $container->get(TrackUploadedImageService::class),
                 $container->get(MediaManagerListService::class),
                 $container->get(MediaManagerSyncService::class),
                 $container->get(MediaManagerTrackSelectionService::class),

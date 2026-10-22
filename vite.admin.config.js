@@ -5,24 +5,24 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [tailwindcss()],
   esbuild: {
-    jsx: "automatic"
+    jsx: "automatic",
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "assets/admin/src")
-    }
+      "@": resolve(import.meta.dirname, "assets/admin/src"),
+    },
   },
   build: {
     manifest: "manifest.json",
     emptyOutDir: true,
     outDir: "assets/admin/build",
     rollupOptions: {
-      input: resolve(__dirname, "assets/admin/src/main.jsx"),
+      input: resolve(import.meta.dirname, "assets/admin/src/main.jsx"),
       output: {
         entryFileNames: "assets/admin-[hash].js",
         chunkFileNames: "assets/chunk-[hash].js",
-        assetFileNames: "assets/[name]-[hash][extname]"
-      }
-    }
-  }
+        assetFileNames: "assets/[name]-[hash][extname]",
+      },
+    },
+  },
 });

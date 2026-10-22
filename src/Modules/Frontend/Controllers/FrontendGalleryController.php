@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Prox\ProxGallery\Modules\Frontend\Controllers;
 
 use Prox\ProxGallery\Contracts\ControllerInterface;
+use Prox\ProxGallery\Storage\StorageBusyException;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendGalleryService;
 use Prox\ProxGallery\Modules\Frontend\Services\FrontendTrackingService;
 
@@ -64,6 +65,18 @@ final class FrontendGalleryController implements ControllerInterface
      */
     public function trackEvent(): void
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'POST') !== 'POST') {
+            \wp_send_json_error(['message' => 'Use POST for tracking.'], 405);
+            return;
+        }
+
+        foreach (['_ajax_nonce', 'event_type', 'gallery_id', 'image_id'] as $field) {
+            if (isset($_POST[$field]) && ! is_scalar($_POST[$field])) {
+                \wp_send_json_error(['message' => 'Invalid tracking payload.'], 400);
+                return;
+            }
+        }
+
         $nonce = isset($_POST['_ajax_nonce']) ? (string) \wp_unslash($_POST['_ajax_nonce']) : '';
 
         if ($nonce === '' || ! \wp_verify_nonce($nonce, self::TRACK_ACTION)) {
@@ -80,29 +93,33 @@ final class FrontendGalleryController implements ControllerInterface
             \wp_send_json_error(['message' => 'Rate limit exceeded.'], 429);
         }
 
-        if ($eventType === 'gallery_visit') {
-            if (! $this->service->galleryExists($galleryId)) {
-                \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
+        try {
+            if ($eventType === 'gallery_visit') {
+                if (! $this->service->galleryExists($galleryId)) {
+                    \wp_send_json_error(['message' => 'Invalid gallery.'], 400);
+                }
+
+                $this->tracking->recordGalleryVisit($galleryId);
+                \wp_send_json_success(['tracked' => true]);
             }
 
-            $this->tracking->recordGalleryVisit($galleryId);
-            \wp_send_json_success(['tracked' => true]);
+            if ($eventType === 'image_view') {
+                if (! $this->imageExists($imageId)) {
+                    \wp_send_json_error(['message' => 'Invalid image.'], 400);
+                }
+
+                if ($galleryId <= 0 || ! $this->service->galleryContainsImage($galleryId, $imageId)) {
+                    \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
+                }
+
+                $this->tracking->recordImageView($galleryId, $imageId);
+                \wp_send_json_success(['tracked' => true]);
+            }
+
+            \wp_send_json_error(['message' => 'Invalid tracking event.'], 400);
+        } catch (StorageBusyException $exception) {
+            \wp_send_json_error(['message' => $exception->getMessage()], 503);
         }
-
-        if ($eventType === 'image_view') {
-            if (! $this->imageExists($imageId)) {
-                \wp_send_json_error(['message' => 'Invalid image.'], 400);
-            }
-
-            if ($galleryId > 0 && ! $this->service->galleryContainsImage($galleryId, $imageId)) {
-                \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
-            }
-
-            $this->tracking->recordImageView($galleryId, $imageId);
-            \wp_send_json_success(['tracked' => true]);
-        }
-
-        \wp_send_json_error(['message' => 'Invalid tracking event.'], 400);
     }
 
     private function enqueueFrontendAssets(): void

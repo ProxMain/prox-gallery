@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\OpenAi\Services;
 
+use Prox\ProxGallery\Storage\AtomicOptionStore;
 use InvalidArgumentException;
 use RuntimeException;
 use Prox\ProxGallery\States\AdminConfigurationState;
@@ -16,7 +17,7 @@ final class OpenAiSettingsService
     public const DEFAULT_MODEL = 'gpt-4.1-mini';
     private const API_KEY_PREFIX = 'enc:v1:';
 
-    public function __construct(private AdminConfigurationState $state)
+    public function __construct(private AdminConfigurationState $state, private AtomicOptionStore $store = new AtomicOptionStore())
     {
     }
 
@@ -30,11 +31,12 @@ final class OpenAiSettingsService
      */
     public function settings(): array
     {
-        $raw = \get_option($this->state->optionKey(), []);
+        return $this->normalizeSettings($this->store->read($this->state->optionKey()));
+    }
 
-        if (! is_array($raw)) {
-            $raw = [];
-        }
+    private function normalizeSettings(array $raw): array
+    {
+
 
         $openAi = isset($raw['openai']) && is_array($raw['openai']) ? $raw['openai'] : [];
         $apiKey = '';
@@ -54,6 +56,8 @@ final class OpenAiSettingsService
         return [
             'api_key' => $apiKey,
             'model' => $model,
+            'user_daily_limit' => $this->storedLimit($openAi['user_daily_limit'] ?? null, 20),
+            'site_daily_limit' => $this->storedLimit($openAi['site_daily_limit'] ?? null, 100),
             'languages' => $languages,
             'prompt_templates' => $templates,
         ];
@@ -72,6 +76,8 @@ final class OpenAiSettingsService
 
         return [
             'model' => $settings['model'],
+            'user_daily_limit' => $settings['user_daily_limit'],
+            'site_daily_limit' => $settings['site_daily_limit'],
             'languages' => $settings['languages'],
             'prompt_templates' => $settings['prompt_templates'],
         ];
@@ -89,46 +95,48 @@ final class OpenAiSettingsService
      */
     public function update(array $payload): array
     {
-        $current = $this->settings();
-        $next = $current;
+        return $this->store->mutate($this->state->optionKey(), function (array &$options) use ($payload): array {
+            $current = $this->normalizeSettings($options);
+            $next = $current;
 
-        if (array_key_exists('api_key', $payload)) {
-            $next['api_key'] = trim((string) $payload['api_key']);
-        }
+            if (array_key_exists('api_key', $payload)) {
+                $next['api_key'] = trim((string) $payload['api_key']);
+            }
 
-        if (array_key_exists('model', $payload)) {
-            $model = trim((string) $payload['model']);
-            $next['model'] = $model === '' ? self::DEFAULT_MODEL : $model;
-        }
+            if (array_key_exists('model', $payload)) {
+                $model = trim((string) $payload['model']);
+                $next['model'] = $model === '' ? self::DEFAULT_MODEL : $model;
+            }
 
-        if (array_key_exists('languages', $payload)) {
-            $next['languages'] = $this->normalizeLanguages($payload['languages']);
-        }
+            if (array_key_exists('languages', $payload)) {
+                $next['languages'] = $this->normalizeLanguages($payload['languages']);
+            }
 
-        if (array_key_exists('prompt_templates', $payload)) {
-            $next['prompt_templates'] = $this->normalizeTemplates($payload['prompt_templates']);
-        }
+            if (array_key_exists('prompt_templates', $payload)) {
+                $next['prompt_templates'] = $this->normalizeTemplates($payload['prompt_templates']);
+            }
 
-        if ($next['api_key'] === '') {
-            throw new InvalidArgumentException('OpenAI API key is required.');
-        }
+            foreach (['user_daily_limit', 'site_daily_limit'] as $field) {
+                if (array_key_exists($field, $payload)) {
+                    $limit = filter_var($payload[$field], FILTER_VALIDATE_INT);
+                    if ($limit === false || $limit < 0 || $limit > 10000) {
+                        throw new InvalidArgumentException('AI daily limits must be whole numbers between 0 and 10000.');
+                    }
+                    $next[$field] = $limit;
+                }
+            }
 
-        $options = \get_option($this->state->optionKey(), []);
+            $options['openai'] = [
+                'api_key' => $next['api_key'] === '' ? '' : $this->encryptApiKey($next['api_key']),
+                'model' => $next['model'],
+                'user_daily_limit' => $next['user_daily_limit'],
+                'site_daily_limit' => $next['site_daily_limit'],
+                'languages' => $next['languages'],
+                'prompt_templates' => $next['prompt_templates'],
+            ];
 
-        if (! is_array($options)) {
-            $options = [];
-        }
-
-        $options['openai'] = [
-            'api_key' => $this->encryptApiKey($next['api_key']),
-            'model' => $next['model'],
-            'languages' => $next['languages'],
-            'prompt_templates' => $next['prompt_templates'],
-        ];
-
-        \update_option($this->state->optionKey(), $options, false);
-
-        return $next;
+            return $next;
+        });
     }
 
     /**
@@ -273,6 +281,12 @@ final class OpenAiSettingsService
         }
 
         return $normalized;
+    }
+
+    private function storedLimit(mixed $value, int $default): int
+    {
+        $limit = filter_var($value, FILTER_VALIDATE_INT);
+        return $limit === false || $limit < 0 || $limit > 10000 ? $default : $limit;
     }
 
     private function readApiKey(string $storedValue): string

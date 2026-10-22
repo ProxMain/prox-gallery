@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Prox\ProxGallery\Contracts\ControllerInterface;
 use LogicException;
 use Throwable;
+use Prox\ProxGallery\Storage\StorageBusyException;
 
 /**
  * Base class for authenticated AJAX action controllers with nonce validation.
@@ -96,7 +97,13 @@ abstract class AbstractActionController implements ControllerInterface
      */
     public function handleAjaxRequest(): void
     {
-        $action = isset($_REQUEST['action']) ? (string) \wp_unslash($_REQUEST['action']) : '';
+        if (($_SERVER['REQUEST_METHOD'] ?? 'POST') !== 'POST') {
+            $this->sendError(['message' => 'Use POST for this action.'], 405);
+            return;
+        }
+
+        $action = isset($_REQUEST['action']) && is_string($_REQUEST['action'])
+            ? (string) \wp_unslash($_REQUEST['action']) : '';
 
         if ($action == '' || ! isset($this->registeredActions[$action])) {
             $this->sendError(['message' => 'Unknown action.'], 404);
@@ -162,6 +169,15 @@ abstract class AbstractActionController implements ControllerInterface
 
             $this->sendSuccess($response);
             return;
+        } catch (RateLimitException $exception) {
+            $this->sendError(['message' => $exception->getMessage()], 429);
+            return;
+        } catch (StorageBusyException $exception) {
+            $this->sendError(['message' => $exception->getMessage()], 503);
+            return;
+        } catch (ForbiddenActionException $exception) {
+            $this->sendError(['message' => 'You are not allowed to edit this attachment.'], 403);
+            return;
         } catch (InvalidArgumentException $exception) {
             /**
              * Fires when an AJAX action callback throws a validation/input exception.
@@ -219,7 +235,8 @@ abstract class AbstractActionController implements ControllerInterface
             return true;
         }
 
-        $nonce = isset($_REQUEST['_ajax_nonce']) ? (string) \wp_unslash($_REQUEST['_ajax_nonce']) : '';
+        $nonce = isset($_REQUEST['_ajax_nonce']) && is_string($_REQUEST['_ajax_nonce'])
+            ? (string) \wp_unslash($_REQUEST['_ajax_nonce']) : '';
 
         if ($nonce == '') {
             return false;

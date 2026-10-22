@@ -1,130 +1,153 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { GalleriesHeader } from "./components/galleries-header";
+import { GalleriesLibraryCard } from "./components/galleries-library-card";
+import { GalleryEditor } from "./components/gallery-editor";
+import { GalleryImagesDialog } from "./components/gallery-images-dialog";
+import { useGalleriesState } from "./use-galleries-state";
+import {
+  useGalleryActionController,
+  useMediaManagerActionController,
+} from "@/lib/action-controller-hooks";
 
-import { CollectionPagination } from "@/components/ui/collection-pagination";
-import { GalleriesHeader } from "@/features/galleries/components/galleries-header";
-import { GalleriesLibraryCard } from "@/features/galleries/components/galleries-library-card";
-import { useGalleryCreationWizard } from "@/features/galleries/hooks/use-gallery-creation-wizard";
-import { useGalleriesState } from "@/features/galleries/use-galleries-state";
-import { useGalleryActionController, useMediaManagerActionController } from "@/lib/action-controller-hooks";
+const DEFAULT_TEMPLATES = [
+  { slug: "basic-grid", label: "Basic Grid", available: true },
+  { slug: "masonry", label: "Masonry", available: true },
+];
 
-export function GalleriesSection({
-  config,
-  isActive
-}) {
-  const galleryController = useGalleryActionController(config);
-  const mediaManagerController = useMediaManagerActionController(config);
-  const templateOptions = config.action_controllers?.galleries?.templates ?? [];
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(24);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+export function GalleriesSection({ config, isActive }) {
+  const controller = useGalleryActionController(config);
+  const media = useMediaManagerActionController(config);
   const {
     galleries,
     isLoading,
     error,
-    loadGalleries,
     reloadGalleries,
     createGallery,
     renameGallery,
     deleteGallery,
-    createGalleryPage
-  } = useGalleriesState(galleryController);
-  const galleryWizard = useGalleryCreationWizard({
-    onCreateGallery: createGallery
-  });
-
-  useEffect(() => {
-    if (!isActive) {
-      return;
-    }
-
-    void loadGalleries();
-  }, [isActive, loadGalleries]);
-
-  const handleLoadTrackedImages = async () => {
-    if (!mediaManagerController) {
-      return [];
-    }
-
-    const response = await mediaManagerController.listTrackedImages();
-    return response.items;
-  };
-
-  const handleAddImagesToGallery = async (galleryId, imageIds) => {
-    if (!galleryController) {
-      throw new Error("Galleries action configuration is missing.");
-    }
-
-    await galleryController.addImagesToGallery(galleryId, imageIds);
-    await reloadGalleries();
-  };
-
-  const handleSetGalleryImages = async (galleryId, imageIds) => {
-    if (!galleryController) {
-      throw new Error("Galleries action configuration is missing.");
-    }
-
-    await galleryController.setGalleryImages(galleryId, imageIds);
-    await reloadGalleries();
-  };
-
-  useEffect(() => {
-    setCurrentPage((page) => Math.min(page, totalPages));
-  }, [totalPages]);
-
-  const pagination = useMemo(() => {
-    if (totalItems <= 0) {
-      return null;
-    }
-
-    return (
-      <CollectionPagination
-        className="border-white/70 bg-white/80"
-        itemLabel="galleries"
-        totalItems={totalItems}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageSizeChange={(nextPageSize) => {
-          setPageSize(nextPageSize);
-          setCurrentPage(1);
-        }}
-        onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
-        onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-        totalPages={totalPages}
-      />
+    createGalleryPage,
+  } = useGalleriesState(controller);
+  const [editor, setEditor] = useState(null);
+  const [imageGallery, setImageGallery] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const templates = useMemo(() => {
+    const supplied = config.action_controllers?.galleries?.templates;
+    return (supplied?.length ? supplied : DEFAULT_TEMPLATES).filter(
+      (item) => item.available,
     );
-  }, [currentPage, pageSize, totalItems, totalPages]);
+  }, [config]);
+
+  useEffect(() => {
+    if (isActive) void reloadGalleries();
+  }, [isActive, reloadGalleries]);
+
+  const loadImages = useCallback(async () => {
+    if (!media) throw new Error("Media library configuration is missing.");
+    return (await media.listTrackedImages()).items;
+  }, [media]);
+  const saveImages = async (id, ids) => {
+    if (!controller) throw new Error("Gallery configuration is missing.");
+    await controller.setGalleryImages(id, ids);
+    await reloadGalleries();
+  };
+  const runAction = async (action, message) => {
+    setBusy(true);
+    setNotice(null);
+    try {
+      await action();
+      setNotice({ message, error: false });
+    } catch (failure) {
+      setNotice({
+        message: failure.message || "The action failed.",
+        error: true,
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const remove = (gallery) => {
+    if (
+      !window.confirm(
+        `Delete “${gallery.name}”? Images stay in the WordPress media library. Published pages are kept; remove their shortcode separately.`,
+      )
+    )
+      return;
+    void runAction(
+      () => deleteGallery({ id: gallery.id }),
+      "Gallery deleted. Your original images are safe.",
+    );
+  };
+  const publish = (gallery) => {
+    if (
+      !window.confirm(
+        `Publish a public WordPress page for “${gallery.name}” and add a navigation link?`,
+      )
+    )
+      return;
+    void runAction(async () => {
+      const result = await createGalleryPage({ id: gallery.id });
+      setNotice({ message: "Page ready.", url: result.page_url, error: false });
+    }, "Gallery page is ready. Check Pages in WordPress.");
+  };
 
   return (
-    <section className={isActive ? "space-y-6" : "hidden space-y-6"}>
-      <GalleriesHeader
-        config={config}
-        templateCount={templateOptions.length}
-        pagination={pagination}
-        onOpenWizard={galleryWizard.openWizard}
-      />
+    <section className={isActive ? "space-y-7" : "hidden"}>
+      <GalleriesHeader onCreate={() => setEditor({ gallery: null })} />
+      <div className="pg-collection-summary">
+        <span>
+          <strong>{galleries.length}</strong> collections
+        </span>
+        <span>
+          <strong>
+            {galleries.reduce(
+              (sum, gallery) => sum + (gallery.image_count ?? 0),
+              0,
+            )}
+          </strong>{" "}
+          image assignments
+        </span>
+        <span className="pg-summary-hint">
+          Curated by you. Ready to be discovered.
+        </span>
+      </div>
+      {notice ? (
+        <p
+          className={`pg-notice ${notice.error ? "pg-error" : ""}`}
+          role={notice.error ? "alert" : "status"}
+        >
+          {notice.message}
+        </p>
+      ) : null}
       <GalleriesLibraryCard
         galleries={galleries}
-        templateOptions={templateOptions}
+        templates={templates}
         isLoading={isLoading}
         error={error}
         onReloadGalleries={reloadGalleries}
-        onCreateGallery={createGallery}
-        onRenameGallery={renameGallery}
-        onDeleteGallery={deleteGallery}
-        onCreateGalleryPage={createGalleryPage}
-        onLoadTrackedImages={handleLoadTrackedImages}
-        onAddImagesToGallery={handleAddImagesToGallery}
-        onSetGalleryImages={handleSetGalleryImages}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        onPageChange={setCurrentPage}
-        onPaginationChange={({ totalItems: nextTotalItems, totalPages: nextTotalPages }) => {
-          setTotalItems(nextTotalItems);
-          setTotalPages(nextTotalPages);
-        }}
-        wizard={galleryWizard}
+        onEdit={(gallery) => setEditor({ gallery })}
+        onImages={setImageGallery}
+        onDelete={remove}
+        onPublish={publish}
+        disabled={busy}
+        onCreate={() => setEditor({ gallery: null })}
       />
+      {editor ? (
+        <GalleryEditor
+          gallery={editor.gallery}
+          templates={templates}
+          onClose={() => setEditor(null)}
+          onSave={editor.gallery ? renameGallery : createGallery}
+        />
+      ) : null}
+      {imageGallery ? (
+        <GalleryImagesDialog
+          gallery={imageGallery}
+          onLoad={loadImages}
+          onSave={saveImages}
+          onClose={() => setImageGallery(null)}
+        />
+      ) : null}
     </section>
   );
 }

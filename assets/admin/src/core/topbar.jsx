@@ -1,19 +1,45 @@
-import { FolderOpen, Images, LayoutDashboard, Settings2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  FolderOpen,
+  Images,
+  LayoutDashboard,
+  PanelsTopLeft,
+  Settings2,
+} from "lucide-react";
 
 const menuIconByKey = {
   dashboard: LayoutDashboard,
   "media-manager": Images,
   galleries: FolderOpen,
-  settings: Settings2
+  settings: Settings2,
 };
 
 export function TopBar({ menuItems, activeMenu, onSelectMenu }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-sky-100 bg-gradient-to-r from-sky-50/80 to-violet-50/60 px-3 py-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-600">Navigation</p>
+    <aside className="pg-sidebar">
+      <a
+        className="pg-skip"
+        href="#pg-content"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("pg-content")?.focus();
+        }}
+      >
+        Skip to content
+      </a>
+      <div className="pg-brand">
+        <span className="pg-brand-mark">
+          <PanelsTopLeft size={23} aria-hidden="true" />
+        </span>
+        <div>
+          <strong>
+            prox<span>gallery</span>
+          </strong>
+          <small>A place for your perspective</small>
+        </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2 p-3">
+      <p className="pg-nav-label">YOUR STUDIO</p>
+      <nav className="pg-navigation" aria-label="Gallery workspace">
         {menuItems.map((menuItem) => {
           const Icon = menuIconByKey[menuItem.key] ?? LayoutDashboard;
           const isActive = activeMenu === menuItem.key;
@@ -23,18 +49,31 @@ export function TopBar({ menuItems, activeMenu, onSelectMenu }) {
               key={menuItem.key}
               type="button"
               onClick={() => onSelectMenu(menuItem.key)}
-              className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 ${
-                isActive
-                  ? "border-violet-200 bg-violet-50 text-violet-700"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
+              aria-current={isActive ? "page" : undefined}
+              className={`pg-nav-item ${isActive ? "is-active" : ""}`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? "text-violet-700" : "text-slate-600"}`} />
+              <Icon size={18} aria-hidden="true" />
               {menuItem.label}
+              {isActive ? (
+                <ArrowUpRight
+                  size={14}
+                  className="pg-nav-arrow"
+                  aria-hidden="true"
+                />
+              ) : null}
             </button>
           );
         })}
+      </nav>
+      <div className="pg-sidebar-note">
+        <span className="pg-status-dot" />
+        Made for WordPress
+        <p>
+          Less managing.
+          <br />
+          More creating.
+        </p>
       </div>
-    </section>
+    </aside>
   );
 }

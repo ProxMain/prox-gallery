@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prox\ProxGallery\Modules\Admin\Services;
 
+use Prox\ProxGallery\Storage\AtomicOptionStore;
 use Prox\ProxGallery\Contracts\ServiceInterface;
 use Prox\ProxGallery\States\AdminConfigurationState;
 
@@ -12,7 +13,7 @@ use Prox\ProxGallery\States\AdminConfigurationState;
  */
 final class TemplateCustomizationService implements ServiceInterface
 {
-    public function __construct(private AdminConfigurationState $state)
+    public function __construct(private AdminConfigurationState $state, private AtomicOptionStore $store = new AtomicOptionStore())
     {
     }
 
@@ -45,11 +46,12 @@ final class TemplateCustomizationService implements ServiceInterface
      */
     public function settings(): array
     {
-        $raw = \get_option($this->state->optionKey(), []);
+        return $this->normalizeSettings($this->store->read($this->state->optionKey()));
+    }
 
-        if (! is_array($raw)) {
-            $raw = [];
-        }
+    private function normalizeSettings(array $raw): array
+    {
+
 
         return [
             'basic_grid_columns' => $this->normalizeColumns($raw['basic_grid_columns'] ?? 4),
@@ -83,62 +85,56 @@ final class TemplateCustomizationService implements ServiceInterface
      */
     public function update(array $payload): array
     {
-        $current = $this->settings();
-        $next = $current;
+        return $this->store->mutate($this->state->optionKey(), function (array &$options) use ($payload): array {
+            $current = $this->normalizeSettings($options);
+            $next = $current;
 
-        if (array_key_exists('basic_grid_columns', $payload)) {
-            $next['basic_grid_columns'] = $this->normalizeColumns($payload['basic_grid_columns']);
-        }
+            if (array_key_exists('basic_grid_columns', $payload)) {
+                $next['basic_grid_columns'] = $this->normalizeColumns($payload['basic_grid_columns']);
+            }
 
-        if (array_key_exists('basic_grid_lightbox', $payload)) {
-            $next['basic_grid_lightbox'] = $this->normalizeBool($payload['basic_grid_lightbox']);
-        }
+            if (array_key_exists('basic_grid_lightbox', $payload)) {
+                $next['basic_grid_lightbox'] = $this->normalizeBool($payload['basic_grid_lightbox']);
+            }
 
-        if (array_key_exists('basic_grid_hover_zoom', $payload)) {
-            $next['basic_grid_hover_zoom'] = $this->normalizeBool($payload['basic_grid_hover_zoom']);
-        }
+            if (array_key_exists('basic_grid_hover_zoom', $payload)) {
+                $next['basic_grid_hover_zoom'] = $this->normalizeBool($payload['basic_grid_hover_zoom']);
+            }
 
-        if (array_key_exists('basic_grid_full_width', $payload)) {
-            $next['basic_grid_full_width'] = $this->normalizeBool($payload['basic_grid_full_width']);
-        }
+            if (array_key_exists('basic_grid_full_width', $payload)) {
+                $next['basic_grid_full_width'] = $this->normalizeBool($payload['basic_grid_full_width']);
+            }
 
-        if (array_key_exists('basic_grid_transition', $payload)) {
-            $next['basic_grid_transition'] = $this->normalizeTransition($payload['basic_grid_transition']);
-        }
+            if (array_key_exists('basic_grid_transition', $payload)) {
+                $next['basic_grid_transition'] = $this->normalizeTransition($payload['basic_grid_transition']);
+            }
 
-        if (array_key_exists('masonry_columns', $payload)) {
-            $next['masonry_columns'] = $this->normalizeColumns($payload['masonry_columns']);
-        }
+            if (array_key_exists('masonry_columns', $payload)) {
+                $next['masonry_columns'] = $this->normalizeColumns($payload['masonry_columns']);
+            }
 
-        if (array_key_exists('masonry_lightbox', $payload)) {
-            $next['masonry_lightbox'] = $this->normalizeBool($payload['masonry_lightbox']);
-        }
+            if (array_key_exists('masonry_lightbox', $payload)) {
+                $next['masonry_lightbox'] = $this->normalizeBool($payload['masonry_lightbox']);
+            }
 
-        if (array_key_exists('masonry_hover_zoom', $payload)) {
-            $next['masonry_hover_zoom'] = $this->normalizeBool($payload['masonry_hover_zoom']);
-        }
+            if (array_key_exists('masonry_hover_zoom', $payload)) {
+                $next['masonry_hover_zoom'] = $this->normalizeBool($payload['masonry_hover_zoom']);
+            }
 
-        if (array_key_exists('masonry_full_width', $payload)) {
-            $next['masonry_full_width'] = $this->normalizeBool($payload['masonry_full_width']);
-        }
+            if (array_key_exists('masonry_full_width', $payload)) {
+                $next['masonry_full_width'] = $this->normalizeBool($payload['masonry_full_width']);
+            }
 
-        if (array_key_exists('masonry_transition', $payload)) {
-            $next['masonry_transition'] = $this->normalizeTransition($payload['masonry_transition']);
-        }
+            if (array_key_exists('masonry_transition', $payload)) {
+                $next['masonry_transition'] = $this->normalizeTransition($payload['masonry_transition']);
+            }
 
-        $options = \get_option($this->state->optionKey(), []);
+            foreach ($next as $key => $value) {
+                $options[$key] = $value;
+            }
 
-        if (! is_array($options)) {
-            $options = [];
-        }
-
-        foreach ($next as $key => $value) {
-            $options[$key] = $value;
-        }
-
-        \update_option($this->state->optionKey(), $options, false);
-
-        return $next;
+            return $next;
+        });
     }
 
     private function normalizeColumns(mixed $value): int

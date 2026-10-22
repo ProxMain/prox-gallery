@@ -25,14 +25,14 @@ export function buildMediaMetaChips(image) {
   if (Array.isArray(image.categories) && image.categories.length > 0) {
     chips.push({
       text: `${image.categories.length} categor${image.categories.length === 1 ? "y" : "ies"}`,
-      tone: "amber"
+      tone: "amber",
     });
   }
 
   if (Array.isArray(image.gallery_ids) && image.gallery_ids.length > 0) {
     chips.push({
       text: `${image.gallery_ids.length} galler${image.gallery_ids.length === 1 ? "y" : "ies"}`,
-      tone: "emerald"
+      tone: "emerald",
     });
   }
 

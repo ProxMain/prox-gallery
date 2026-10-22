@@ -14,11 +14,9 @@ Thumbs.db
 # Composer
 #
 /vendor/
-composer.lock
 
 # (uncomment als dit een library wordt i.p.v. een app/plugin)
-# !composer.lock
-
+# !
 #
 # Node / npm
 #
@@ -57,7 +55,6 @@ docker-compose.override.yml
 # PHPUnit
 #
 /phpunit.xml
-/phpunit.xml.dist
 /.phpunit.result.cache
 /coverage/
 
@@ -86,3 +83,6 @@ docker-compose.override.yml
 # Misc
 #
 *.zip
+
+# Composer lock and shared PHPUnit config are intentionally tracked.
+/dev/prox-gallery-preview.html

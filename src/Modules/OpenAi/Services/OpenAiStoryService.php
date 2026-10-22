@@ -12,7 +12,7 @@ use RuntimeException;
  */
 final class OpenAiStoryService
 {
-    public function __construct(private OpenAiSettingsService $settings)
+    public function __construct(private OpenAiSettingsService $settings, private OpenAiUsageService $usage = new OpenAiUsageService())
     {
     }
 
@@ -78,7 +78,17 @@ final class OpenAiStoryService
             throw new InvalidArgumentException('Only image attachments are supported for AI stories.');
         }
 
-        $raw = \file_get_contents($imagePath);
+        // Bound memory use before reading and base64-encoding the source file.
+        $size = \filesize($imagePath);
+        if ($size === false || $size > 10 * 1024 * 1024) {
+            throw new InvalidArgumentException('Choose an image smaller than 10 MB for AI generation.');
+        }
+
+        $raw = \file_get_contents($imagePath, false, null, 0, 10 * 1024 * 1024 + 1);
+
+        if (is_string($raw) && strlen($raw) > 10 * 1024 * 1024) {
+            throw new InvalidArgumentException('Choose an image smaller than 10 MB for AI generation.');
+        }
 
         if (! is_string($raw) || $raw === '') {
             throw new RuntimeException('Unable to read attachment bytes for AI generation.');
@@ -89,6 +99,7 @@ final class OpenAiStoryService
 
         $request = [
             'model' => (string) $settings['model'],
+            'max_output_tokens' => 800,
             'input' => [
                 [
                     'role' => 'system',
@@ -119,6 +130,9 @@ final class OpenAiStoryService
                 ],
             ],
         ];
+
+        // Failed requests and timeouts consume a reservation too: they may already be billed.
+        $this->usage->reserve(\get_current_user_id(), $settings);
 
         $response = \wp_remote_post(
             'https://api.openai.com/v1/responses',
