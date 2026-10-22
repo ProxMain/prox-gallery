@@ -1,7 +1,7 @@
 import {
   AbstractActionController,
   type ActionControllerConfig,
-  type AjaxActionDefinition
+  type AjaxActionDefinition,
 } from "@/modules/core/controllers/abstract-action-controller";
 
 type GalleryDefinitions = {
@@ -25,12 +25,14 @@ export type GalleryItem = {
   lightbox_override?: boolean | null;
   hover_zoom_override?: boolean | null;
   full_width_override?: boolean | null;
-  transition_override?: "none" | "slide" | "fade" | "explode" | "implode" | null;
+  transition_override?:
+    "none" | "slide" | "fade" | "explode" | "implode" | null;
   show_title?: boolean;
   show_description?: boolean;
   created_at: string;
   image_ids?: number[];
   image_count?: number;
+  cover_images?: string[];
 };
 
 export type GalleryListResponse = {
@@ -87,49 +89,62 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
       lightbox_override?: boolean | null;
       hover_zoom_override?: boolean | null;
       full_width_override?: boolean | null;
-      transition_override?: "none" | "slide" | "fade" | "explode" | "implode" | null;
+      transition_override?:
+        "none" | "slide" | "fade" | "explode" | "implode" | null;
       show_title?: boolean;
       show_description?: boolean;
-    } = {}
+    } = {},
   ): Promise<GalleryCreateResponse> {
     const payload: Record<string, string | number | boolean | null> = {
       name,
       description,
-      template
+      template,
     };
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "grid_columns_override")) {
-      payload.grid_columns_override = overrides.grid_columns_override ?? "inherit";
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "grid_columns_override")
+    ) {
+      payload.grid_columns_override =
+        overrides.grid_columns_override ?? "inherit";
     }
 
     if (Object.prototype.hasOwnProperty.call(overrides, "lightbox_override")) {
       payload.lightbox_override =
-        overrides.lightbox_override === null || overrides.lightbox_override === undefined
+        overrides.lightbox_override === null ||
+        overrides.lightbox_override === undefined
           ? "inherit"
           : overrides.lightbox_override
-          ? "1"
-          : "0";
+            ? "1"
+            : "0";
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "hover_zoom_override")) {
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "hover_zoom_override")
+    ) {
       payload.hover_zoom_override =
-        overrides.hover_zoom_override === null || overrides.hover_zoom_override === undefined
+        overrides.hover_zoom_override === null ||
+        overrides.hover_zoom_override === undefined
           ? "inherit"
           : overrides.hover_zoom_override
-          ? "1"
-          : "0";
+            ? "1"
+            : "0";
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "full_width_override")) {
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "full_width_override")
+    ) {
       payload.full_width_override =
-        overrides.full_width_override === null || overrides.full_width_override === undefined
+        overrides.full_width_override === null ||
+        overrides.full_width_override === undefined
           ? "inherit"
           : overrides.full_width_override
-          ? "1"
-          : "0";
+            ? "1"
+            : "0";
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "transition_override")) {
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "transition_override")
+    ) {
       payload.transition_override = overrides.transition_override ?? "inherit";
     }
 
@@ -154,53 +169,66 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
       lightbox_override?: boolean | null;
       hover_zoom_override?: boolean | null;
       full_width_override?: boolean | null;
-      transition_override?: "none" | "slide" | "fade" | "explode" | "implode" | null;
+      transition_override?:
+        "none" | "slide" | "fade" | "explode" | "implode" | null;
       show_title?: boolean;
       show_description?: boolean;
-    } = {}
+    } = {},
   ): Promise<GalleryRenameResponse> {
     const payload: Record<string, string | number | boolean | null> = {
       id,
       name,
-      description
+      description,
     };
 
     if (typeof template === "string" && template !== "") {
       payload.template = template;
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "grid_columns_override")) {
-      payload.grid_columns_override = overrides.grid_columns_override ?? "inherit";
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "grid_columns_override")
+    ) {
+      payload.grid_columns_override =
+        overrides.grid_columns_override ?? "inherit";
     }
 
     if (Object.prototype.hasOwnProperty.call(overrides, "lightbox_override")) {
       payload.lightbox_override =
-        overrides.lightbox_override === null || overrides.lightbox_override === undefined
+        overrides.lightbox_override === null ||
+        overrides.lightbox_override === undefined
           ? "inherit"
           : overrides.lightbox_override
-          ? "1"
-          : "0";
+            ? "1"
+            : "0";
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "hover_zoom_override")) {
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "hover_zoom_override")
+    ) {
       payload.hover_zoom_override =
-        overrides.hover_zoom_override === null || overrides.hover_zoom_override === undefined
+        overrides.hover_zoom_override === null ||
+        overrides.hover_zoom_override === undefined
           ? "inherit"
           : overrides.hover_zoom_override
-          ? "1"
-          : "0";
+            ? "1"
+            : "0";
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "full_width_override")) {
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "full_width_override")
+    ) {
       payload.full_width_override =
-        overrides.full_width_override === null || overrides.full_width_override === undefined
+        overrides.full_width_override === null ||
+        overrides.full_width_override === undefined
           ? "inherit"
           : overrides.full_width_override
-          ? "1"
-          : "0";
+            ? "1"
+            : "0";
     }
 
-    if (Object.prototype.hasOwnProperty.call(overrides, "transition_override")) {
+    if (
+      Object.prototype.hasOwnProperty.call(overrides, "transition_override")
+    ) {
       payload.transition_override = overrides.transition_override ?? "inherit";
     }
 
@@ -219,36 +247,52 @@ export class GalleryActionController extends AbstractActionController<GalleryDef
     return this.dispatch<GalleryDeleteResponse>("delete", { id });
   }
 
-  public listImageGalleries(imageId: number): Promise<GalleryImageGalleriesResponse> {
-    return this.dispatch<GalleryImageGalleriesResponse>("list_image_galleries", {
-      image_id: imageId
-    });
+  public listImageGalleries(
+    imageId: number,
+  ): Promise<GalleryImageGalleriesResponse> {
+    return this.dispatch<GalleryImageGalleriesResponse>(
+      "list_image_galleries",
+      {
+        image_id: imageId,
+      },
+    );
   }
 
-  public setImageGalleries(imageId: number, galleryIds: number[]): Promise<GalleryImageGalleriesResponse> {
+  public setImageGalleries(
+    imageId: number,
+    galleryIds: number[],
+  ): Promise<GalleryImageGalleriesResponse> {
     return this.dispatch<GalleryImageGalleriesResponse>("set_image_galleries", {
       image_id: imageId,
-      gallery_ids: galleryIds.join(",")
+      gallery_ids: galleryIds.join(","),
     });
   }
 
-  public addImagesToGallery(galleryId: number, imageIds: number[]): Promise<GalleryRenameResponse> {
+  public addImagesToGallery(
+    galleryId: number,
+    imageIds: number[],
+  ): Promise<GalleryRenameResponse> {
     return this.dispatch<GalleryRenameResponse>("add_images", {
       gallery_id: galleryId,
-      image_ids: imageIds.join(",")
+      image_ids: imageIds.join(","),
     });
   }
 
-  public setGalleryImages(galleryId: number, imageIds: number[]): Promise<GalleryRenameResponse> {
+  public setGalleryImages(
+    galleryId: number,
+    imageIds: number[],
+  ): Promise<GalleryRenameResponse> {
     return this.dispatch<GalleryRenameResponse>("set_images", {
       gallery_id: galleryId,
-      image_ids: imageIds.join(",")
+      image_ids: imageIds.join(","),
     });
   }
 
-  public createGalleryPage(galleryId: number): Promise<GalleryCreatePageResponse> {
+  public createGalleryPage(
+    galleryId: number,
+  ): Promise<GalleryCreatePageResponse> {
     return this.dispatch<GalleryCreatePageResponse>("create_page", {
-      id: galleryId
+      id: galleryId,
     });
   }
 }

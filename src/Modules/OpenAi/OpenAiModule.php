@@ -30,6 +30,11 @@ final class OpenAiModule implements ModuleInterface
 
     private function registerDefaultCapabilities(): void
     {
+        // Initialise once so an administrator's later revocation remains effective.
+        if ((int) \get_option('prox_gallery_openai_capabilities_version', 0) >= 1) {
+            return;
+        }
+
         if (! function_exists('get_role')) {
             return;
         }
@@ -47,5 +52,7 @@ final class OpenAiModule implements ModuleInterface
                 $role->add_cap(self::CAPABILITY_USE);
             }
         }
+
+        \update_option('prox_gallery_openai_capabilities_version', 1, false);
     }
 }

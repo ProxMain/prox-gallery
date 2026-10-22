@@ -5,7 +5,7 @@ export function MediaFilesFilters({
   onSelectedCategoryChange,
   categoryOptions,
   dateSort,
-  onDateSortChange
+  onDateSortChange,
 }) {
   return (
     <div className="mb-4 grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">

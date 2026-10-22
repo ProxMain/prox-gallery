@@ -1,50 +1,4 @@
-import { useCallback, useReducer } from "react";
-
-type State<TItem> = {
-  items: TItem[];
-  isLoading: boolean;
-  error: string;
-  hasLoaded: boolean;
-};
-
-type Action<TItem> =
-  | { type: "load_start" }
-  | { type: "load_success"; payload: TItem[] }
-  | { type: "load_error"; payload: string };
-
-const initialState = {
-  items: [],
-  isLoading: false,
-  error: "",
-  hasLoaded: false
-};
-
-function reducer<TItem>(state: State<TItem>, action: Action<TItem>): State<TItem> {
-  switch (action.type) {
-    case "load_start":
-      return {
-        ...state,
-        isLoading: true,
-        error: ""
-      };
-    case "load_success":
-      return {
-        ...state,
-        isLoading: false,
-        error: "",
-        items: action.payload,
-        hasLoaded: true
-      };
-    case "load_error":
-      return {
-        ...state,
-        isLoading: false,
-        error: action.payload
-      };
-    default:
-      return state;
-  }
-}
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Options<TController, TItem> = {
   missingMessage: string;
@@ -53,55 +7,83 @@ type Options<TController, TItem> = {
   loadItems: (controller: TController) => Promise<TItem[]>;
 };
 
+/** Owns collection loading, caching and request deduplication. Callbacks stay stable. */
 export function useLoadableCollection<TController, TItem>({
+  controller,
+  loadItems,
   missingMessage,
   loadErrorMessage,
-  controller,
-  loadItems
 }: Options<TController, TItem>) {
-  const [state, dispatch] = useReducer(reducer<TItem>, initialState as State<TItem>);
+  const [state, setState] = useState({
+    items: [] as TItem[],
+    isLoading: false,
+    error: "",
+    hasLoaded: false,
+  });
+  const loader = useRef(loadItems);
+  loader.current = loadItems;
+  const cache = useMemo(
+    () => ({
+      items: [] as TItem[],
+      hasLoaded: false,
+      active: true,
+      pending: null as Promise<TItem[]> | null,
+    }),
+    [controller],
+  );
 
-  const load = useCallback(async ({ force = false }: { force?: boolean } = {}) => {
-    if (!controller) {
-      dispatch({ type: "load_error", payload: missingMessage });
-      return [] as TItem[];
-    }
+  useEffect(() => {
+    cache.active = true;
+    setState({ items: [], isLoading: false, error: "", hasLoaded: false });
+    return () => {
+      cache.active = false;
+    };
+  }, [cache]);
 
-    if (state.isLoading) {
-      return state.items;
-    }
+  const load = useCallback(
+    async ({ force = false } = {}): Promise<TItem[]> => {
+      if (!controller) {
+        setState((current) => ({ ...current, error: missingMessage }));
+        return [];
+      }
+      if (cache.pending) {
+        await cache.pending;
+        if (!force) return cache.items;
+      }
+      if (cache.pending) return cache.pending;
+      if (!force && cache.hasLoaded) return cache.items;
 
-    if (!force && state.hasLoaded) {
-      return state.items;
-    }
+      setState((current) => ({ ...current, isLoading: true, error: "" }));
+      cache.pending = (async () => {
+        try {
+          const items = await loader.current(controller);
+          cache.items = Array.isArray(items) ? items : [];
+          cache.hasLoaded = true;
+          if (cache.active)
+            setState({
+              items: cache.items,
+              isLoading: false,
+              error: "",
+              hasLoaded: true,
+            });
+          return cache.items;
+        } catch (error) {
+          if (cache.active)
+            setState((current) => ({
+              ...current,
+              isLoading: false,
+              error: error instanceof Error ? error.message : loadErrorMessage,
+            }));
+          return [];
+        } finally {
+          cache.pending = null;
+        }
+      })();
+      return cache.pending;
+    },
+    [cache, controller, missingMessage, loadErrorMessage],
+  );
 
-    dispatch({ type: "load_start" });
-
-    try {
-      const items = await loadItems(controller);
-      const nextItems = Array.isArray(items) ? items : [];
-      dispatch({ type: "load_success", payload: nextItems });
-      return nextItems;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : loadErrorMessage;
-      dispatch({ type: "load_error", payload: message });
-      return [] as TItem[];
-    }
-  }, [
-    controller,
-    loadErrorMessage,
-    loadItems,
-    missingMessage,
-    state.hasLoaded,
-    state.isLoading,
-    state.items
-  ]);
-
-  const reload = useCallback(async () => load({ force: true }), [load]);
-
-  return {
-    ...state,
-    load,
-    reload
-  };
+  const reload = useCallback(() => load({ force: true }), [load]);
+  return { ...state, load, reload };
 }

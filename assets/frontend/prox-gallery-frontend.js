@@ -1,414 +1,236 @@
 (function () {
-  function trackingConfig() {
-    if (!window.proxGalleryTracking) {
-      return null;
-    }
-
-    var ajaxUrl = window.proxGalleryTracking.ajaxUrl || "";
-    var action = window.proxGalleryTracking.action || "";
-    var nonce = window.proxGalleryTracking.nonce || "";
-
-    if (!ajaxUrl || !action || !nonce) {
-      return null;
-    }
-
-    return {
-      ajaxUrl: ajaxUrl,
-      action: action,
-      nonce: nonce
-    };
-  }
-
-  function sendTrackingEvent(eventType, galleryId, imageId) {
-    var config = trackingConfig();
-
-    if (!config) {
+  "use strict";
+  function track(type, galleryId, imageId) {
+    var config = window.proxGalleryTracking;
+    if (!config || !config.ajaxUrl || !config.action || !config.nonce) return;
+    var body = new URLSearchParams({
+      action: config.action,
+      _ajax_nonce: config.nonce,
+      event_type: type,
+      gallery_id: String(galleryId),
+      image_id: String(imageId || 0),
+    });
+    if (
+      navigator.sendBeacon &&
+      navigator.sendBeacon(
+        config.ajaxUrl,
+        new Blob([body.toString()], {
+          type: "application/x-www-form-urlencoded; charset=UTF-8",
+        }),
+      )
+    )
       return;
-    }
-
-    var params = new URLSearchParams();
-    params.append("action", config.action);
-    params.append("_ajax_nonce", config.nonce);
-    params.append("event_type", eventType);
-
-    if (galleryId > 0) {
-      params.append("gallery_id", String(galleryId));
-    }
-
-    if (imageId > 0) {
-      params.append("image_id", String(imageId));
-    }
-
-    if (navigator.sendBeacon) {
-      var blob = new Blob([params.toString()], { type: "application/x-www-form-urlencoded; charset=UTF-8" });
-      navigator.sendBeacon(config.ajaxUrl, blob);
-      return;
-    }
-
     fetch(config.ajaxUrl, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       },
-      body: params.toString(),
-      keepalive: true
-    }).catch(function () {});
-  }
-
-  function buildLightbox() {
-    var root = document.createElement("div");
-    root.className = "prox-gallery-lightbox";
-    root.setAttribute("aria-hidden", "true");
-    root.innerHTML =
-      '<div class="prox-gallery-lightbox__backdrop"></div>' +
-      '<div class="prox-gallery-lightbox__content">' +
-      '<div class="prox-gallery-lightbox__topbar">' +
-      '<div class="prox-gallery-lightbox__title"></div>' +
-      '<button type="button" class="prox-gallery-lightbox__info-toggle" aria-label="Toggle description" aria-expanded="false">&#9432;</button>' +
-      "</div>" +
-      '<button type="button" class="prox-gallery-lightbox__nav prox-gallery-lightbox__nav--prev" aria-label="Previous">&#10094;</button>' +
-      '<img class="prox-gallery-lightbox__image" alt="" />' +
-      '<button type="button" class="prox-gallery-lightbox__nav prox-gallery-lightbox__nav--next" aria-label="Next">&#10095;</button>' +
-      '<button type="button" class="prox-gallery-lightbox__close" aria-label="Close">&times;</button>' +
-      '<div class="prox-gallery-lightbox__info" hidden></div>' +
-      "</div>";
-    document.body.appendChild(root);
-    return root;
+      body: body.toString(),
+      keepalive: true,
+    }).catch(function () {
+      /* Analytics failure must not block image viewing. */
+    });
   }
 
   function init() {
-    var links = document.querySelectorAll("[data-prox-gallery-lightbox='1']");
-    var gallerySections = document.querySelectorAll("[data-prox-gallery-id]");
-    var visitedGalleryIds = {};
+    if (document.querySelector(".prox-gallery-lightbox")) return;
+    var links = Array.from(
+      document.querySelectorAll("[data-prox-gallery-lightbox='1']"),
+    );
+    var visited = new Set();
+    document
+      .querySelectorAll(".prox-gallery__group[data-prox-gallery-id]")
+      .forEach(function (group) {
+        var id = Number(group.dataset.proxGalleryId);
+        if (id > 0 && !visited.has(id)) {
+          visited.add(id);
+          track("gallery_visit", id, 0);
+        }
+      });
+    if (!links.length) return;
 
-    gallerySections.forEach(function (section) {
-      var rawGalleryId = section.getAttribute("data-prox-gallery-id") || "";
-      var galleryId = parseInt(rawGalleryId, 10);
+    var root = document.createElement("div");
+    root.className = "prox-gallery-lightbox";
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-modal", "true");
+    root.setAttribute("aria-label", "Image viewer");
+    root.setAttribute("aria-hidden", "true");
+    // Static markup only; all attachment text is assigned through textContent below.
+    root.innerHTML =
+      '<div class="prox-gallery-lightbox__backdrop"></div><div class="prox-gallery-lightbox__content"><div class="prox-gallery-lightbox__topbar"><div class="prox-gallery-lightbox__title" aria-live="polite"></div><button type="button" class="prox-gallery-lightbox__info-toggle" aria-label="Toggle description" aria-expanded="false">&#9432;</button></div><button type="button" class="prox-gallery-lightbox__nav prox-gallery-lightbox__nav--prev" aria-label="Previous image">&#10094;</button><img class="prox-gallery-lightbox__image" alt="" /><button type="button" class="prox-gallery-lightbox__nav prox-gallery-lightbox__nav--next" aria-label="Next image">&#10095;</button><button type="button" class="prox-gallery-lightbox__close" aria-label="Close image viewer">&times;</button><div class="prox-gallery-lightbox__info" hidden></div></div>';
+    document.body.appendChild(root);
+    var image = root.querySelector("img");
+    var title = root.querySelector(".prox-gallery-lightbox__title");
+    var info = root.querySelector(".prox-gallery-lightbox__info");
+    var infoButton = root.querySelector(".prox-gallery-lightbox__info-toggle");
+    var previousButton = root.querySelector(
+      ".prox-gallery-lightbox__nav--prev",
+    );
+    var nextButton = root.querySelector(".prox-gallery-lightbox__nav--next");
+    var closeButton = root.querySelector(".prox-gallery-lightbox__close");
+    var items = [];
+    var index = 0;
+    var opener = null;
+    var overflow = "";
+    var inertNodes = [];
+    var timers = [];
+    var animating = false;
 
-      if (!galleryId || visitedGalleryIds[galleryId]) {
-        return;
-      }
-
-      visitedGalleryIds[galleryId] = true;
-      sendTrackingEvent("gallery_visit", galleryId, 0);
-    });
-
-    if (!links.length) {
-      return;
+    function clearAnimation() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      animating = false;
+      image.className = "prox-gallery-lightbox__image";
     }
-
-    var lightbox = buildLightbox();
-    var image = lightbox.querySelector(".prox-gallery-lightbox__image");
-    var closeButton = lightbox.querySelector(".prox-gallery-lightbox__close");
-    var backdrop = lightbox.querySelector(".prox-gallery-lightbox__backdrop");
-    var prevButton = lightbox.querySelector(".prox-gallery-lightbox__nav--prev");
-    var nextButton = lightbox.querySelector(".prox-gallery-lightbox__nav--next");
-    var title = lightbox.querySelector(".prox-gallery-lightbox__title");
-    var infoToggleButton = lightbox.querySelector(".prox-gallery-lightbox__info-toggle");
-    var infoPanel = lightbox.querySelector(".prox-gallery-lightbox__info");
-    var items = Array.prototype.slice.call(links);
-    var currentIndex = -1;
-    var isAnimating = false;
-    var previousHtmlOverflow = "";
-    var previousHtmlPaddingRight = "";
-    var previousBodyOverflow = "";
-    var previousBodyPaddingRight = "";
-
-    function lockBodyScroll() {
-      previousHtmlOverflow = document.documentElement.style.overflow;
-      previousHtmlPaddingRight = document.documentElement.style.paddingRight;
-      previousBodyOverflow = document.body.style.overflow;
-      previousBodyPaddingRight = document.body.style.paddingRight;
-
-      var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-
-      if (scrollbarWidth > 0) {
-        document.documentElement.style.paddingRight = scrollbarWidth + "px";
-        document.body.style.paddingRight = scrollbarWidth + "px";
-      }
-    }
-
-    function unlockBodyScroll() {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.documentElement.style.paddingRight = previousHtmlPaddingRight;
-      document.body.style.overflow = previousBodyOverflow;
-      document.body.style.paddingRight = previousBodyPaddingRight;
-    }
-
-    function transitionOutClass(mode, direction) {
-      if (mode === "fade") {
-        return "is-transition-fade-out";
-      }
-
-      if (mode === "slide") {
-        return direction === "prev" ? "is-transition-slide-out-right" : "is-transition-slide-out-left";
-      }
-
-      if (mode === "explode") {
-        return "is-transition-explode-out";
-      }
-
-      if (mode === "implode") {
-        return "is-transition-implode-out";
-      }
-
-      return "";
-    }
-
-    function transitionInClass(mode, direction) {
-      if (mode === "fade") {
-        return "is-transition-fade-in";
-      }
-
-      if (mode === "slide") {
-        return direction === "prev" ? "is-transition-slide-in-left" : "is-transition-slide-in-right";
-      }
-
-      if (mode === "explode") {
-        return "is-transition-explode-in";
-      }
-
-      if (mode === "implode") {
-        return "is-transition-implode-in";
-      }
-
-      return "";
-    }
-
-    function clearTransitionClasses() {
-      if (!image) {
-        return;
-      }
-
-      image.classList.remove(
-        "is-transition-fade-out",
-        "is-transition-fade-in",
-        "is-transition-slide-out-left",
-        "is-transition-slide-out-right",
-        "is-transition-slide-in-left",
-        "is-transition-slide-in-right",
-        "is-transition-explode-out",
-        "is-transition-explode-in",
-        "is-transition-implode-out",
-        "is-transition-implode-in"
+    function assign(link) {
+      image.src = link.href;
+      image.alt =
+        link.querySelector("img")?.alt || link.dataset.proxImageTitle || "";
+      title.textContent =
+        (link.dataset.proxImageTitle || "Image") +
+        " · " +
+        (index + 1) +
+        " / " +
+        items.length;
+      info.textContent = link.dataset.proxImageDescription || "";
+      info.hidden = true;
+      infoButton.hidden = !info.textContent.trim();
+      infoButton.setAttribute("aria-expanded", "false");
+      previousButton.hidden = nextButton.hidden = items.length <= 1;
+      track(
+        "image_view",
+        Number(link.dataset.proxGalleryId),
+        Number(link.dataset.proxImageId),
       );
     }
-
-    function showIndex(index, direction) {
-      if (!items.length || !image) {
+    function show(next, direction, initial) {
+      if (!items.length || animating) return;
+      index = (next + items.length) % items.length;
+      var link = items[index];
+      var mode = link.dataset.proxGalleryTransition || "none";
+      if (
+        initial ||
+        mode === "none" ||
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+      ) {
+        clearAnimation();
+        assign(link);
         return;
       }
-
-      if (isAnimating) {
+      var outName =
+        mode === "slide"
+          ? "slide-out-" + (direction < 0 ? "right" : "left")
+          : mode + "-out";
+      var inName =
+        mode === "slide"
+          ? "slide-in-" + (direction < 0 ? "left" : "right")
+          : mode + "-in";
+      if (!["fade", "slide", "explode", "implode"].includes(mode)) {
+        assign(link);
         return;
       }
-
-      var max = items.length - 1;
-      var nextIndex = index;
-
-      if (nextIndex < 0) {
-        nextIndex = max;
-      }
-
-      if (nextIndex > max) {
-        nextIndex = 0;
-      }
-
-      currentIndex = nextIndex;
-
-      var link = items[currentIndex];
-      var href = link.getAttribute("href") || "";
-      var imageTitle = link.getAttribute("data-prox-image-title") || "";
-      var description = link.getAttribute("data-prox-image-description") || "";
-      var mode = (link.getAttribute("data-prox-gallery-transition") || "none").toLowerCase();
-
-      if (!href) {
-        return;
-      }
-
-      clearTransitionClasses();
-      if (mode === "none" || image.getAttribute("src") === "") {
-        image.setAttribute("src", href);
-        if (title) {
-          title.textContent = imageTitle;
-        }
-        if (infoPanel && infoToggleButton) {
-          infoPanel.textContent = description;
-          infoPanel.hidden = true;
-          infoToggleButton.setAttribute("aria-expanded", "false");
-          infoToggleButton.hidden = description.trim() === "";
-        }
-        return;
-      }
-
-      isAnimating = true;
-      var outClass = transitionOutClass(mode, direction || "next");
-      var inClass = transitionInClass(mode, direction || "next");
-
-      if (outClass) {
-        image.classList.add(outClass);
-      }
-
-      window.setTimeout(function () {
-        clearTransitionClasses();
-        image.setAttribute("src", href);
-        if (title) {
-          title.textContent = imageTitle;
-        }
-        if (infoPanel && infoToggleButton) {
-          infoPanel.textContent = description;
-          infoPanel.hidden = true;
-          infoToggleButton.setAttribute("aria-expanded", "false");
-          infoToggleButton.hidden = description.trim() === "";
-        }
-
-        if (inClass) {
-          image.classList.add(inClass);
-        }
-
-        window.setTimeout(function () {
-          clearTransitionClasses();
-          isAnimating = false;
-        }, 220);
-      }, 180);
+      animating = true;
+      image.classList.add("is-transition-" + outName);
+      timers.push(
+        setTimeout(function () {
+          image.className = "prox-gallery-lightbox__image";
+          assign(link);
+          image.classList.add("is-transition-" + inName);
+          timers.push(setTimeout(clearAnimation, 220));
+        }, 180),
+      );
     }
-
     function close() {
-      lightbox.classList.remove("is-open");
-      lightbox.setAttribute("aria-hidden", "true");
-      unlockBodyScroll();
-      currentIndex = -1;
-      if (image) {
-        image.setAttribute("src", "");
-      }
-      if (title) {
-        title.textContent = "";
-      }
-      if (infoPanel && infoToggleButton) {
-        infoPanel.textContent = "";
-        infoPanel.hidden = true;
-        infoToggleButton.hidden = true;
-        infoToggleButton.setAttribute("aria-expanded", "false");
-      }
+      if (!root.classList.contains("is-open")) return;
+      clearAnimation();
+      root.classList.remove("is-open");
+      root.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = overflow;
+      inertNodes.forEach(function (entry) {
+        entry[0].inert = entry[1];
+      });
+      inertNodes = [];
+      image.removeAttribute("src");
+      opener?.focus();
     }
-
     links.forEach(function (link) {
       link.addEventListener("click", function (event) {
         event.preventDefault();
-        var index = items.indexOf(link);
-        if (index < 0) {
-          return;
-        }
-        var rawGalleryId = link.getAttribute("data-prox-gallery-id") || "";
-        var rawImageId = link.getAttribute("data-prox-image-id") || "";
-        var galleryId = parseInt(rawGalleryId, 10);
-        var imageId = parseInt(rawImageId, 10);
-        sendTrackingEvent("image_view", galleryId || 0, imageId || 0);
-        showIndex(index, "next");
-        lockBodyScroll();
-        lightbox.classList.add("is-open");
-        lightbox.setAttribute("aria-hidden", "false");
+        opener = link;
+        var group = link.closest(".prox-gallery__group");
+        // Browsing stays inside the collection that the visitor opened.
+        items = links.filter(function (candidate) {
+          return group
+            ? candidate.closest(".prox-gallery__group") === group
+            : candidate.dataset.proxGalleryId === link.dataset.proxGalleryId;
+        });
+        overflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        inertNodes = Array.from(document.body.children)
+          .filter(function (node) {
+            return node !== root;
+          })
+          .map(function (node) {
+            var entry = [node, node.inert];
+            node.inert = true;
+            return entry;
+          });
+        clearAnimation();
+        root.classList.add("is-open");
+        root.setAttribute("aria-hidden", "false");
+        show(items.indexOf(link), 1, true);
+        closeButton.focus();
       });
     });
-
-    if (closeButton) {
-      closeButton.addEventListener("click", close);
-    }
-
-    if (backdrop) {
-      backdrop.addEventListener("click", close);
-    }
-
-    if (prevButton) {
-      prevButton.addEventListener("click", function () {
-        if (isAnimating) {
-          return;
-        }
-
-        if (items.length && currentIndex >= 0) {
-          var prevIndex = currentIndex - 1 < 0 ? items.length - 1 : currentIndex - 1;
-          var prevLink = items[prevIndex];
-          var prevGalleryId = parseInt(prevLink.getAttribute("data-prox-gallery-id") || "0", 10) || 0;
-          var prevImageId = parseInt(prevLink.getAttribute("data-prox-image-id") || "0", 10) || 0;
-          sendTrackingEvent("image_view", prevGalleryId, prevImageId);
-        }
-        showIndex(currentIndex - 1, "prev");
+    closeButton.addEventListener("click", close);
+    root
+      .querySelector(".prox-gallery-lightbox__backdrop")
+      .addEventListener("click", close);
+    root
+      .querySelector(".prox-gallery-lightbox__content")
+      .addEventListener("click", function (event) {
+        if (event.target === event.currentTarget) close();
       });
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener("click", function () {
-        if (isAnimating) {
-          return;
-        }
-
-        if (items.length && currentIndex >= 0) {
-          var nextIndex = currentIndex + 1 > items.length - 1 ? 0 : currentIndex + 1;
-          var nextLink = items[nextIndex];
-          var nextGalleryId = parseInt(nextLink.getAttribute("data-prox-gallery-id") || "0", 10) || 0;
-          var nextImageId = parseInt(nextLink.getAttribute("data-prox-image-id") || "0", 10) || 0;
-          sendTrackingEvent("image_view", nextGalleryId, nextImageId);
-        }
-        showIndex(currentIndex + 1, "next");
-      });
-    }
-
-    if (infoToggleButton && infoPanel) {
-      infoToggleButton.addEventListener("click", function () {
-        var isHidden = infoPanel.hidden;
-        infoPanel.hidden = !isHidden;
-        infoToggleButton.setAttribute("aria-expanded", isHidden ? "true" : "false");
-      });
-    }
-
+    previousButton.addEventListener("click", function () {
+      show(index - 1, -1);
+    });
+    nextButton.addEventListener("click", function () {
+      show(index + 1, 1);
+    });
+    infoButton.addEventListener("click", function () {
+      info.hidden = !info.hidden;
+      infoButton.setAttribute("aria-expanded", String(!info.hidden));
+    });
     document.addEventListener("keydown", function (event) {
-      if (!lightbox.classList.contains("is-open")) {
-        return;
-      }
-
+      if (!root.classList.contains("is-open")) return;
       if (event.key === "Escape") {
+        event.preventDefault();
         close();
-        return;
-      }
-
-      if (event.key === "ArrowLeft") {
-        if (isAnimating) {
-          return;
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        show(
+          index + (event.key === "ArrowLeft" ? -1 : 1),
+          event.key === "ArrowLeft" ? -1 : 1,
+        );
+      } else if (event.key === "Tab") {
+        var buttons = Array.from(root.querySelectorAll("button")).filter(
+          function (button) {
+            return !button.hidden && !button.disabled;
+          },
+        );
+        var first = buttons[0],
+          last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
         }
-
-        if (items.length && currentIndex >= 0) {
-          var leftIndex = currentIndex - 1 < 0 ? items.length - 1 : currentIndex - 1;
-          var leftLink = items[leftIndex];
-          var leftGalleryId = parseInt(leftLink.getAttribute("data-prox-gallery-id") || "0", 10) || 0;
-          var leftImageId = parseInt(leftLink.getAttribute("data-prox-image-id") || "0", 10) || 0;
-          sendTrackingEvent("image_view", leftGalleryId, leftImageId);
-        }
-        showIndex(currentIndex - 1, "prev");
-        return;
-      }
-
-      if (event.key === "ArrowRight") {
-        if (isAnimating) {
-          return;
-        }
-
-        if (items.length && currentIndex >= 0) {
-          var rightIndex = currentIndex + 1 > items.length - 1 ? 0 : currentIndex + 1;
-          var rightLink = items[rightIndex];
-          var rightGalleryId = parseInt(rightLink.getAttribute("data-prox-gallery-id") || "0", 10) || 0;
-          var rightImageId = parseInt(rightLink.getAttribute("data-prox-image-id") || "0", 10) || 0;
-          sendTrackingEvent("image_view", rightGalleryId, rightImageId);
-        }
-        showIndex(currentIndex + 1, "next");
       }
     });
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
 })();

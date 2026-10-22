@@ -1,7 +1,6 @@
-import { Images } from "lucide-react";
+import { Images, Plus } from "lucide-react";
 
 import { SectionHeader } from "@/core/section-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export function MediaManagerHeader({
@@ -10,33 +9,30 @@ export function MediaManagerHeader({
   onOpenPicker,
   pickerError,
   lastSelectionSummary,
-  pagination
+  pagination,
 }) {
   return (
     <div className="space-y-2">
       <SectionHeader
         variant="page"
         icon={Images}
-        title="Prox Gallery - Media Manager"
-        description="Manage tracked media and add existing or new images without leaving this screen."
-        footer={pagination}
+        title="Your image library"
+        description="Every image, in its place. Find it, refine it, make it yours."
         actions={
           <>
             <Button
               type="button"
-              variant="outline"
               onClick={onOpenPicker}
               disabled={isOpeningPicker}
               className="focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
             >
-              {isOpeningPicker ? "Opening..." : "Add media"}
+              <Plus size={16} />
+              {isOpeningPicker ? "Opening..." : "Add images"}
             </Button>
-            <Badge variant="outline" className="h-9 px-3 text-xs font-medium text-slate-700">
-              Environment: Local | Screen: {config.screen || "n/a"}
-            </Badge>
           </>
         }
       />
+      {pagination}
       {lastSelectionSummary !== "" ? (
         <p className="text-sm text-emerald-700">{lastSelectionSummary}</p>
       ) : null}

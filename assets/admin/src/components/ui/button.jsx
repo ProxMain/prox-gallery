@@ -9,29 +9,34 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-slate-900 text-white hover:bg-slate-700",
+        default: "pg-primary text-white",
         secondary: "bg-slate-200 text-slate-900 hover:bg-slate-300",
         outline: "border border-slate-300 bg-white hover:bg-slate-100",
-        ghost: "hover:bg-slate-100"
+        ghost: "hover:bg-slate-100",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10"
-      }
+        icon: "h-10 w-10",
+      },
     },
     defaultVariants: {
       variant: "default",
-      size: "default"
-    }
-  }
+      size: "default",
+    },
+  },
 );
 
 function Button({ className, variant, size, asChild = false, ...props }) {
   const Comp = asChild ? Slot : "button";
 
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  );
 }
 
 export { Button, buttonVariants };

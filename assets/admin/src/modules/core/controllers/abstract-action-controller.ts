@@ -7,15 +7,17 @@ export type ActionControllerConfig = {
   ajax_url: string;
 };
 
-export abstract class AbstractActionController<TDefinitions extends Record<string, AjaxActionDefinition>> {
+export abstract class AbstractActionController<
+  TDefinitions extends Record<string, AjaxActionDefinition>,
+> {
   protected constructor(
     protected readonly config: ActionControllerConfig,
-    protected readonly definitions: TDefinitions
+    protected readonly definitions: TDefinitions,
   ) {}
 
   protected async dispatch<TResponse>(
     key: keyof TDefinitions,
-    payload: Record<string, string | number | boolean | null> = {}
+    payload: Record<string, string | number | boolean | null> = {},
   ): Promise<TResponse> {
     const definition = this.definitions[key as string];
 
@@ -39,9 +41,9 @@ export abstract class AbstractActionController<TDefinitions extends Record<strin
       method: "POST",
       credentials: "same-origin",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       },
-      body: body.toString()
+      body: body.toString(),
     });
 
     if (!response.ok) {
@@ -75,7 +77,9 @@ export abstract class AbstractActionController<TDefinitions extends Record<strin
 
     if (!json.success) {
       const message =
-        typeof json.data === "object" && json.data !== null && "message" in json.data
+        typeof json.data === "object" &&
+        json.data !== null &&
+        "message" in json.data
           ? String(json.data.message ?? "Action failed.")
           : "Action failed.";
 

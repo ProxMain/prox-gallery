@@ -6,12 +6,10 @@ namespace Prox\ProxGallery\Modules\MediaLibrary\Controllers;
 
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
-use Prox\ProxGallery\Modules\MediaLibrary\Models\UploadedImageQueueModel;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerListService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerMetadataService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerSyncService;
 use Prox\ProxGallery\Modules\MediaLibrary\Services\MediaManagerTrackSelectionService;
-use Prox\ProxGallery\Modules\MediaLibrary\Services\TrackUploadedImageService;
 use Prox\ProxGallery\Policies\AdminCapabilityPolicy;
 
 /**
@@ -30,8 +28,6 @@ final class MediaManagerActionController extends AbstractActionController implem
     private MediaManagerMetadataService $metadataService;
 
     public function __construct(
-        private UploadedImageQueueModel $queue,
-        private TrackUploadedImageService $trackService,
         MediaManagerListService $listService,
         MediaManagerSyncService $syncService,
         MediaManagerTrackSelectionService $trackSelectionService,

@@ -1,7 +1,7 @@
 import {
   AbstractActionController,
   type ActionControllerConfig,
-  type AjaxActionDefinition
+  type AjaxActionDefinition,
 } from "@/modules/core/controllers/abstract-action-controller";
 
 type OpenAiDefinitions = {
@@ -21,6 +21,7 @@ export type OpenAiPromptTemplate = {
 
 export type OpenAiSettings = {
   api_key: string;
+  api_key_configured?: boolean;
   model: string;
   languages: string[];
   prompt_templates: OpenAiPromptTemplate[];
@@ -41,16 +42,21 @@ export class OpenAiActionController extends AbstractActionController<OpenAiDefin
     return this.dispatch("settings_get");
   }
 
-  public updateSettings(settings: OpenAiSettings): Promise<{ action: string; settings: OpenAiSettings }> {
+  public updateSettings(
+    settings: OpenAiSettings,
+  ): Promise<{ action: string; settings: OpenAiSettings }> {
     return this.dispatch("settings_update", {
       api_key: settings.api_key,
       model: settings.model,
       languages_csv: settings.languages.join(","),
-      prompt_templates_json: JSON.stringify(settings.prompt_templates)
+      prompt_templates_json: JSON.stringify(settings.prompt_templates),
     });
   }
 
-  public getGenerationConfig(): Promise<{ action: string; config: OpenAiGenerationConfig }> {
+  public getGenerationConfig(): Promise<{
+    action: string;
+    config: OpenAiGenerationConfig;
+  }> {
     return this.dispatch("config_get");
   }
 
@@ -59,7 +65,16 @@ export class OpenAiActionController extends AbstractActionController<OpenAiDefin
     template_key: string;
     language: string;
     prompt_override: string;
-  }): Promise<{ action: string; attachment_id: number; story: string; short_title: string; language: string; template_key: string; prompt: string; model: string }> {
+  }): Promise<{
+    action: string;
+    attachment_id: number;
+    story: string;
+    short_title: string;
+    language: string;
+    template_key: string;
+    prompt: string;
+    model: string;
+  }> {
     return this.dispatch("generate", payload);
   }
 
@@ -67,7 +82,12 @@ export class OpenAiActionController extends AbstractActionController<OpenAiDefin
     attachment_id: number;
     story: string;
     short_title: string;
-  }): Promise<{ action: string; attachment_id: number; story: string; short_title: string }> {
+  }): Promise<{
+    action: string;
+    attachment_id: number;
+    story: string;
+    short_title: string;
+  }> {
     return this.dispatch("apply", payload);
   }
 }

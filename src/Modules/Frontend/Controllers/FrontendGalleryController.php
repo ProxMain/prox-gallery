@@ -64,6 +64,18 @@ final class FrontendGalleryController implements ControllerInterface
      */
     public function trackEvent(): void
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'POST') !== 'POST') {
+            \wp_send_json_error(['message' => 'Use POST for tracking.'], 405);
+            return;
+        }
+
+        foreach (['_ajax_nonce', 'event_type', 'gallery_id', 'image_id'] as $field) {
+            if (isset($_POST[$field]) && ! is_scalar($_POST[$field])) {
+                \wp_send_json_error(['message' => 'Invalid tracking payload.'], 400);
+                return;
+            }
+        }
+
         $nonce = isset($_POST['_ajax_nonce']) ? (string) \wp_unslash($_POST['_ajax_nonce']) : '';
 
         if ($nonce === '' || ! \wp_verify_nonce($nonce, self::TRACK_ACTION)) {
@@ -94,7 +106,7 @@ final class FrontendGalleryController implements ControllerInterface
                 \wp_send_json_error(['message' => 'Invalid image.'], 400);
             }
 
-            if ($galleryId > 0 && ! $this->service->galleryContainsImage($galleryId, $imageId)) {
+            if ($galleryId <= 0 || ! $this->service->galleryContainsImage($galleryId, $imageId)) {
                 \wp_send_json_error(['message' => 'Image is not part of this gallery.'], 400);
             }
 

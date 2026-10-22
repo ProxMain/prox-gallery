@@ -98,6 +98,17 @@ final class GalleryActionController extends AbstractActionController implements 
     {
         $items = $this->service->list();
 
+        foreach ($items as &$item) {
+            $item['cover_images'] = [];
+            foreach (array_slice($item['image_ids'] ?? [], 0, 3) as $imageId) {
+                $url = \wp_get_attachment_image_url((int) $imageId, 'medium_large');
+                if (is_string($url) && $url !== '') {
+                    $item['cover_images'][] = $url;
+                }
+            }
+        }
+        unset($item);
+
         return [
             'action' => $action,
             'items' => $items,

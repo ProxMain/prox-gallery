@@ -140,6 +140,7 @@ final class FrontendTrackingService implements ServiceInterface
         $countries[$country] = isset($countries[$country]) ? ((int) $countries[$country]) + 1 : 1;
 
         return [
+            ...$bucket,
             'total' => $total,
             'countries' => $countries,
         ];
@@ -147,16 +148,12 @@ final class FrontendTrackingService implements ServiceInterface
 
     private function resolveCountryCode(): string
     {
-        $candidates = [
-            $_SERVER['HTTP_CF_IPCOUNTRY'] ?? null,
-            $_SERVER['HTTP_X_COUNTRY_CODE'] ?? null,
-            $_SERVER['HTTP_X_COUNTRY'] ?? null,
-            $_SERVER['HTTP_X_GEO_COUNTRY'] ?? null,
-            $_SERVER['HTTP_X_APPENGINE_COUNTRY'] ?? null,
-            $_SERVER['HTTP_X_VERCEL_IP_COUNTRY'] ?? null,
-            $_SERVER['HTTP_X_AZURE_CLIENTIPCOUNTRY'] ?? null,
-            $_SERVER['GEOIP_COUNTRY_CODE'] ?? null,
-        ];
+        // HTTP headers are caller-controlled unless a trusted proxy overwrites them.
+        // Hosting integrations may explicitly supply a verified value through this filter.
+        $candidates = [\apply_filters(
+            'prox_gallery/tracking/country_code',
+            $_SERVER['GEOIP_COUNTRY_CODE'] ?? 'ZZ'
+        )];
 
         foreach ($candidates as $candidate) {
             if (! is_string($candidate)) {

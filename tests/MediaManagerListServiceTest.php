@@ -14,7 +14,7 @@ final class MediaManagerListServiceTest extends WP_UnitTestCase
         \delete_option('prox_gallery_uploaded_image_ids');
     }
 
-    public function test_it_prunes_missing_attachments_when_listing_tracked_media(): void
+    public function test_it_ignores_missing_attachments_without_mutating_storage_when_listing(): void
     {
         $queue = new UploadedImageQueueModel();
         $trackService = new TrackUploadedImageService($queue);
@@ -22,13 +22,14 @@ final class MediaManagerListServiceTest extends WP_UnitTestCase
         $attachmentId = $this->createAttachment('image/jpeg', 'Still here');
 
         $trackService->track($attachmentId);
+        $stored = \get_option($queue->optionKey());
 
         \wp_delete_attachment($attachmentId, true);
 
         $items = $service->listItems();
 
         self::assertSame([], $items);
-        self::assertSame([], $queue->all());
+        self::assertSame($stored, \get_option($queue->optionKey()));
     }
 
     private function createAttachment(string $mimeType, string $title): int

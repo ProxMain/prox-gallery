@@ -1,7 +1,7 @@
 import {
   AbstractActionController,
   type ActionControllerConfig,
-  type AjaxActionDefinition
+  type AjaxActionDefinition,
 } from "@/modules/core/controllers/abstract-action-controller";
 
 type TemplateSettingsDefinitions = {
@@ -28,7 +28,10 @@ type TemplateSettingsResponse = {
 };
 
 export class TemplateSettingsActionController extends AbstractActionController<TemplateSettingsDefinitions> {
-  constructor(config: ActionControllerConfig, definitions: TemplateSettingsDefinitions) {
+  constructor(
+    config: ActionControllerConfig,
+    definitions: TemplateSettingsDefinitions,
+  ) {
     super(config, definitions);
   }
 
@@ -36,7 +39,9 @@ export class TemplateSettingsActionController extends AbstractActionController<T
     return this.dispatch<TemplateSettingsResponse>("get");
   }
 
-  public updateSettings(settings: TemplateSettings): Promise<TemplateSettingsResponse> {
+  public updateSettings(
+    settings: TemplateSettings,
+  ): Promise<TemplateSettingsResponse> {
     return this.dispatch<TemplateSettingsResponse>("update", settings);
   }
 }

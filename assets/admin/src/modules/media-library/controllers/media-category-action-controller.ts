@@ -1,7 +1,7 @@
 import {
   AbstractActionController,
   type ActionControllerConfig,
-  type AjaxActionDefinition
+  type AjaxActionDefinition,
 } from "@/modules/core/controllers/abstract-action-controller";
 
 type MediaCategoryDefinitions = {
@@ -39,22 +39,38 @@ export type MediaCategoryAssignResponse = {
 };
 
 export class MediaCategoryActionController extends AbstractActionController<MediaCategoryDefinitions> {
-  constructor(config: ActionControllerConfig, definitions: MediaCategoryDefinitions) {
+  constructor(
+    config: ActionControllerConfig,
+    definitions: MediaCategoryDefinitions,
+  ) {
     super(config, definitions);
   }
 
-  public suggestCategories(query = "", limit = 10): Promise<MediaCategorySuggestResponse> {
-    return this.dispatch<MediaCategorySuggestResponse>("suggest", { query, limit });
+  public suggestCategories(
+    query = "",
+    limit = 10,
+  ): Promise<MediaCategorySuggestResponse> {
+    return this.dispatch<MediaCategorySuggestResponse>("suggest", {
+      query,
+      limit,
+    });
   }
 
-  public listForAttachment(attachmentId: number): Promise<MediaCategoryListResponse> {
-    return this.dispatch<MediaCategoryListResponse>("list", { attachment_id: attachmentId });
+  public listForAttachment(
+    attachmentId: number,
+  ): Promise<MediaCategoryListResponse> {
+    return this.dispatch<MediaCategoryListResponse>("list", {
+      attachment_id: attachmentId,
+    });
   }
 
-  public assignToAttachment(attachmentId: number, categoriesCsv: string): Promise<MediaCategoryAssignResponse> {
+  public assignToAttachment(
+    attachmentId: number,
+    categoriesCsv: string,
+  ): Promise<MediaCategoryAssignResponse> {
     return this.dispatch<MediaCategoryAssignResponse>("assign", {
       attachment_id: attachmentId,
-      categories: categoriesCsv
+      categories: categoriesCsv,
     });
   }
 }

@@ -139,6 +139,7 @@ final class AbstractActionControllerTest extends WP_UnitTestCase
      */
     private function dispatch(array $request): array
     {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = $request;
         $_REQUEST = $request;
 

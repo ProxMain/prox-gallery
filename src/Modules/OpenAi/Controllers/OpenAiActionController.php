@@ -6,6 +6,7 @@ namespace Prox\ProxGallery\Modules\OpenAi\Controllers;
 
 use Prox\ProxGallery\Contracts\AdminConfigContributorInterface;
 use Prox\ProxGallery\Controllers\AbstractActionController;
+use Prox\ProxGallery\Controllers\ForbiddenActionException;
 use Prox\ProxGallery\Modules\OpenAi\OpenAiModule;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiSettingsService;
 use Prox\ProxGallery\Modules\OpenAi\Services\OpenAiStoryService;
@@ -75,7 +76,7 @@ final class OpenAiActionController extends AbstractActionController implements A
     {
         return [
             'action' => $action,
-            'settings' => $this->settings->settings(),
+            'settings' => $this->redactSettings($this->settings->settings()),
         ];
     }
 
@@ -86,6 +87,11 @@ final class OpenAiActionController extends AbstractActionController implements A
     public function updateSettings(array $payload, string $action): array
     {
         $normalized = $payload;
+
+        // A blank field leaves the stored key intact; it is never sent back to the browser.
+        if (isset($normalized['api_key']) && trim((string) $normalized['api_key']) === '') {
+            unset($normalized['api_key']);
+        }
 
         if (isset($payload['languages_csv'])) {
             $normalized['languages'] = (string) $payload['languages_csv'];
@@ -101,7 +107,7 @@ final class OpenAiActionController extends AbstractActionController implements A
 
         return [
             'action' => $action,
-            'settings' => $this->settings->update($normalized),
+            'settings' => $this->redactSettings($this->settings->update($normalized)),
         ];
     }
 
@@ -123,6 +129,8 @@ final class OpenAiActionController extends AbstractActionController implements A
      */
     public function generateStory(array $payload, string $action): array
     {
+        $this->assertCanEditAttachment($payload);
+
         return [
             'action' => $action,
             ...$this->stories->generate($payload),
@@ -135,10 +143,33 @@ final class OpenAiActionController extends AbstractActionController implements A
      */
     public function applyStory(array $payload, string $action): array
     {
+        $this->assertCanEditAttachment($payload);
+
         return [
             'action' => $action,
             ...$this->stories->apply($payload),
         ];
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function assertCanEditAttachment(array $payload): void
+    {
+        $id = filter_var($payload['attachment_id'] ?? null, FILTER_VALIDATE_INT);
+
+        if ($id === false || $id === null || $id <= 0 || ! \current_user_can('edit_post', $id)) {
+            throw new ForbiddenActionException();
+        }
+    }
+
+    /** @param array<string, mixed> $settings
+     *  @return array<string, mixed>
+     */
+    private function redactSettings(array $settings): array
+    {
+        $settings['api_key_configured'] = ($settings['api_key'] ?? '') !== '';
+        $settings['api_key'] = '';
+
+        return $settings;
     }
 
     /**

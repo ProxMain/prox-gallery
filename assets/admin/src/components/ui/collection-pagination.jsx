@@ -11,13 +11,19 @@ export function CollectionPagination({
   onPageSizeChange,
   onPreviousPage,
   onNextPage,
-  totalPages
+  totalPages,
 }) {
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const endItem = totalItems === 0 ? 0 : Math.min(totalItems, currentPage * pageSize);
+  const endItem =
+    totalItems === 0 ? 0 : Math.min(totalItems, currentPage * pageSize);
 
   return (
-    <div className={cn("flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 md:flex-row md:items-center md:justify-between", className)}>
+    <div
+      className={cn(
+        "pg-pagination flex flex-col gap-3 px-1 py-3 md:flex-row md:items-center md:justify-between",
+        className,
+      )}
+    >
       <div className="flex flex-wrap items-center gap-3 text-sm text-slate-700">
         <label className="flex items-center gap-2">
           <span>Show</span>
